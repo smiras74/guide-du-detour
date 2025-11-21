@@ -1,201 +1,1020 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guide du Détour · Prototype</title>
+  <meta charset="UTF-8" />
+  <title>Guide du Détour – Prototype</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-<style>
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
 
-/* -----------------------------------
-   ОБЩИЙ ФОН
------------------------------------ */
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #02040a;
-    color: white;
-}
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-main: #020617;
+      --bg-elevated: #020617;
+      --bg-card: rgba(15, 23, 42, 0.96);
+      --bg-card-soft: rgba(15, 23, 42, 0.85);
+      --border-subtle: rgba(148, 163, 184, 0.15);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.15);
+      --accent-secondary: #22d3ee;
+      --danger: #ef4444;
+      --radius-xl: 24px;
+    }
 
-/* -----------------------------------
-   SPLASH ЭКРАН
------------------------------------ */
-#splash {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 50% 30%, #0d1220 0%, #02040a 70%);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-.splash-logo {
-    width: 260px;
-    height: auto;
-    opacity: 0;
-    animation: fadeIn 1.2s ease forwards 0.2s;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 20% 0%, #111827 0, #020617 55%, #000 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
 
-.splash-loader {
-    margin-top: 30px;
-    width: 140px;
-    height: 4px;
-    border-radius: 4px;
-    background: linear-gradient(90deg, #0aff9d, #00d4ff, #0aff9d);
-    background-size: 300% 100%;
-    animation: loadingBar 2.6s infinite linear;
-    opacity: 0.8;
-}
+    /* ---------- LAYOUT ---------- */
 
-.splash-tagline {
-    margin-top: 25px;
-    color: #e8faff;
-    font-size: 1rem;
-    opacity: 0;
-    animation: fadeIn 1.2s ease forwards 0.8s;
-}
+    .app-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 12px 24px;
+    }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+    .app-frame {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
 
-@keyframes loadingBar {
-    0% { background-position: 0% 0%; }
-    100% { background-position: 300% 0%; }
-}
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.18), transparent 55%);
+      color: #e5e7eb;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
 
-/* -----------------------------------
-   ГЛАВНЫЙ ЭКРАН
------------------------------------ */
+    .chip span {
+      opacity: 0.85;
+    }
 
-main {
-    padding: 26px;
-}
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      margin-top: 8px;
+    }
 
-.card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 16px;
-    padding: 16px 20px;
-    margin-bottom: 22px;
-}
+    .title-group h1 {
+      font-size: 24px;
+      margin: 4px 0 2px;
+    }
 
-input, button, select {
-    font-size: 1rem;
-    border-radius: 12px;
-    padding: 12px 14px;
-    border: none;
-}
+    .title-group p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
 
-input {
-    width: 100%;
-    background: rgba(255,255,255,0.08);
-    color: white;
-}
+    .profile-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.1), transparent 55%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
 
-.btn-main {
-    width: 100%;
-    background: #0aff9d;
-    color: #001c10;
-    font-weight: 600;
-    padding: 16px;
-    border-radius: 14px;
-    margin-top: 14px;
-}
+    /* ---------- CARDS & FORM ---------- */
 
-/* -----------------------------------
-   КАРТА (прототип)
------------------------------------ */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.75);
+      padding: 18px 16px 18px;
+      margin-bottom: 14px;
+    }
 
-#map-screen {
-    display: none;
-}
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
 
-.map-header {
-    padding: 20px;
-}
+    .card-header span {
+      opacity: 0.9;
+    }
 
-/* -----------------------------------
-   END CSS
------------------------------------ */
+    .card-header small {
+      opacity: 0.65;
+    }
 
-</style>
+    .field-label {
+      font-size: 10px;
+      letter-spacing: 0.17em;
+      text-transform: uppercase;
+      color: rgba(148, 163, 184, 0.9);
+      margin-bottom: 6px;
+    }
+
+    .field {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .field input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(30, 64, 175, 0.5);
+      padding: 10px 14px 10px 32px;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .field input::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    .field-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    .field-helper {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .inline-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .inline-buttons button {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      font-size: 12px;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .inline-buttons button span.icon {
+      font-size: 14px;
+    }
+
+    /* ---------- SLIDER & TOGGLES ---------- */
+
+    .subtitle {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(148, 163, 184, 0.9);
+      margin-bottom: 6px;
+    }
+
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .slider-caption {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .slider {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #22c55e;
+      border: 3px solid #020617;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.45);
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 6px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.32);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 12px;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .pill.active {
+      background: radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.32), rgba(15, 23, 42, 0.95));
+      border-color: rgba(34, 197, 94, 0.8);
+      color: #ecfdf5;
+    }
+
+    /* ---------- MAIN BUTTON ---------- */
+
+    .primary-button {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      box-shadow:
+        0 16px 40px rgba(22, 163, 74, 0.55),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+      color: #022c22;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 14px 16px;
+      margin-top: 14px;
+      cursor: pointer;
+    }
+
+    .primary-button span {
+      vertical-align: middle;
+    }
+
+    .primary-button span.icon {
+      margin-right: 6px;
+    }
+
+    .hint-text {
+      margin-top: 6px;
+      font-size: 11px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    /* ---------- MAP SCREEN ---------- */
+
+    .screen-hidden {
+      display: none !important;
+    }
+
+    #mapScreen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 12px 24px;
+    }
+
+    #mapContainer {
+      width: 100%;
+      max-width: 480px;
+      height: 520px;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      margin-top: 10px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .map-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 14px 14px 16px;
+      margin-top: 10px;
+    }
+
+    .map-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .map-header strong {
+      font-weight: 600;
+    }
+
+    .map-header button {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-main);
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .map-legend {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .map-actions {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 500;
+    }
+
+    .map-action-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      color: #e5e7eb;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .map-actions .moon {
+      color: #fde68a;
+    }
+
+    .map-actions .center {
+      color: #22c55e;
+    }
+
+    .map-actions .compass {
+      color: #f97316;
+    }
+
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-bottom-button {
+      width: 100%;
+      max-width: 480px;
+      margin-top: 12px;
+    }
+
+    .map-bottom-button button {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #022c22;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+
+    /* ---------- PROFILE MODAL ---------- */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.24), rgba(15, 23, 42, 0.9));
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9000;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 24px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.9);
+      padding: 18px 16px 16px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .modal-header button {
+      border-radius: 999px;
+      border: none;
+      width: 30px;
+      height: 30px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .modal-label {
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .modal input[type="text"] {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 5px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    .tag.active {
+      background: radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.3), rgba(15, 23, 42, 0.95));
+      border-color: rgba(34, 197, 94, 0.9);
+      color: #ecfdf5;
+    }
+
+    .modal-footer {
+      margin-top: 12px;
+    }
+
+    .modal-footer button {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      font-weight: 600;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    .modal-caption {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ---------- SPLASH SCREEN ---------- */
+
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 0%, #111827 0, #020617 55%, #000 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease-out;
+    }
+
+    .splash-screen.splash-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .splash-inner {
+      text-align: center;
+      padding: 24px;
+    }
+
+    .splash-logo {
+      width: 220px;
+      max-width: 70vw;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: splashLogoFade 1s ease-out forwards;
+      animation-delay: 0.2s;
+      image-rendering: -webkit-optimize-contrast;
+    }
+
+    .splash-tagline {
+      margin-top: 16px;
+      color: #e5e7eb;
+      font-size: 15px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: splashTextFade 0.9s ease-out forwards;
+      animation-delay: 0.45s;
+    }
+
+    .splash-progress {
+      margin: 24px auto 0;
+      width: 220px;
+      max-width: 70vw;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      overflow: hidden;
+    }
+
+    .splash-progress-bar {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.6);
+      animation: splashBarFill 4.8s ease-in-out forwards;
+      animation-delay: 0.5s;
+    }
+
+    @keyframes splashLogoFade {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes splashTextFade {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes splashBarFill {
+      to {
+        width: 100%;
+      }
+    }
+
+    /* small screens tweaks */
+    @media (max-width: 400px) {
+      .title-group h1 {
+        font-size: 22px;
+      }
+      .primary-button {
+        font-size: 14px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<!-- -----------------------------------
-     SPLASH SCREEN
------------------------------------ -->
-<div id="splash">
-    <img src="logo_2.png" class="splash-logo" alt="Guide du Détour Logo">
-    <div class="splash-loader"></div>
-    <p class="splash-tagline">Ça vaut le détour — à chaque trajet.</p>
-</div>
+  <!-- SPLASH -->
+  <div class="splash-screen" id="splash">
+    <div class="splash-inner">
+      <img src="logo_2.png" alt="Guide du Détour" class="splash-logo" />
+      <p class="splash-tagline">
+        Ça vaut le détour — à chaque trajet.
+      </p>
+      <div class="splash-progress">
+        <div class="splash-progress-bar"></div>
+      </div>
+    </div>
+  </div>
 
-<!-- -----------------------------------
-     ГЛАВНОЕ ОКНО
------------------------------------ -->
-<main id="home-screen" style="display:none;">
-
-    <h1 style="font-size:1.8rem; margin-bottom:10px;">Bonjour !</h1>
-    <p style="opacity:0.7;">Choisissez un trajet, nous nous occupons des détours.</p>
-
-    <!-- TRAJET -->
-    <div class="card">
-        <h3>Trajet</h3>
-        <label>Point de départ</label>
-        <input type="text" value="Saint-Germain-sur-Morin, France">
-
-        <label style="margin-top:10px;">Destination</label>
-        <input type="text" value="Parc Disneyland, Chessy, France">
-
-        <div style="margin-top:12px; display:flex; gap:12px;">
-            <button style="flex:1; background:#ff4d4d; color:white; border-radius:12px;">
-                📍 Ma position
-            </button>
-            <button style="flex:1; background:#00aaff; color:white; border-radius:12px;">
-                🗺️ Choisir sur la carte
-            </button>
+  <!-- MAIN SCREEN -->
+  <div class="app-shell" id="mainScreen">
+    <div class="app-frame">
+      <header class="app-header">
+        <div>
+          <div class="chip">
+            <span>GUIDE DU DÉTOUR • v0.9.1-beta</span>
+          </div>
+          <div class="title-group">
+            <h1>Bonjour&nbsp;!</h1>
+            <p>Choisissez un trajet, nous nous occupons des détours.</p>
+          </div>
         </div>
+        <button class="profile-badge" id="openProfile">A</button>
+      </header>
+
+      <!-- Trajet -->
+      <section class="card">
+        <div class="card-header">
+          <span>Trajet</span>
+          <small>Prototype – données fictives</small>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label">Point de départ</div>
+          <div class="field">
+            <span class="field-icon">📍</span>
+            <input
+              id="startInput"
+              type="text"
+              value="Saint-Germain-sur-Morin, France"
+            />
+          </div>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label">Destination</div>
+          <div class="field">
+            <span class="field-icon">🏁</span>
+            <input
+              id="endInput"
+              type="text"
+              value="Parc Disneyland, Chessy, France"
+            />
+          </div>
+        </div>
+
+        <div class="inline-buttons">
+          <button id="btnUseMyLocation">
+            <span class="icon">📡</span><span>Ma position → départ</span>
+          </button>
+          <button id="btnChooseOnMap">
+            <span class="icon">🗺️</span><span>Choisir sur la carte</span>
+          </button>
+        </div>
+
+        <p class="field-helper">
+          Touchez les champs pour modifier les adresses. Le choix sur la carte
+          sera affiné dans l'écran suivant.
+        </p>
+      </section>
+
+      <!-- Rayon de liberté -->
+      <section class="card">
+        <div class="subtitle">Rayon de liberté</div>
+        <div class="slider-row">
+          <span>Quelle distance de détour acceptez-vous&nbsp;?</span>
+          <span id="radiusValue">5 km</span>
+        </div>
+        <p class="slider-caption">
+          Plus le rayon est grand, plus nous pouvons proposer de détours
+          intéressants.
+        </p>
+        <input
+          id="radiusSlider"
+          type="range"
+          min="2"
+          max="30"
+          step="1"
+          value="5"
+          class="slider"
+        />
+      </section>
+
+      <!-- Éviter les routes -->
+      <section class="card">
+        <div class="subtitle">Éviter les routes</div>
+        <p class="slider-caption">
+          Nous respectons vos contraintes, tout en gardant le plaisir du
+          détour.
+        </p>
+        <div class="pill-row">
+          <button class="pill" data-avoid="tolls">Péages</button>
+          <button class="pill active" data-avoid="motorways">Autoroutes</button>
+          <button class="pill" data-avoid="unpaved">Routes non goudronnées</button>
+        </div>
+      </section>
+
+      <button class="primary-button" id="btnTraceItinerary">
+        <span class="icon">🚗</span>
+        <span>Tracer mon itinéraire</span>
+      </button>
+
+      <p class="hint-text">
+        La carte et les points d’intérêt seront affichés sur l’écran suivant.
+      </p>
     </div>
+  </div>
 
-    <!-- RAYON -->
-    <div class="card">
-        <h3>Rayon de liberté</h3>
-        <p>Quelle distance de détour acceptez-vous ? <b>5 km</b></p>
-        <div style="height:6px; background:#0aff9d; border-radius:6px; width:140px;"></div>
+  <!-- MAP SCREEN -->
+  <div id="mapScreen" class="screen-hidden">
+    <div class="app-frame">
+      <div class="map-card">
+        <div class="map-header">
+          <div>
+            <strong>Mode carte (prototype)</strong><br />
+            <small id="routeSummary">
+              Guide du Détour · Itinéraire A → B — données fictives
+            </small>
+          </div>
+          <button id="btnBackToMain">← Retour</button>
+        </div>
+      </div>
+
+      <div id="mapContainer">
+        <div class="map-wrapper">
+          <div id="map" style="width: 100%; height: 100%;"></div>
+          <div class="map-actions">
+            <button class="map-action-btn center" title="Retour à ma position">◎</button>
+            <button class="map-action-btn moon" title="Thème nuit">☾</button>
+            <button class="map-action-btn compass" title="Recentrer">🧭</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="map-card">
+        <div class="map-legend">
+          Distance et temps sont approximatifs. Les points verts symbolisent les
+          lieux d’intérêt générés autour du trajet selon votre rayon de liberté.
+        </div>
+      </div>
+
+      <div class="map-bottom-button">
+        <button id="btnStartNav">🚗 Démarrer la navigation</button>
+      </div>
     </div>
+  </div>
 
-    <!-- ROUTES -->
-    <div class="card">
-        <h3>Éviter les routes</h3>
-        <button style="margin-right:8px;">Péages</button>
-        <button style="margin-right:8px; background:#0aff9d;">Autoroutes</button>
-        <button>Routes non goudronnées</button>
+  <!-- PROFILE MODAL -->
+  <div class="modal-backdrop" id="profileModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Profil du voyageur</h2>
+        <button id="closeProfile">×</button>
+      </div>
+
+      <label class="modal-label" for="profileName">Votre prénom</label>
+      <input id="profileName" type="text" placeholder="Comment vous appeler ?" />
+
+      <div class="modal-label">Centres d’intérêt principaux</div>
+      <div class="tag-row" id="interestTags">
+        <div class="tag">Gastronomie</div>
+        <div class="tag">Vignobles</div>
+        <div class="tag">Châteaux</div>
+        <div class="tag">Nature</div>
+        <div class="tag">Famille</div>
+        <div class="tag">Villages cachés</div>
+      </div>
+
+      <div class="modal-label">Préférences</div>
+      <div class="tag-row" id="prefTags">
+        <div class="tag">Suggérer des alternatives</div>
+        <div class="tag">Éviter les grands axes</div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="saveProfile">Enregistrer le profil (démo)</button>
+        <p class="modal-caption">
+          Dans la future application, ce profil sera lié à votre compte
+          (connexion Google / Apple / email).
+        </p>
+      </div>
     </div>
+  </div>
 
-    <button class="btn-main">Tracer mon itinéraire</button>
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
 
-</main>
+  <script>
+    // ---------- SPLASH LOGIC ----------
+    const SPLASH_DURATION = 6500; // 6.5 s
 
-<script>
-/* SPLASH → HOME */
-setTimeout(() => {
-    const splash = document.getElementById("splash");
-    splash.style.opacity = 0;
+    document.addEventListener("DOMContentLoaded", () => {
+      const splash = document.getElementById("splash");
 
-    setTimeout(() => {
-        splash.style.display = "none";
-        document.getElementById("home-screen").style.display = "block";
-    }, 400);
-}, 2600);
-</script>
+      setTimeout(() => {
+        if (!splash) return;
+        splash.classList.add("splash-hidden");
+        setTimeout(() => {
+          splash.remove();
+        }, 450);
+      }, SPLASH_DURATION);
+    });
 
+    // ---------- MAIN UI LOGIC ----------
+    const radiusSlider = document.getElementById("radiusSlider");
+    const radiusValue = document.getElementById("radiusValue");
+    const pills = document.querySelectorAll(".pill");
+    const btnTrace = document.getElementById("btnTraceItinerary");
+    const mainScreen = document.getElementById("mainScreen");
+    const mapScreen = document.getElementById("mapScreen");
+    const btnBackToMain = document.getElementById("btnBackToMain");
+    const btnChooseOnMap = document.getElementById("btnChooseOnMap");
+    const startInput = document.getElementById("startInput");
+    const endInput = document.getElementById("endInput");
+    const openProfile = document.getElementById("openProfile");
+    const profileModal = document.getElementById("profileModal");
+    const closeProfile = document.getElementById("closeProfile");
+    const profileName = document.getElementById("profileName");
+    const interestTags = document.getElementById("interestTags");
+    const prefTags = document.getElementById("prefTags");
+    const saveProfile = document.getElementById("saveProfile");
+    const routeSummary = document.getElementById("routeSummary");
+
+    if (radiusSlider && radiusValue) {
+      radiusSlider.addEventListener("input", () => {
+        radiusValue.textContent = radiusSlider.value + " km";
+      });
+    }
+
+    pills.forEach((pill) => {
+      pill.addEventListener("click", () => {
+        pill.classList.toggle("active");
+      });
+    });
+
+    function openMapScreen() {
+      mainScreen.classList.add("screen-hidden");
+      mapScreen.classList.remove("screen-hidden");
+      updateRouteSummary();
+      setTimeout(initMapOnce, 100);
+    }
+
+    function backToMain() {
+      mapScreen.classList.add("screen-hidden");
+      mainScreen.classList.remove("screen-hidden");
+    }
+
+    btnTrace.addEventListener("click", openMapScreen);
+    btnBackToMain.addEventListener("click", backToMain);
+
+    btnChooseOnMap.addEventListener("click", () => {
+      alert(
+        "Dans la version complète, vous pourrez choisir A et B en touchant la carte. Ici, c'est un prototype d’interface."
+      );
+    });
+
+    function updateRouteSummary() {
+      if (!routeSummary) return;
+      const a = startInput.value || "Point A";
+      const b = endInput.value || "Point B";
+      routeSummary.textContent = `${a} → ${b} · données fictives`;
+    }
+
+    // ---------- PROFILE ----------
+    function toggleTag(evt) {
+      evt.target.classList.toggle("active");
+    }
+
+    if (interestTags) {
+      interestTags.querySelectorAll(".tag").forEach((t) => {
+        t.addEventListener("click", toggleTag);
+      });
+    }
+
+    if (prefTags) {
+      prefTags.querySelectorAll(".tag").forEach((t) => {
+        t.addEventListener("click", toggleTag);
+      });
+    }
+
+    if (openProfile && profileModal && closeProfile) {
+      openProfile.addEventListener("click", () => {
+        profileModal.classList.add("active");
+      });
+      closeProfile.addEventListener("click", () => {
+        profileModal.classList.remove("active");
+      });
+      profileModal.addEventListener("click", (e) => {
+        if (e.target === profileModal) {
+          profileModal.classList.remove("active");
+        }
+      });
+    }
+
+    if (saveProfile) {
+      saveProfile.addEventListener("click", () => {
+        const name = profileName.value.trim();
+        if (name) {
+          alert("Profil enregistré (démo), bon voyage, " + name + " !");
+        } else {
+          alert("Profil enregistré (démo).");
+        }
+        profileModal.classList.remove("active");
+      });
+    }
+
+    // ---------- MAP / LEAFLET ----------
+    let mapInstance = null;
+    let routeLayer = null;
+
+    function initMapOnce() {
+      if (mapInstance) return;
+
+      const mapEl = document.getElementById("map");
+      if (!mapEl) return;
+
+      mapInstance = L.map(mapEl, {
+        zoomControl: false
+      }).setView([48.872, 2.78], 12);
+
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        attribution: "&copy; OpenStreetMap & CartoDB"
+      }).addTo(mapInstance);
+
+      const points = [
+        [48.884, 2.81],
+        [48.871, 2.80],
+        [48.866, 2.79],
+        [48.86, 2.78]
+      ];
+
+      routeLayer = L.polyline(points, {
+        color: "#22c55e",
+        weight: 4,
+        opacity: 0.9
+      }).addTo(mapInstance);
+
+      points.forEach((p, idx) => {
+        const color = idx === 0 ? "#f97373" : idx === points.length - 1 ? "#60a5fa" : "#4ade80";
+        L.circleMarker(p, {
+          radius: 6,
+          color,
+          fillColor: color,
+          fillOpacity: 1
+        }).addTo(mapInstance);
+      });
+
+      mapInstance.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+    }
+
+    const btnStartNav = document.getElementById("btnStartNav");
+    if (btnStartNav) {
+      btnStartNav.addEventListener("click", () => {
+        alert(
+          "Dans la future application, la navigation se lancera dans l’application carte de votre choix."
+        );
+      });
+    }
+  </script>
 </body>
 </html>
