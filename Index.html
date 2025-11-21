@@ -1,1 +1,1106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guide du Détour • v0.9.1-beta</title>
+  <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
 
+  <!-- Leaflet -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root {
+      --bg: #050816;
+      --card: #0b1020;
+      --card-soft: #111827;
+      --accent: #22c55e;
+      --accent-soft: rgba(34,197,94,0.18);
+      --accent-border: #15803d;
+      --text-main: #f9fafb;
+      --text-sub: #9ca3af;
+      --danger: #fb7185;
+      --border-soft: #1f2937;
+      --navy: #020617;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      background: radial-gradient(circle at top, #0b1120 0, #020617 55%, #000 100%);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-frame {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #020617 0, #000 100%);
+      padding: 16px 16px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      padding: 16px 16px 24px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      transition: opacity .35s ease, transform .35s ease;
+      background: transparent;
+    }
+
+    .hidden {
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    /* Intro screen */
+
+    #introScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: radial-gradient(circle at top, #020617 0, #000 65%);
+    }
+
+    .intro-logo {
+      font-size: 26px;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+      margin-bottom: 12px;
+    }
+
+    .intro-sub {
+      font-size: 10px;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 32px;
+    }
+
+    .intro-tagline {
+      font-size: 14px;
+      color: #e5e7eb;
+      margin-top: 32px;
+    }
+
+    .intro-progress {
+      width: 70%;
+      height: 3px;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px #020617, 0 0 32px rgba(34,197,94,.3);
+    }
+
+    .intro-progress-inner {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg,#16a34a,#22c55e,#bbf7d0);
+      box-shadow: 0 0 18px rgba(34,197,94,.8);
+      border-radius: inherit;
+      transition: width 5.5s ease;
+    }
+
+    .intro-footer {
+      position: absolute;
+      bottom: 18px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 11px;
+      color: #4b5563;
+    }
+
+    /* Header main */
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .pill-brand {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }
+
+    .pill-version {
+      font-size: 10px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .btn-profile {
+      border-radius: 999px;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      border: 1px solid #1f2937;
+      background: radial-gradient(circle at top, #111827 0, #020617 70%);
+      color: #e5e7eb;
+      cursor: pointer;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 26px;
+    }
+
+    .subtitle {
+      margin: 0 0 18px;
+      font-size: 14px;
+      color: var(--text-sub);
+    }
+
+    .card {
+      border-radius: 24px;
+      padding: 16px 16px 18px;
+      background: radial-gradient(circle at top left, #0b1120 0, #020617 55%);
+      border: 1px solid #111827;
+      box-shadow: 0 18px 45px rgba(0,0,0,.75);
+    }
+
+    .card + .card { margin-top: 16px; }
+
+    .section-title {
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-input {
+      flex: 1;
+      border-radius: 14px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      padding: 10px 12px;
+      color: #e5e7eb;
+      font-size: 14px;
+    }
+
+    .field-input:focus {
+      outline: none;
+      border-color: #4ade80;
+      box-shadow: 0 0 0 1px rgba(34,197,94,.35);
+    }
+
+    .field-input::placeholder {
+      color: #4b5563;
+    }
+
+    .helper {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #e5e7eb;
+      background: #020617;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-ghost span {
+      margin-left: 4px;
+    }
+
+    /* Rayon de liberté */
+
+    .radius-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .radius-label-main {
+      font-size: 13px;
+    }
+
+    .radius-value {
+      font-size: 13px;
+      color: #bbf7d0;
+    }
+
+    .radius-sub {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    .radius-slider {
+      width: 100%;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: #020617;
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,.25);
+      border: 2px solid #bbf7d0;
+      cursor: pointer;
+    }
+
+    /* Avoid roads */
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill-toggle {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      font-size: 12px;
+      color: #9ca3af;
+      background: #020617;
+      cursor: pointer;
+    }
+
+    .pill-toggle.active {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+      color: #bbf7d0;
+      box-shadow: 0 0 0 1px rgba(34,197,94,.3);
+    }
+
+    /* CTA */
+
+    .btn-primary {
+      margin-top: 18px;
+      border-radius: 999px;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      background: linear-gradient(135deg,#16a34a,#22c55e);
+      color: #020617;
+      font-weight: 700;
+      font-size: 16px;
+      box-shadow: 0 18px 40px rgba(22,163,74,.55);
+      cursor: pointer;
+    }
+
+    .below-cta {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    /* Map screen */
+
+    #mapScreen .card-header {
+      border-radius: 20px;
+      padding: 12px 14px;
+      background: radial-gradient(circle at top left,#020617 0,#000 55%);
+      border: 1px solid #111827;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .map-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .map-title {
+      font-weight: 600;
+    }
+
+    .map-meta {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .btn-back {
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 6px 10px;
+      font-size: 12px;
+      background: #020617;
+      color: #e5e7eb;
+      cursor: pointer;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      font-size: 11px;
+      color: #e5e7eb;
+      cursor: pointer;
+    }
+
+    .chip strong { color: #a5b4fc; }
+
+    #map {
+      width: 100%;
+      height: 60vh;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #111827;
+      margin-bottom: 12px;
+    }
+
+    .map-actions {
+      position: absolute;
+      right: 24px;
+      top: 210px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 500;
+    }
+
+    .map-btn-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .map-footer {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    .btn-nav {
+      border-radius: 999px;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      background: linear-gradient(135deg,#16a34a,#22c55e);
+      color: #020617;
+      font-weight: 700;
+      font-size: 15px;
+      box-shadow: 0 16px 34px rgba(22,163,74,.55);
+      cursor: pointer;
+    }
+
+    /* Profile overlay */
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .profile-card {
+      width: 90%;
+      max-width: 360px;
+      background: #020617;
+      border-radius: 24px;
+      padding: 18px 16px 16px;
+      border: 1px solid #111827;
+      box-shadow: 0 24px 50px rgba(0,0,0,.9);
+    }
+
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .profile-title { font-size: 16px; font-weight: 600; }
+    .profile-close {
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .profile-row {
+      margin-bottom: 12px;
+    }
+
+    .profile-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .profile-input {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 9px 11px;
+      font-size: 14px;
+    }
+
+    .profile-input:focus {
+      outline: none;
+      border-color: #4ade80;
+    }
+
+    .profile-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .profile-chip {
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: #e5e7eb;
+      cursor: pointer;
+    }
+
+    .profile-chip.active {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+      color: #bbf7d0;
+    }
+
+    .profile-footer {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .btn-profile-save {
+      margin-top: 6px;
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 10px;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* Toast */
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #e5e7eb;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid #1f2937;
+      box-shadow: 0 10px 30px rgba(0,0,0,.8);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 1200;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    /* Accessibility tweak on very small screens */
+
+    @media (max-height: 640px) {
+      #map { height: 52vh; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-frame">
+  <!-- Intro screen -->
+  <section id="introScreen" class="screen">
+    <div class="intro-logo">GUIDE DU DÉTOUR</div>
+    <div class="intro-sub">LE VOYAGE HORS DE LA LIGNE DROITE</div>
+
+    <div class="intro-progress" style="margin-bottom:24px;">
+      <div class="intro-progress-inner" id="introProgressInner"></div>
+    </div>
+
+    <div class="intro-tagline">
+      <strong>Ça vaut le détour</strong> — à chaque trajet.
+    </div>
+
+    <div class="intro-footer">
+      Prototype • données fictives • Guide du Détour
+    </div>
+  </section>
+
+  <!-- Main screen -->
+  <section id="mainScreen" class="screen hidden">
+    <header class="top-bar">
+      <div>
+        <div class="pill-brand">Guide du Détour</div>
+        <div class="pill-version">v0.9.1-beta</div>
+      </div>
+      <button class="btn-profile" id="btnOpenProfile">A</button>
+    </header>
+
+    <h1 id="helloTitle">Bonjour&nbsp;!</h1>
+    <p class="subtitle">Choisissez un trajet, nous nous occupons des détours.</p>
+
+    <!-- Trajet card -->
+    <div class="card">
+      <div class="section-title">Trajet</div>
+
+      <div class="field-block">
+        <div class="field-label">Point de départ</div>
+        <div class="field-row">
+          <input id="fromInput" class="field-input"
+                 placeholder="Adresse de départ" />
+        </div>
+      </div>
+
+      <div class="field-block" style="margin-top:10px;">
+        <div class="field-label">Destination</div>
+        <div class="field-row">
+          <input id="toInput" class="field-input"
+                 placeholder="Adresse d’arrivée" />
+        </div>
+      </div>
+
+      <div class="field-row" style="margin-top:10px;">
+        <button class="btn-ghost" id="btnUseMyPosition">
+          📍 Ma position <span>→ départ</span>
+        </button>
+        <button class="btn-ghost" id="btnChooseOnMap">
+          🗺️ Choisir sur la carte
+        </button>
+      </div>
+
+      <div class="helper">
+        Touchez les champs pour modifier les adresses. Le choix sur la carte
+        sera affiné dans l’écran suivant.
+      </div>
+    </div>
+
+    <!-- Radius card -->
+    <div class="card">
+      <div class="section-title">Rayon de liberté</div>
+      <div class="radius-header">
+        <div class="radius-label-main">Quelle distance de détour acceptez-vous ?</div>
+        <div class="radius-value" id="radiusValue">5&nbsp;km</div>
+      </div>
+      <div class="radius-sub">
+        Plus le rayon est grand, plus nous pouvons proposer de détours intéressants.
+      </div>
+      <input id="radiusSlider" type="range" min="1" max="50" value="5"
+             class="radius-slider" />
+    </div>
+
+    <!-- Avoid roads card -->
+    <div class="card">
+      <div class="section-title">Éviter les routes</div>
+      <div class="radius-sub">
+        Nous respectons vos contraintes, tout en gardant le plaisir du détour.
+      </div>
+      <div class="pill-row">
+        <button class="pill-toggle" data-key="tolls">Péages</button>
+        <button class="pill-toggle active" data-key="motorways">Autoroutes</button>
+        <button class="pill-toggle" data-key="unpaved">Routes non goudronnées</button>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btnTraceRoute">
+      Tracer mon itinéraire
+    </button>
+
+    <div class="below-cta">
+      La carte et les points d’intérêt seront affichés sur l’écran suivant.
+    </div>
+  </section>
+
+  <!-- Map screen -->
+  <section id="mapScreen" class="screen hidden">
+    <div class="card-header">
+      <div class="map-header-row">
+        <div class="map-title">Mode carte (prototype)</div>
+        <button class="btn-back" id="btnBackToMain">← Retour</button>
+      </div>
+      <div class="map-meta" id="routeMeta">
+        Guide du Détour · Itinéraire A → B — données fictives
+      </div>
+      <div class="chip-row">
+        <button class="chip" id="chipFrom">
+          <strong>Départ</strong> · <span id="chipFromLabel"></span>
+        </button>
+        <button class="chip" id="chipTo">
+          <strong>Destination</strong> · <span id="chipToLabel"></span>
+        </button>
+      </div>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="map-actions">
+      <button class="map-btn-circle" id="btnCenterOnUser" title="Recentrer sur moi">◎</button>
+      <button class="map-btn-circle" id="btnTheme" title="Thème carte">🌙</button>
+      <button class="map-btn-circle" id="btnCompass" title="Ré-orienter">🧭</button>
+    </div>
+
+    <div class="map-footer">
+      Distance et temps sont approximatifs. Les points verts symbolisent les
+      lieux d’intérêt générés autour du trajet selon votre rayon de liberté.
+    </div>
+
+    <button class="btn-nav" id="btnStartNav">
+      🚗 Démarrer la navigation
+    </button>
+  </section>
+
+  <!-- Profile overlay -->
+  <div id="profileOverlay" class="overlay hidden">
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-title">Profil du voyageur</div>
+        <button class="profile-close" id="btnCloseProfile">×</button>
+      </div>
+
+      <div class="profile-row">
+        <div class="profile-label">Votre prénom</div>
+        <input id="profileName" class="profile-input"
+               placeholder="Comment vous appeler ?" />
+      </div>
+
+      <div class="profile-row">
+        <div class="profile-label">Centres d’intérêt principaux</div>
+        <div class="profile-chips" id="profileInterests">
+          <button class="profile-chip">Gastronomie</button>
+          <button class="profile-chip">Vignobles</button>
+          <button class="profile-chip">Châteaux</button>
+          <button class="profile-chip">Nature</button>
+          <button class="profile-chip">Famille</button>
+          <button class="profile-chip">Villages cachés</button>
+        </div>
+      </div>
+
+      <div class="profile-row">
+        <div class="profile-label">Préférences</div>
+        <div class="profile-chips">
+          <button class="profile-chip">Suggérer des alternatives</button>
+          <button class="profile-chip">Éviter les grands axes</button>
+        </div>
+      </div>
+
+      <button class="btn-profile-save" id="btnSaveProfile">
+        Enregistrer le profil (démo)
+      </button>
+      <div class="profile-footer">
+        Dans la future application, ce profil sera lié à votre compte
+        (connexion Google / Apple / email).
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+</div>
+
+<script>
+  // --- State ---
+  let currentFromLabel =
+    "Saint-Germain-sur-Morin, France";
+  let currentToLabel =
+    "Parc Disneyland, Chessy, France";
+
+  let mapInstance = null;
+  let routeLayer = null;
+  let poiLayer = null;
+  let darkTiles = true;
+
+  const defaultFromCoords = [48.8805, 2.878];   // около Saint-Germain-sur-Morin
+  const defaultToCoords   = [48.8702, 2.7799];  // около Disneyland Paris
+
+  // --- Helpers ---
+
+  function showScreen(id) {
+    ["introScreen","mainScreen","mapScreen"].forEach(s => {
+      const el = document.getElementById(s);
+      if (!el) return;
+      if (s === id) {
+        el.classList.remove("hidden");
+      } else {
+        el.classList.add("hidden");
+      }
+    });
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  function syncInputsFromState() {
+    document.getElementById("fromInput").value = currentFromLabel;
+    document.getElementById("toInput").value = currentToLabel;
+  }
+
+  function syncChipsFromState() {
+    document.getElementById("chipFromLabel").textContent = currentFromLabel;
+    document.getElementById("chipToLabel").textContent = currentToLabel;
+  }
+
+  // --- Intro logic ---
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const introInner = document.getElementById("introProgressInner");
+    requestAnimationFrame(() => {
+      introInner.style.width = "100%";
+    });
+
+    setTimeout(() => {
+      showScreen("mainScreen");
+    }, 5500);
+
+    initMainScreen();
+  });
+
+  // --- Main screen logic ---
+
+  function initMainScreen() {
+    syncInputsFromState();
+
+    const radiusSlider = document.getElementById("radiusSlider");
+    const radiusValue = document.getElementById("radiusValue");
+    radiusSlider.addEventListener("input", () => {
+      radiusValue.textContent = radiusSlider.value + " km";
+    });
+
+    document.querySelectorAll(".pill-toggle").forEach(btn => {
+      btn.addEventListener("click", () => {
+        btn.classList.toggle("active");
+      });
+    });
+
+    document.getElementById("fromInput").addEventListener("input", (e) => {
+      currentFromLabel = e.target.value;
+      syncChipsFromState();
+    });
+    document.getElementById("toInput").addEventListener("input", (e) => {
+      currentToLabel = e.target.value;
+      syncChipsFromState();
+    });
+
+    document.getElementById("btnTraceRoute")
+      .addEventListener("click", () => {
+        const fromVal = document.getElementById("fromInput").value.trim();
+        const toVal = document.getElementById("toInput").value.trim();
+        if (!fromVal || !toVal) {
+          alert("Veuillez renseigner les adresses de départ et de destination.");
+          return;
+        }
+        currentFromLabel = fromVal;
+        currentToLabel = toVal;
+        syncChipsFromState();
+        showScreen("mapScreen");
+        initMapOnce();
+      });
+
+    document.getElementById("btnUseMyPosition")
+      .addEventListener("click", () => {
+        if (!navigator.geolocation) {
+          alert("La géolocalisation n’est pas disponible dans ce navigateur.");
+          return;
+        }
+        navigator.geolocation.getCurrentPosition((pos) => {
+          const { latitude, longitude } = pos.coords;
+          currentFromLabel = "Ma position (" +
+            latitude.toFixed(4) + ", " + longitude.toFixed(4) + ")";
+          syncInputsFromState();
+          syncChipsFromState();
+          showToast("Position actuelle définie comme point de départ (démo).");
+        }, () => {
+          alert("Impossible de récupérer la position.");
+        });
+      });
+
+    document.getElementById("btnChooseOnMap")
+      .addEventListener("click", () => {
+        alert("Dans la version complète, vous pourrez choisir A et B en touchant la carte.\nIci, c’est un prototype d’interface.");
+      });
+
+    // Profil
+    document.getElementById("btnOpenProfile")
+      .addEventListener("click", () => {
+        document.getElementById("profileOverlay").classList.remove("hidden");
+        document.getElementById("profileName").value =
+          currentFromLabel && currentFromLabel.length < 40
+            ? ""
+            : "";
+      });
+
+    document.getElementById("btnCloseProfile")
+      .addEventListener("click", () => {
+        document.getElementById("profileOverlay").classList.add("hidden");
+      });
+
+    document.querySelectorAll("#profileInterests .profile-chip")
+      .forEach(chip => {
+        chip.addEventListener("click", () => {
+          chip.classList.toggle("active");
+        });
+      });
+
+    document.getElementById("btnSaveProfile")
+      .addEventListener("click", () => {
+        const name = document.getElementById("profileName").value.trim();
+        if (name) {
+          document.getElementById("helloTitle").textContent = "Bonjour, " + name + " !";
+        }
+        document.getElementById("profileOverlay").classList.add("hidden");
+        showToast("Profil enregistré (démo).");
+      });
+
+    // Back from map
+    document.getElementById("btnBackToMain")
+      .addEventListener("click", () => {
+        showScreen("mainScreen");
+        syncInputsFromState();
+      });
+
+    // Map screen interactions
+    document.getElementById("chipFrom")
+      .addEventListener("click", () => {
+        const newVal = prompt("Modifier le point de départ :", currentFromLabel);
+        if (newVal !== null && newVal.trim()) {
+          currentFromLabel = newVal.trim();
+          syncChipsFromState();
+          syncInputsFromState();
+          showToast("Adresse de départ mise à jour (démo).");
+        }
+      });
+
+    document.getElementById("chipTo")
+      .addEventListener("click", () => {
+        const newVal = prompt("Modifier la destination :", currentToLabel);
+        if (newVal !== null && newVal.trim()) {
+          currentToLabel = newVal.trim();
+          syncChipsFromState();
+          syncInputsFromState();
+          showToast("Adresse de destination mise à jour (déмо).");
+        }
+      });
+
+    document.getElementById("btnCenterOnUser")
+      .addEventListener("click", () => {
+        if (!mapInstance || !navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition((pos) => {
+          const { latitude, longitude } = pos.coords;
+          mapInstance.setView([latitude, longitude], 14);
+          showToast("Carte recentrée sur votre position (démo).");
+        });
+      });
+
+    document.getElementById("btnTheme")
+      .addEventListener("click", () => {
+        if (!mapInstance) return;
+        toggleTiles();
+      });
+
+    document.getElementById("btnCompass")
+      .addEventListener("click", () => {
+        if (!mapInstance) return;
+        mapInstance.fitBounds([defaultFromCoords, defaultToCoords], { padding: [40,40] });
+        showToast("Carte ré-orientée sur l’itinéraire (démo).");
+      });
+
+    document.getElementById("btnStartNav")
+      .addEventListener("click", () => {
+        showToast("Navigation détaillée sera disponible dans la version native.");
+      });
+
+    // Инициализация чипов
+    syncChipsFromState();
+  }
+
+  // --- Map / Leaflet ---
+
+  let tileLayerLight = null;
+  let tileLayerDark = null;
+
+  function initMapOnce() {
+    if (mapInstance) {
+      // просто обновляем вид
+      mapInstance.invalidateSize();
+      mapInstance.fitBounds([defaultFromCoords, defaultToCoords], { padding: [40,40] });
+      return;
+    }
+
+    mapInstance = L.map("map", {
+      center: defaultFromCoords,
+      zoom: 13,
+      zoomControl: true
+    });
+
+    tileLayerDark = L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      { attribution: "&copy; OpenStreetMap & CartoDB" }
+    ).addTo(mapInstance);
+
+    tileLayerLight = L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { attribution: "&copy; OpenStreetMap" }
+    );
+
+    drawDemoRoute();
+  }
+
+  function drawDemoRoute() {
+    if (!mapInstance) return;
+
+    if (routeLayer) {
+      mapInstance.removeLayer(routeLayer);
+      routeLayer = null;
+    }
+    if (poiLayer) {
+      mapInstance.removeLayer(poiLayer);
+      poiLayer = null;
+    }
+
+    const latlngs = [
+      defaultFromCoords,
+      [48.877, 2.83],
+      [48.873, 2.81],
+      defaultToCoords
+    ];
+
+    routeLayer = L.polyline(latlngs, {
+      color: "#22c55e",
+      weight: 5,
+      opacity: 0.9
+    }).addTo(mapInstance);
+
+    mapInstance.fitBounds(routeLayer.getBounds(), { padding: [40,40] });
+
+    poiLayer = L.layerGroup().addTo(mapInstance);
+    latlngs.forEach((pt, idx) => {
+      if (idx === 0 || idx === latlngs.length - 1) return;
+      L.circleMarker(pt, {
+        radius: 6,
+        color: "#bbf7d0",
+        fillColor: "#22c55e",
+        fillOpacity: 0.9
+      }).addTo(poiLayer);
+    });
+
+    L.circleMarker(defaultFromCoords, {
+      radius: 7,
+      color: "#38bdf8",
+      fillColor: "#0ea5e9",
+      fillOpacity: 0.9
+    }).addTo(poiLayer).bindPopup("Départ (démo)");
+
+    L.circleMarker(defaultToCoords, {
+      radius: 7,
+      color: "#fb7185",
+      fillColor: "#f97373",
+      fillOpacity: 0.9
+    }).addTo(poiLayer).bindPopup("Arrivée (démo)");
+  }
+
+  function toggleTiles() {
+    if (!mapInstance) return;
+    if (darkTiles) {
+      mapInstance.removeLayer(tileLayerDark);
+      mapInstance.addLayer(tileLayerLight);
+      darkTiles = false;
+      showToast("Thème clair (démo).");
+    } else {
+      mapInstance.removeLayer(tileLayerLight);
+      mapInstance.addLayer(tileLayerDark);
+      darkTiles = true;
+      showToast("Thème sombre (démo).");
+    }
+  }
+</script>
+</body>
+</html>
