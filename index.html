@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Super Glass</title>
+  <title>Guide du Détour · Premium Glass & Glare</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -19,30 +19,46 @@
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
       
-      /* GLASS SETTINGS (ULTRA TRANSPARENT) */
-      --glass-border: rgba(255,255,255,0.15);
-      --glass-bg: rgba(2, 6, 23, 0.45); /* Гораздо прозрачнее */
-      --glass-blur: blur(20px); /* Сильное размытие */
+      /* PREMIUM GLASS SETTINGS (DARK) */
+      --glass-blur: blur(24px);
+      /* Градиент: Светлый верх-лево -> Темный низ-право */
+      --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%);
+      /* Более яркая граница */
+      --glass-border: 1px solid rgba(255,255,255,0.2);
+      /* Блик сверху (inset shadow) + Тень снизу */
+      --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 8px 20px rgba(0,0,0,0.2);
       
-      --card-bg: rgba(255, 255, 255, 0.03);
+      /* Subtler glass for cards/pills */
+      --card-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 100%);
+      --card-border: 1px solid rgba(255,255,255,0.1);
+      --card-shadow: inset 0 1px 0.5px rgba(255,255,255,0.2);
+
       --active-card-bg: rgba(34, 197, 94, 0.15);
       --active-text: #4ade80;
-      --nav-bg: rgba(2, 6, 23, 0.85);
+      
+      /* Profile nav gradient */
+      --nav-bg-grad: linear-gradient(to bottom, rgba(2,6,23,0.9) 0%, rgba(2,6,23,0.7) 100%);
     }
 
     [data-theme="light"] {
-      --bg-color: #ffffff;
-      --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+      --bg-color: #f8fafc;
+      --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 100%);
       --text-main: #0f172a;
       --text-sub: #475569;
       
-      --glass-border: rgba(0,0,0,0.08);
-      --glass-bg: rgba(255,255,255,0.65); /* Белое стекло */
+      /* PREMIUM GLASS SETTINGS (LIGHT) */
+      --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+      --glass-border: 1px solid rgba(255,255,255,0.6);
+      /* Белый блик + Мягкая темная тень */
+      --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 15px rgba(0,0,0,0.05);
       
-      --card-bg: #f8fafc;
+      --card-bg-grad: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+      --card-border: 1px solid rgba(0,0,0,0.05);
+      --card-shadow: 0 2px 5px rgba(0,0,0,0.03);
+
       --active-card-bg: #dcfce7; 
       --active-text: #166534;
-      --nav-bg: rgba(255, 255, 255, 0.9);
+      --nav-bg-grad: linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -57,13 +73,16 @@
     .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-    /* --- SPLASH & AUTH & PROFILE (Collapsed for brevity, same logic) --- */
+    /* --- SPLASH & AUTH --- */
     #splash-screen, #auth-screen { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; background: #020617; }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
     .splash-slogan { width: 280px; font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 40px; opacity: 0; animation: fadeUp 1s forwards 0.8s; }
-    .splash-progress { width: 280px; height: 1px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; }
-    .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
     
+    /* FIXED: Loading Bar Styles Restored */
+    .splash-progress { width: 280px; height: 2px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; margin-top: 40px;}
+    .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
+    .loading-text { font-size: 10px; color: #94a3b8; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; animation: fadeUp 1s forwards 0.2s;}
+
     #auth-screen { background: var(--bg-color); justify-content: center; z-index: 90; }
     h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: var(--text-main); }
     .auth-tabs { display: flex; gap: 32px; margin-bottom: 32px; position: relative; width: 100%; }
@@ -71,19 +90,30 @@
     .tab.active { color: var(--text-main); }
     .tab-indicator { position: absolute; bottom: 0; left: 0; height: 3px; width: 20px; background: #4ade80; border-radius: 10px; transition: left 0.3s, width 0.3s; }
     .input-wrapper { width: 100%; margin-bottom: 16px; }
-    .input-field { width: 100%; padding: 18px 16px; border-radius: 20px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main); font-size: 16px; }
+    .input-field { width: 100%; padding: 18px 16px; border-radius: 20px; border: var(--card-border); background: var(--card-bg-grad); color: var(--text-main); font-size: 16px; box-shadow: var(--card-shadow); }
     .divider { width: 100%; display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: #64748b; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--glass-border); }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .social-login { display: flex; gap: 24px; }
-    .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; }
+    .social-btn { width: 56px; height: 56px; border-radius: 50%; border: var(--card-border); background: var(--card-bg-grad); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: var(--card-shadow); }
 
+    @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- PROFILE (GLASS ENHANCED) --- */
     #profile-screen { position: absolute; inset: 0; z-index: 95; display: none; flex-direction: column; background: var(--bg-color); overflow-y: auto; transition: background 0.3s ease; animation: fadeIn 0.4s ease-out; }
-    .profile-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; background: var(--nav-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); }
+    /* Glass Nav with Glare */
+    .profile-nav { 
+        display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; 
+        background: var(--nav-bg-grad);
+        backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+        border-bottom: var(--glass-border);
+        box-shadow: var(--glass-shadow);
+    }
     .nav-title { font-weight: 600; font-size: 17px; color: var(--text-main); opacity: 0.9; }
     .nav-btn { background: none; border: none; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-main); }
     .profile-content { padding: 0 24px 120px 24px; }
     .hero-section { display: flex; flex-direction: column; align-items: center; padding: 40px 0 30px; text-align: center; }
-    .hero-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #334155, #1e293b); display: flex; align-items: center; justify-content: center; font-size: 36px; color: #fff; font-weight: 700; border: 2px solid var(--glass-border); box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); margin-bottom: 20px; position: relative; }
+    .hero-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #334155, #1e293b); display: flex; align-items: center; justify-content: center; font-size: 36px; color: #fff; font-weight: 700; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); margin-bottom: 20px; position: relative; }
     .edit-badge { position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); border: 3px solid var(--bg-color); color: #000; display: flex; align-items: center; justify-content: center; }
     .ghost-input-group { display: flex; flex-direction: column; gap: 4px; width: 100%; align-items: center; }
     .ghost-input { background: transparent; border: none; text-align: center; color: var(--text-main); font-family: inherit; width: 100%; transition: 0.2s; padding: 4px; }
@@ -91,141 +121,102 @@
     .input-name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
     .input-sub { font-size: 15px; color: var(--text-sub); font-weight: 500; }
     .section-header { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 40px 0 16px; display: flex; align-items: center; justify-content: space-between; }
+    
     .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .interest-card { background: var(--card-bg); border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-    .interest-card.active { background: var(--active-card-bg); }
+    /* Glass Cards */
+    .interest-card { 
+        background: var(--card-bg-grad); border: var(--card-border); box-shadow: var(--card-shadow);
+        border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 12px; 
+    }
+    .interest-card.active { background: var(--active-card-bg); border-color: var(--active-text); }
     .interest-name { font-size: 14px; font-weight: 600; color: var(--text-sub); transition: 0.3s; }
     .interest-card.active .interest-name { color: var(--active-text); }
     .interest-card .icon { stroke: var(--text-sub); }
     .interest-card.active .icon { stroke: var(--active-text); }
+    
     .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 40px; }
-    .tag-pill { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.05); color: var(--text-sub); cursor: pointer; }
-    [data-theme="light"] .tag-pill { background: #f1f5f9; }
-    .tag-pill.selected { background: var(--primary); color: #020617; font-weight: 600; }
+    /* Glass Pills */
+    .tag-pill { 
+        padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; cursor: pointer;
+        background: var(--card-bg-grad); border: var(--card-border); color: var(--text-sub); box-shadow: var(--card-shadow);
+    }
+    .tag-pill.selected { background: var(--primary); color: #020617; font-weight: 600; border-color: var(--primary); }
+    
     .settings-list { display: flex; flex-direction: column; gap: 24px; }
     .settings-row { display: flex; align-items: center; justify-content: space-between; }
     .settings-label { font-size: 15px; font-weight: 500; color: var(--text-main); }
-    .segment-pill-wrap { background: rgba(255,255,255,0.05); padding: 3px; border-radius: 99px; display: flex; gap: 2px; }
-    .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
-    .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    /* Glass Segment */
+    .segment-pill-wrap { 
+        background: var(--card-bg-grad); border: var(--card-border); box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        padding: 3px; border-radius: 99px; display: flex; gap: 2px; 
+    }
+    .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition:0.2s;}
+    .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
     .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px 30px; background: linear-gradient(to top, var(--bg-color) 60%, transparent); z-index: 20; display: flex; justify-content: center; }
     .save-btn { width: 100%; max-width: 430px; }
-
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 
-    /* --- 5. MAP SCREEN (SUPER GLASS) --- */
+    /* --- 5. MAP SCREEN (PREMIUM GLASS & GLARE) --- */
     #main-screen { position: absolute; inset: 0; z-index: 10; display: none; }
     #map-container { position: absolute; inset: 0; z-index: 0; background: #0b1120; }
     .leaflet-control-attribution { display: none; }
 
-    /* Top Bar (Ultra Transparent) */
-    .map-top-bar {
-      position: absolute; top: 16px; left: 16px; right: 16px; z-index: 20;
-      display: flex; flex-direction: column; gap: 8px;
-    }
+    /* Top Bar with Glare */
+    .map-top-bar { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
     .route-box {
-      background: var(--glass-bg); /* Using new variable */
-      backdrop-filter: var(--glass-blur); /* Strong Blur */
-      -webkit-backdrop-filter: var(--glass-blur); /* iOS Support */
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 14px 16px;
-      display: flex; flex-direction: column; gap: 10px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      background: var(--glass-bg-grad); /* Gradient background */
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      box-shadow: var(--glass-shadow); /* Glare + Shadow */
+      border-radius: 24px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
     }
     .route-row { display: flex; align-items: center; gap: 12px; }
     .route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .dot-start { background: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
     .dot-end { background: var(--primary); box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
-    
-    .route-input {
-      width: 100%; background: transparent; border: none;
-      font-size: 15px; color: var(--text-main); font-weight: 500;
-      padding: 4px 0; text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
+    .route-input { width: 100%; background: transparent; border: none; font-size: 15px; color: var(--text-main); font-weight: 500; padding: 4px 0; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
     .route-input::placeholder { color: var(--text-sub); opacity: 0.8; }
     .route-input:focus { outline: none; }
-    .divider-h { height: 1px; background: var(--glass-border); margin-left: 20px; opacity: 0.5; }
+    .divider-h { height: 1px; background: rgba(255,255,255,0.1); margin-left: 20px; }
 
-    /* Side Buttons (Glassy) */
-    .map-side-btns {
-      position: absolute; right: 16px; top: 150px; z-index: 20;
-      display: flex; flex-direction: column; gap: 12px;
-    }
+    /* Side Buttons with Glare */
+    .map-side-btns { position: absolute; right: 16px; top: 150px; z-index: 20; display: flex; flex-direction: column; gap: 12px; }
     .side-btn {
       width: 44px; height: 44px; border-radius: 50%;
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      color: var(--text-main);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer;
-      transition: 0.2s;
+      background: var(--glass-bg-grad);
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border); box-shadow: var(--glass-shadow);
+      color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
     }
     .side-btn:active { transform: scale(0.92); }
-    /* Avatar on map is now user char */
     .side-btn.avatar-btn { font-weight: 700; font-size: 16px; }
 
-    /* Bottom Cockpit (Floating Gradient) */
+    /* Bottom Panel */
     .map-bottom-panel {
-      position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
-      padding: 20px 16px 34px;
-      /* Only dark gradient at the very bottom */
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; padding: 20px 16px 34px;
       background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-      display: flex; flex-direction: column; gap: 12px;
-      pointer-events: none;
+      display: flex; flex-direction: column; gap: 12px; pointer-events: none;
     }
     .avoid-row, .go-btn-row { pointer-events: auto; }
-
-    .avoid-row {
-      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
-      justify-content: center; 
-    }
+    .avoid-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; justify-content: center; }
+    /* Avoid Buttons with Glare */
     .avoid-btn {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 8px 12px; border-radius: 14px;
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      color: var(--text-sub); font-size: 12px; font-weight: 600;
-      cursor: pointer; transition: 0.2s; white-space: nowrap;
+      display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 14px;
+      background: var(--glass-bg-grad);
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border); box-shadow: var(--glass-shadow);
+      color: var(--text-sub); font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap;
     }
-    .avoid-btn.active {
-      background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444;
-    }
+    .avoid-btn.active { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444; box-shadow: inset 0 1px 1px rgba(239, 68, 68, 0.3); }
     .avoid-btn .icon { width: 14px; height: 14px; }
-
     .go-btn-row { display: flex; width: 100%; }
-    .go-btn {
-      flex: 1; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
-      backdrop-filter: none; 
-    }
+    .go-btn { flex: 1; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); backdrop-filter: none; }
 
-    /* --- CUSTOM MARKER STYLE (BRANDED) --- */
-    .user-marker-brand {
-        position: relative;
-        width: 20px; height: 20px;
-        background: #22c55e; /* Neon Green */
-        border: 3px solid #020617; /* Dark Border to pop */
-        border-radius: 50%;
-        box-shadow: 0 0 10px #22c55e;
-    }
-    /* The Pulse Ring */
-    .user-marker-brand::after {
-        content: ''; position: absolute;
-        top: -10px; left: -10px; right: -10px; bottom: -10px;
-        border-radius: 50%;
-        border: 2px solid #22c55e;
-        opacity: 0;
-        animation: pulse-green 2s infinite;
-    }
-    @keyframes pulse-green {
-        0% { transform: scale(0.5); opacity: 1; border-width: 4px; }
-        100% { transform: scale(1.5); opacity: 0; border-width: 0px; }
-    }
-
+    /* BRAND MARKER */
+    .user-marker-brand { position: relative; width: 20px; height: 20px; background: #22c55e; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #22c55e; }
+    .user-marker-brand::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 2px solid #22c55e; opacity: 0; animation: pulse-green 2s infinite; }
+    @keyframes pulse-green { 0% { transform: scale(0.5); opacity: 1; border-width: 4px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
   </style>
 </head>
 <body>
@@ -330,7 +321,8 @@
     </div>
 
     <div class="map-side-btns">
-      <button class="side-btn avatar-btn" id="btn-profile-open">A</button> <button class="side-btn" id="btn-locate"><svg class="icon"><use href="#icon-loc"></use></svg></button>
+      <button class="side-btn avatar-btn" id="btn-profile-open">A</button>
+      <button class="side-btn" id="btn-locate"><svg class="icon"><use href="#icon-loc"></use></svg></button>
     </div>
 
     <div class="map-bottom-panel">
@@ -430,7 +422,7 @@
           if(mode === 'light') document.documentElement.setAttribute('data-theme', 'light');
           else if (mode === 'dark') document.documentElement.removeAttribute('data-theme');
           else { if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', 'light'); }
-          updateMapTheme(); // Reload map tiles
+          updateMapTheme(); 
       });
   });
 
@@ -454,7 +446,6 @@
     map = L.map('map-container', { zoomControl: false }).setView([48.8566, 2.3522], 13);
     updateMapTheme();
     
-    // NEW BRAND MARKER
     const icon = L.divIcon({ 
         className: 'custom-div-icon',
         html: "<div class='user-marker-brand'></div>",
