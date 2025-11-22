@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Refined Auth</title>
+  <title>Guide du Détour · Premium Auth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,10 +12,8 @@
     :root {
       --bg: #020617;
       --primary: #22c55e;
-      --text-main: #f8fafc;
+      --text-main: #ffffff;
       --text-sub: #94a3b8;
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --glass-bg: rgba(255, 255, 255, 0.03);
     }
 
     * { box-sizing: border-box; }
@@ -32,48 +30,48 @@
 
     .app-shell {
       width: 100%; max-width: 430px; height: 100vh;
-      background: radial-gradient(circle at top left, #0f172a, #020617 60%);
+      background: radial-gradient(circle at top, #1e293b 0%, #020617 80%);
       overflow: hidden; position: relative;
     }
 
-    /* --- UI COMPONENTS --- */
+    /* --- UI COMPONENTS REFINED --- */
     
-    /* Кнопка стала аккуратнее */
+    /* Кнопка: убрали "грязную" тень, добавили чистоты */
     .btn-primary {
-      width: 100%; padding: 15px; border-radius: 16px; border: none;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #020617; font-weight: 600; font-size: 16px; cursor: pointer;
-      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.25); /* Мягкая тень */
-      transition: transform 0.1s, box-shadow 0.2s;
-      letter-spacing: -0.01em;
+      width: 100%; padding: 16px; border-radius: 20px; border: none;
+      background: #22c55e; /* Чистый цвет */
+      color: #020617; font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
+      cursor: pointer;
+      transform: scale(1); transition: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
-    .btn-primary:active { transform: scale(0.98); box-shadow: 0 2px 10px rgba(34, 197, 94, 0.2); }
+    .btn-primary:active { transform: scale(0.96); opacity: 0.9; }
 
-    .input-wrapper { position: relative; margin-bottom: 16px; }
+    .input-wrapper { position: relative; margin-bottom: 20px; }
     
-    /* Поля ввода - Glassmorphism (Стекло) */
+    /* Поля ввода: СВЕТЛЕЕ границы, эффект стекла */
     .input-field {
-      width: 100%; padding: 16px 16px 15px; border-radius: 16px;
-      border: 1px solid var(--glass-border); 
-      background: var(--glass-bg); /* Полупрозрачный фон */
-      color: #fff; font-size: 15px;
-      transition: all 0.2s ease;
+      width: 100%; padding: 18px 16px 14px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.15); /* Светлая тонкая рамка */
+      background: rgba(255,255,255,0.03); /* Едва заметный фон */
+      color: #fff; font-size: 16px;
+      transition: all 0.3s ease;
     }
+    
     .input-field:focus { 
       outline: none; 
-      border-color: rgba(34, 197, 94, 0.5); 
-      background: rgba(255, 255, 255, 0.06);
+      border-color: #22c55e; 
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1); /* Легкое свечение */
     }
     
     .input-label { 
-      position: absolute; left: 16px; top: 16px; font-size: 15px; color: #64748b; 
+      position: absolute; left: 18px; top: 18px; font-size: 15px; color: #64748b; 
       pointer-events: none; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); 
     }
     .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label {
-      top: 6px; font-size: 10px; color: var(--primary); transform: translateY(-2px);
+      top: 7px; font-size: 11px; color: #22c55e; font-weight: 600; letter-spacing: 0.02em;
     }
-    /* Хак чтобы лейбл не уезжал при focus, а просто уменьшался внутри поля */
-    .input-field { padding-top: 22px; padding-bottom: 10px; }
+    .input-field { padding-top: 24px; padding-bottom: 10px; }
 
 
     /* --- 1. SPLASH SCREEN --- */
@@ -84,7 +82,7 @@
     }
     
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(15px); }
+      from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
@@ -101,7 +99,7 @@
       opacity: 0; animation: fadeUp 1s ease-out forwards; animation-delay: 0.1s;
     }
     .splash-progress-bar {
-      position: absolute; inset: 0; background: linear-gradient(90deg, transparent, #22c55e, transparent);
+      position: absolute; inset: 0; background: #22c55e;
       transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards;
     }
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
@@ -111,48 +109,47 @@
     }
 
 
-    /* --- 2. AUTH SCREEN (REFINED) --- */
+    /* --- 2. AUTH SCREEN (PREMIUM) --- */
     #auth-screen {
       position: absolute; inset: 0; z-index: 90; display: none;
       flex-direction: column; justify-content: center; padding: 32px;
-      background: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 70%); /* Более глубокий фон */
+      /* Фон чуть сложнее */
+      background: radial-gradient(120% 50% at 50% 0%, #1e293b 0%, #020617 100%);
     }
     
-    /* Заголовки */
-    h1.auth-title { font-size: 32px; font-weight: 700; margin: 0 0 8px; color: #fff; letter-spacing: -0.02em; }
-    p.auth-subtitle { font-size: 15px; color: #94a3b8; margin: 0 0 40px; line-height: 1.5; }
+    h1.auth-title { font-size: 34px; font-weight: 700; margin: 0 0 10px; color: #fff; letter-spacing: -0.02em; }
+    p.auth-subtitle { font-size: 15px; color: #94a3b8; margin: 0 0 48px; line-height: 1.5; font-weight: 400; }
 
-    /* Новые ТАБЫ (Минимализм) */
+    /* Табы */
     .auth-tabs { 
-      display: flex; gap: 24px; margin-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.05); 
-      padding-bottom: 0; /* Линия на всю ширину */
+      display: flex; gap: 32px; margin-bottom: 32px; 
+      /* Убрали линию на всю ширину, оставили только под активным */
+      position: relative;
     }
     .tab { 
-      background: none; border: none; padding: 0 0 12px 0; 
-      font-size: 16px; color: #64748b; font-weight: 500; cursor: pointer; 
-      position: relative; transition: color 0.3s;
+      background: none; border: none; padding: 0 0 8px 0; 
+      font-size: 16px; color: #64748b; font-weight: 600; cursor: pointer; 
+      transition: color 0.3s;
     }
     .tab.active { color: #fff; }
-    .tab.active::after {
-      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; 
-      background: #22c55e; border-radius: 2px 2px 0 0;
-      box-shadow: 0 -2px 8px rgba(34,197,94,0.6); /* Свечение активной вкладки */
+    /* Анимированная точка вместо линии */
+    .tab-indicator {
+      position: absolute; bottom: 0; left: 0; height: 2px; width: 20px;
+      background: #22c55e; border-radius: 2px; transition: left 0.3s ease, width 0.3s ease;
     }
     
-    /* Разделитель */
-    .divider { display: flex; align-items: center; margin: 32px 0 24px; font-size: 13px; color: #475569; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .divider span { padding: 0 12px; }
+    .divider { display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: #475569; font-weight: 500; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .divider span { padding: 0 16px; }
 
-    /* Соцсети - теперь круглые */
-    .social-login { display: flex; justify-content: center; gap: 20px; }
+    .social-login { display: flex; justify-content: center; gap: 24px; }
     .social-btn { 
-      width: 52px; height: 52px; border-radius: 50%; /* КРУГЛЫЕ */
-      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); 
-      color: #e2e8f0; display: flex; align-items: center; justify-content: center; 
-      font-size: 20px; cursor: pointer; transition: 0.2s;
+      width: 56px; height: 56px; border-radius: 50%; 
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.02); 
+      color: #fff; display: flex; align-items: center; justify-content: center; 
+      font-size: 22px; cursor: pointer; transition: 0.2s;
     }
-    .social-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+    .social-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.05); }
 
 
     /* --- 3. PROFILE SCREEN --- */
@@ -162,7 +159,7 @@
       background: #020617; overflow-y: auto;
       animation: fadeInScreen 0.4s ease-out;
     }
-    @keyframes fadeInScreen { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInScreen { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .profile-header { margin-top: 40px; margin-bottom: 30px; }
     .profile-header h1 { font-size: 28px; margin: 0 0 8px; color: #fff; }
     .profile-header p { margin: 0; font-size: 15px; color: #9ca3af; line-height: 1.4; }
@@ -201,6 +198,7 @@
     <div class="auth-tabs">
       <button class="tab active" id="tab-login">Connexion</button>
       <button class="tab" id="tab-register">Inscription</button>
+      <div class="tab-indicator" id="tab-line"></div>
     </div>
 
     <div class="input-wrapper">
@@ -271,7 +269,8 @@
     tabLogin: document.getElementById('tab-login'),
     tabRegister: document.getElementById('tab-register'),
     authBtn: document.getElementById('btn-auth-action'),
-    socialBtns: document.querySelectorAll('.social-btn')
+    socialBtns: document.querySelectorAll('.social-btn'),
+    tabLine: document.getElementById('tab-line')
   };
 
   let isRegisterMode = false;
@@ -280,6 +279,7 @@
     setTimeout(() => {
       els.splash.style.display = 'none';
       showScreen('auth');
+      updateTabLine(els.tabLogin); // Init line position
     }, 6000);
   });
 
@@ -293,8 +293,21 @@
     if(name === 'main') els.main.style.display = 'block';
   }
 
-  els.tabLogin.addEventListener('click', () => setAuthMode(false));
-  els.tabRegister.addEventListener('click', () => setAuthMode(true));
+  // Tab Animation Logic
+  function updateTabLine(activeTab) {
+    els.tabLine.style.width = activeTab.offsetWidth + 'px';
+    els.tabLine.style.left = activeTab.offsetLeft + 'px';
+  }
+
+  els.tabLogin.addEventListener('click', () => {
+    setAuthMode(false);
+    updateTabLine(els.tabLogin);
+  });
+
+  els.tabRegister.addEventListener('click', () => {
+    setAuthMode(true);
+    updateTabLine(els.tabRegister);
+  });
 
   function setAuthMode(isRegister) {
     isRegisterMode = isRegister;
