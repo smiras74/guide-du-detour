@@ -2,201 +2,222 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Map & Routing</title>
+  <title>Guide du Détour · Glass Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* --- 1. GLOBAL VARIABLES --- */
+    /* --- 1. VARIABLES --- */
     :root {
       /* DARK (Default) */
       --bg-color: #020617;
       --bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
       --text-main: #ffffff;
       --text-sub: #94a3b8;
-      --text-muted: #64748b;
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
       
-      --glass-border: rgba(255,255,255,0.08);
-      --glass-bg: rgba(255,255,255,0.03);
-      --glass-blur: blur(12px);
+      /* GLASS UI (More transparent) */
+      --glass-border: rgba(255,255,255,0.1);
+      --glass-bg: rgba(15, 23, 42, 0.4); /* Более прозрачный фон */
+      --glass-blur: blur(16px); /* Сильное размытие */
       
-      --card-bg: rgba(2, 6, 23, 0.85); /* Darker background for panels */
-      
+      --card-bg: rgba(255, 255, 255, 0.03);
       --active-card-bg: rgba(34, 197, 94, 0.15);
       --active-text: #4ade80;
-      
       --nav-bg: rgba(2, 6, 23, 0.85);
-      
-      --map-ui-bg: rgba(15, 23, 42, 0.9);
     }
 
-    /* LIGHT THEME */
     [data-theme="light"] {
       --bg-color: #ffffff;
       --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
       --text-main: #0f172a;
       --text-sub: #475569;
-      --text-muted: #94a3b8;
-      
-      --glass-border: rgba(0,0,0,0.08);
-      --glass-bg: rgba(255,255,255,0.9);
-      
-      --card-bg: #ffffff;
+      --glass-border: rgba(0,0,0,0.05);
+      --glass-bg: rgba(255,255,255,0.6); /* Прозрачный белый */
+      --card-bg: #f8fafc;
       --active-card-bg: #dcfce7; 
       --active-text: #166534;
-      --nav-bg: rgba(255, 255, 255, 0.95);
-      
-      --map-ui-bg: #ffffff;
+      --nav-bg: rgba(255, 255, 255, 0.8);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; background: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background 0.3s ease, color 0.3s ease; }
+    html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; background: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background 0.3s ease; }
     body { display: flex; justify-content: center; align-items: stretch; }
-    .app-shell { width: 100%; max-width: 430px; height: 100vh; background: var(--bg-gradient); overflow: hidden; position: relative; transition: background 0.3s ease; }
+    .app-shell { width: 100%; max-width: 430px; height: 100vh; background: var(--bg-gradient); overflow: hidden; position: relative; }
 
     /* --- UI KIT --- */
     .btn-primary { width: 100%; padding: 16px; border-radius: 24px; border: none; background: var(--primary-grad); color: #020617; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px -6px rgba(34, 197, 94, 0.6); transform: scale(1); transition: 0.2s; }
     .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
-    ::-webkit-scrollbar { width: 0px; background: transparent; }
-    
-    /* ICONS */
-    .icon { width: 24px; height: 24px; stroke-width: 2; stroke: currentColor; fill: none; transition: 0.3s; }
-    .icon-sm { width: 18px; height: 18px; }
+    .icon { width: 24px; height: 24px; stroke-width: 2; stroke: currentColor; fill: none; }
     .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
+    ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-    /* --- 2. SPLASH & 3. AUTH & 4. PROFILE (Hidden Logic) --- */
-    /* (Для краткости стили Splash/Auth/Profile свернуты, но они есть, чтобы все работало) */
-    #splash-screen, #auth-screen, #profile-screen { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; }
-    #splash-screen { background: #020617; align-items: center; justify-content: center; padding: 30px; }
+    /* --- SPLASH & AUTH (Standard) --- */
+    #splash-screen, #auth-screen { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; background: #020617; }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
     .splash-slogan { width: 280px; font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 40px; opacity: 0; animation: fadeUp 1s forwards 0.8s; }
     .splash-progress { width: 280px; height: 1px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; }
     .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
     
-    /* Auth Styles Simplified */
-    #auth-screen { padding: 32px; justify-content: center; background: var(--bg-color); z-index: 90; }
+    #auth-screen { background: var(--bg-color); justify-content: center; z-index: 90; }
     h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: var(--text-main); }
-    .input-field { width: 100%; padding: 18px 16px 14px; border-radius: 20px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main); font-size: 16px; margin-bottom: 16px; }
-    
-    /* Profile Styles Simplified */
-    #profile-screen { background: var(--bg-color); overflow-y: auto; z-index: 95; }
-    .profile-nav { display: flex; justify-content: space-between; padding: 16px 20px; background: var(--nav-bg); border-bottom: 1px solid var(--glass-border); }
-    .profile-content { padding: 20px; }
-    .settings-list { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; }
-    .segment-pill-wrap { background: var(--glass-bg); padding: 3px; border-radius: 99px; display: flex; gap: 2px; }
-    .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; color: var(--text-sub); }
-    .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .auth-tabs { display: flex; gap: 32px; margin-bottom: 32px; position: relative; width: 100%; }
+    .tab { background: none; border: none; padding: 0 0 8px 0; font-size: 16px; color: rgba(255,255,255,0.5); font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .tab.active { color: var(--text-main); }
+    .tab-indicator { position: absolute; bottom: 0; left: 0; height: 3px; width: 20px; background: #4ade80; border-radius: 10px; transition: left 0.3s, width 0.3s; }
+    .input-wrapper { width: 100%; margin-bottom: 16px; }
+    .input-field { width: 100%; padding: 18px 16px; border-radius: 20px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main); font-size: 16px; }
+    .divider { width: 100%; display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: #64748b; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--glass-border); }
+    .social-login { display: flex; gap: 24px; }
+    .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; }
 
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-
-    /* --- 5. MAIN SCREEN (MAP) - NEW DESIGN --- */
-    #main-screen { position: absolute; inset: 0; z-index: 10; display: none; }
+    /* --- PROFILE (From Previous Best Version) --- */
+    #profile-screen { position: absolute; inset: 0; z-index: 95; display: none; flex-direction: column; background: var(--bg-color); overflow-y: auto; transition: background 0.3s ease; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .profile-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; background: var(--nav-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); }
+    .nav-title { font-weight: 600; font-size: 17px; color: var(--text-main); opacity: 0.9; }
+    .nav-btn { background: none; border: none; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-main); }
+    .profile-content { padding: 0 24px 120px 24px; }
     
-    /* MAP CONTAINER */
-    #map-container {
-      position: absolute; inset: 0; z-index: 0;
-      background: #0b1120; /* Fallback color */
-    }
-    /* Leaflet overrides */
-    .leaflet-control-attribution { display: none; } /* Hide footer for clean look */
+    .hero-section { display: flex; flex-direction: column; align-items: center; padding: 40px 0 30px; text-align: center; }
+    .hero-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #334155, #1e293b); display: flex; align-items: center; justify-content: center; font-size: 36px; color: #fff; font-weight: 700; border: 2px solid var(--glass-border); box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); margin-bottom: 20px; position: relative; }
+    .edit-badge { position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); border: 3px solid var(--bg-color); color: #000; display: flex; align-items: center; justify-content: center; }
+    .ghost-input-group { display: flex; flex-direction: column; gap: 4px; width: 100%; align-items: center; }
+    .ghost-input { background: transparent; border: none; text-align: center; color: var(--text-main); font-family: inherit; width: 100%; transition: 0.2s; padding: 4px; }
+    .ghost-input:focus { background: rgba(255,255,255,0.05); border-radius: 8px; outline: none; }
+    .input-name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .input-sub { font-size: 15px; color: var(--text-sub); font-weight: 500; }
 
-    /* TOP FLOATING SEARCH */
+    .section-header { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 40px 0 16px; display: flex; align-items: center; justify-content: space-between; }
+    .section-hint { font-size: 13px; color: #64748b; font-weight: 400; }
+    .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .interest-card { background: var(--card-bg); border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .interest-card.active { background: var(--active-card-bg); }
+    .interest-name { font-size: 14px; font-weight: 600; color: var(--text-sub); transition: 0.3s; }
+    .interest-card.active .interest-name { color: var(--active-text); }
+    .interest-card .icon { stroke: var(--text-sub); }
+    .interest-card.active .icon { stroke: var(--active-text); }
+
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 40px; }
+    .tag-pill { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.05); color: var(--text-sub); cursor: pointer; }
+    [data-theme="light"] .tag-pill { background: #f1f5f9; }
+    .tag-pill.selected { background: var(--primary); color: #020617; font-weight: 600; }
+
+    .settings-list { display: flex; flex-direction: column; gap: 24px; }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; }
+    .settings-info { display: flex; flex-direction: column; }
+    .settings-label { font-size: 15px; font-weight: 500; color: var(--text-main); }
+    .segment-pill-wrap { background: rgba(255,255,255,0.05); padding: 3px; border-radius: 99px; display: flex; gap: 2px; }
+    .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
+    .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    
+    .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px 30px; background: linear-gradient(to top, var(--bg-color) 60%, transparent); z-index: 20; display: flex; justify-content: center; }
+    .save-btn { width: 100%; max-width: 430px; }
+
+
+    /* --- 5. MAP SCREEN (GLASS REFINED) --- */
+    #main-screen { position: absolute; inset: 0; z-index: 10; display: none; }
+    #map-container { position: absolute; inset: 0; z-index: 0; background: #0b1120; }
+    .leaflet-control-attribution { display: none; }
+
+    /* Top Bar (More Transparent) */
     .map-top-bar {
-      position: absolute; top: 20px; left: 20px; right: 20px; z-index: 20;
+      position: absolute; top: 16px; left: 16px; right: 16px; z-index: 20;
       display: flex; flex-direction: column; gap: 8px;
     }
-    
     .route-box {
-      background: var(--map-ui-bg);
+      background: var(--glass-bg); /* Translucent */
+      backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
-      backdrop-filter: blur(12px);
       border-radius: 24px;
-      padding: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      display: flex; flex-direction: column; gap: 12px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1); /* Soft shadow */
     }
-
     .route-row { display: flex; align-items: center; gap: 12px; }
-    .route-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .dot-start { background: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
-    .dot-end { background: var(--primary); box-shadow: 0 0 8px rgba(34, 197, 94, 0.5); }
+    .route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-start { background: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
+    .dot-end { background: var(--primary); box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
     
     .route-input {
       width: 100%; background: transparent; border: none;
       font-size: 15px; color: var(--text-main); font-weight: 500;
-      padding: 4px 0;
+      padding: 4px 0; text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
-    .route-input::placeholder { color: var(--text-muted); }
+    .route-input::placeholder { color: var(--text-sub); opacity: 0.7; }
     .route-input:focus { outline: none; }
-    
-    .divider-h { height: 1px; background: var(--glass-border); margin-left: 22px; }
+    .divider-h { height: 1px; background: var(--glass-border); margin-left: 20px; opacity: 0.5; }
 
-    /* SIDE BUTTONS */
+    /* Side Buttons (Transparent) */
     .map-side-btns {
-      position: absolute; right: 20px; top: 160px; z-index: 20;
+      position: absolute; right: 16px; top: 150px; z-index: 20;
       display: flex; flex-direction: column; gap: 12px;
     }
     .side-btn {
       width: 44px; height: 44px; border-radius: 50%;
-      background: var(--map-ui-bg); border: 1px solid var(--glass-border);
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      backdrop-filter: var(--glass-blur);
       color: var(--text-main);
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer;
-      backdrop-filter: blur(4px); transition: 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer;
+      transition: 0.2s;
     }
     .side-btn:active { transform: scale(0.92); }
+    .side-btn.avatar-btn { font-weight: 700; font-size: 16px; background: rgba(34, 197, 94, 0.2); border-color: var(--primary); color: #4ade80; }
 
-    /* BOTTOM COCKPIT (CONTROLS) */
+    /* Bottom Cockpit (Transparent) */
     .map-bottom-panel {
       position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
-      padding: 20px 24px 34px;
-      background: linear-gradient(to top, var(--nav-bg) 80%, transparent);
-      display: flex; flex-direction: column; gap: 16px;
+      padding: 20px 16px 34px;
+      /* Gradient only at very bottom to fade map */
+      background: linear-gradient(to top, rgba(2,6,23,0.9) 0%, rgba(2,6,23,0.6) 40%, transparent 100%);
+      display: flex; flex-direction: column; gap: 12px;
+      pointer-events: none; /* Let clicks pass through gradient area */
     }
+    /* Re-enable pointer events for buttons */
+    .avoid-row, .go-btn-row { pointer-events: auto; }
 
-    /* AVOIDANCE BUTTONS ROW */
     .avoid-row {
-      display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
-      /* Hide scrollbar */
-      -ms-overflow-style: none; scrollbar-width: none; 
+      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
+      justify-content: center; /* Center buttons */
     }
-    .avoid-row::-webkit-scrollbar { display: none; }
-
     .avoid-btn {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 10px 14px; border-radius: 16px;
-      background: var(--map-ui-bg); border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 12px; border-radius: 14px;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px); /* Heavy blur for readability */
       color: var(--text-sub); font-size: 12px; font-weight: 600;
       cursor: pointer; transition: 0.2s; white-space: nowrap;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    
-    /* Active state = Excluded (Red/Orange warning or Green preference?) 
-       Let's use "Active" color to mean "Option ON" (Avoidance ON) */
     .avoid-btn.active {
-      background: rgba(239, 68, 68, 0.15); /* Redish tint */
-      border-color: #ef4444;
-      color: #ef4444;
+      background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444;
     }
-    .avoid-btn .icon { width: 16px; height: 16px; stroke-width: 2.5; }
+    .avoid-btn .icon { width: 14px; height: 14px; }
 
-    .go-btn-row { display: flex; gap: 12px; align-items: center; }
-    .go-btn { flex: 1; }
-    
-    /* Avatar on map */
-    .map-avatar-btn {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: var(--map-ui-bg); border: 1px solid var(--glass-border);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-main); font-weight: 700; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    .go-btn-row { display: flex; width: 100%; }
+    .go-btn {
+      flex: 1; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+      /* Ensure button is readable over map */
+      backdrop-filter: none; 
+    }
+
+    /* MAP MARKER PULSE */
+    .user-marker-pulse {
+        width: 16px; height: 16px; background: #3b82f6; border-radius: 50%;
+        border: 2px solid white; box-shadow: 0 0 0 rgba(59, 130, 246, 0.4);
+        animation: pulse-blue 2s infinite;
+    }
+    @keyframes pulse-blue {
+        0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
     }
 
   </style>
@@ -204,9 +225,19 @@
 <body>
 
 <svg style="display: none;">
-  <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
+  <symbol id="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
+  <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></symbol>
+  <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
   <symbol id="icon-loc" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></symbol>
-  <symbol id="icon-toll" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></symbol> <symbol id="icon-hwy" viewBox="0 0 24 24"><path d="M8 2L5 22"></path><path d="M16 2l3 20"></path><path d="M12 12h.01"></path><line x1="12" y1="2" x2="12" y2="22" stroke-dasharray="4 4"></line></symbol> <symbol id="icon-offroad" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></symbol> <symbol id="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
+  <symbol id="icon-toll" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></symbol>
+  <symbol id="icon-hwy" viewBox="0 0 24 24"><path d="M8 2L5 22"></path><path d="M16 2l3 20"></path><path d="M12 12h.01"></path><line x1="12" y1="2" x2="12" y2="22" stroke-dasharray="4 4"></line></symbol>
+  <symbol id="icon-offroad" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></symbol>
+  <symbol id="icon-nature" viewBox="0 0 24 24"><path d="M17.5,19C15,19,12.62,17.63,11,15.77C9.38,17.63,7,19,4.5,19C3.12,19,2,17.88,2,16.5C2,12,8,8,11,2C14,8,20,12,20,16.5C20,17.88,18.88,19,17.5,19ZM11,15.77C11,15.77,11,15.77,11,15.77ZM11,4.5C9.06,8.5,4,12.06,4,16.5C4,16.78,4.22,17,4.5,17C6.43,17,8.68,15.68,10.11,13.97L11,12.9L11.89,13.97C13.32,15.68,15.57,17,17.5,17C17.78,17,18,16.78,18,16.5C18,12.06,12.94,8.5,11,4.5Z"></path></symbol>
+  <symbol id="icon-history" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
+  <symbol id="icon-hedonism" viewBox="0 0 24 24"><path d="M7 10h10"></path><path d="M8 14h8"></path><path d="M12 18h0"></path><path d="M6.168 14.828a6 6 0 0 1 11.664 0"></path><path d="M17.832 9.172a6 6 0 0 1-11.664 0"></path><path d="M12 2v1"></path><path d="M12 21v1"></path><path d="M12 5v1"></path><path d="M12 17v1"></path><path d="M5 12H4"></path><path d="M20 12h-1"></path><path d="M9 12v.01"></path><path d="M15 12v.01"></path></symbol>
+  <symbol id="icon-curiosity" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></symbol>
+  <symbol id="icon-map" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></symbol>
+  <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></symbol>
 </svg>
 
 <div class="app-shell">
@@ -220,31 +251,62 @@
 
   <div id="auth-screen">
     <h1 class="auth-title">Bienvenue</h1>
+    <div class="auth-tabs">
+      <button class="tab active" id="tab-login">Connexion</button>
+      <button class="tab" id="tab-register">Inscription</button>
+      <div class="tab-indicator" id="tab-line"></div>
+    </div>
     <div class="input-wrapper"><input class="input-field" id="email" placeholder="Email" /></div>
     <div class="input-wrapper"><input class="input-field" id="pwd" type="password" placeholder="Password" /></div>
     <button id="btn-auth-action" class="btn-primary">Entrer</button>
+    <div class="divider"><span>ou continuer avec</span></div>
+    <div class="social-login"><button class="social-btn"></button><button class="social-btn">G</button><button class="social-btn">Fb</button></div>
   </div>
 
   <div id="profile-screen">
     <div class="profile-nav">
       <button class="nav-btn" id="btn-profile-back"><svg class="icon"><use href="#icon-close"></use></svg></button>
       <span class="nav-title">Profil</span>
-      <div style="width:24px;"></div>
+      <button class="nav-btn" style="color:#ef4444;" id="btn-logout"><svg class="icon"><use href="#icon-logout"></use></svg></button>
     </div>
     <div class="profile-content">
-      <div class="settings-list">
-        <div class="segment-pill-wrap" id="theme-selector">
-             <button class="segment-pill" data-val="auto">Auto</button>
-             <button class="segment-pill" data-val="light">☀️ Clair</button>
-             <button class="segment-pill active" data-val="dark">🌑 Sombre</button>
+      <div class="hero-section">
+        <div class="hero-avatar"><span id="profile-avatar-char">A</span><div class="edit-badge"><svg class="icon"><use href="#icon-edit"></use></svg></div></div>
+        <div class="ghost-input-group">
+          <input id="p-firstname" class="ghost-input input-name" value="Andrey" placeholder="Prénom" />
+          <input id="p-lastname" class="ghost-input input-sub" value="Smiras" placeholder="Nom" />
+          <input id="p-country" class="ghost-input input-sub" style="font-weight:400; opacity:0.8;" value="France" />
         </div>
       </div>
-      <button id="btn-logout" class="btn-primary" style="margin-top:20px; background:#ef4444;">Déconnexion</button>
+      <div class="section-header">Ce que j'aime</div>
+      <div class="interest-grid">
+        <div class="interest-card" data-cat="nature"><svg class="icon icon-lg"><use href="#icon-nature"></use></svg><div class="interest-name">Nature</div></div>
+        <div class="interest-card" data-cat="history"><svg class="icon icon-lg"><use href="#icon-history"></use></svg><div class="interest-name">Histoire</div></div>
+        <div class="interest-card" data-cat="hedonism"><svg class="icon icon-lg"><use href="#icon-hedonism"></use></svg><div class="interest-name">Hédonisme</div></div>
+        <div class="interest-card" data-cat="curiosity"><svg class="icon icon-lg"><use href="#icon-curiosity"></use></svg><div class="interest-name">Curiosités</div></div>
+      </div>
+      <div class="tag-cloud" id="tag-cloud"><div class="empty-tags-hint" style="font-size:13px; color:var(--text-sub); padding:10px;">Appuyez sur une catégorie...</div></div>
+      <div class="section-header">Préférences</div>
+      <div class="settings-list">
+        <div class="settings-row">
+          <span class="settings-label">Thème</span>
+          <div class="segment-pill-wrap" id="theme-selector"><button class="segment-pill" data-val="auto">Auto</button><button class="segment-pill" data-val="light">☀️</button><button class="segment-pill active" data-val="dark">🌑</button></div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Audio</span>
+          <div class="segment-pill-wrap" id="voice-selector"><button class="segment-pill" data-val="mute">Off</button><button class="segment-pill active" data-val="poi">POI</button><button class="segment-pill" data-val="all">Tout</button></div>
+        </div>
+      </div>
+      <div class="section-header" style="margin-top:30px;">Mon Carnet</div>
+      <div class="interest-grid" style="margin-bottom:40px;">
+         <div class="interest-card" style="flex-direction:row; justify-content:center;"><svg class="icon" style="margin-right:8px;"><use href="#icon-map"></use></svg><span style="font-weight:600; font-size:14px;">Trajets</span></div>
+         <div class="interest-card" style="flex-direction:row; justify-content:center;"><svg class="icon" style="margin-right:8px;"><use href="#icon-pin"></use></svg><span style="font-weight:600; font-size:14px;">Lieux</span></div>
+      </div>
     </div>
+    <div class="profile-footer"><button id="btn-save-profile" class="btn-primary save-btn">Enregistrer</button></div>
   </div>
 
   <div id="main-screen">
-    
     <div id="map-container"></div>
 
     <div class="map-top-bar">
@@ -262,146 +324,147 @@
     </div>
 
     <div class="map-side-btns">
-      <button class="side-btn" id="btn-profile-open">
-        <svg class="icon"><use href="#icon-user"></use></svg>
-      </button>
-      <button class="side-btn" id="btn-locate">
-        <svg class="icon"><use href="#icon-loc"></use></svg>
-      </button>
+      <button class="side-btn avatar-btn" id="btn-profile-open">A</button> <button class="side-btn" id="btn-locate"><svg class="icon"><use href="#icon-loc"></use></svg></button>
     </div>
 
     <div class="map-bottom-panel">
-      
       <div class="avoid-row">
-        <button class="avoid-btn" onclick="this.classList.toggle('active')">
-          <svg class="icon"><use href="#icon-toll"></use></svg>
-          Péages
-        </button>
-        <button class="avoid-btn" onclick="this.classList.toggle('active')">
-          <svg class="icon"><use href="#icon-hwy"></use></svg>
-          Autoroutes
-        </button>
-        <button class="avoid-btn" onclick="this.classList.toggle('active')">
-          <svg class="icon"><use href="#icon-offroad"></use></svg>
-          Chemins
-        </button>
+        <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-toll"></use></svg>Péages</button>
+        <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-hwy"></use></svg>Autoroutes</button>
+        <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-offroad"></use></svg>Chemins</button>
       </div>
-
       <div class="go-btn-row">
         <button class="btn-primary go-btn">Tracer l'itinéraire</button>
       </div>
     </div>
-
   </div>
 
 </div>
 
 <script>
-  /* --- LOGIC --- */
   const els = {
     splash: document.getElementById('splash-screen'),
     auth: document.getElementById('auth-screen'),
     profile: document.getElementById('profile-screen'),
     main: document.getElementById('main-screen'),
-    mapContainer: document.getElementById('map-container')
+    tabLogin: document.getElementById('tab-login'),
+    tabRegister: document.getElementById('tab-register'),
+    authBtn: document.getElementById('btn-auth-action'),
+    tabLine: document.getElementById('tab-line'),
+    pFirstname: document.getElementById('p-firstname'),
+    tagCloud: document.getElementById('tag-cloud')
   };
 
-  let map = null;
-  let tileLayer = null;
+  let map, userMarker, tileLayer;
+  let isRegisterMode = false;
 
-  // 1. INIT APP
+  const TAGS_DB = {
+    nature: ['Forêts', 'Lacs', 'Montagnes', 'Grottes', 'Cascades', 'Panoramas'],
+    history: ['Châteaux', 'Ruines', 'Églises', 'Monuments', 'Musées', 'Architecture'],
+    hedonism: ['Vignobles', 'Brasseries', 'Marchés', 'Fermes', 'Fromageries', 'Gastronomie'],
+    curiosity: ['Abandonné', 'Légendes', 'Street Art', 'Villages fantômes', 'Insolite']
+  };
+  let activeCategories = new Set(); 
+
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       els.splash.style.display = 'none';
-      if(localStorage.getItem('gddLoggedIn')) {
-        showScreen('main');
-      } else {
-        showScreen('auth');
-      }
-    }, 4000); // Splash time
+      if(localStorage.getItem('gddLoggedIn')) { loadProfileData(); showScreen('main'); } 
+      else { showScreen('auth'); updateTabLine(els.tabLogin); }
+    }, 4000);
+
+    document.querySelectorAll('.interest-card[data-cat]').forEach(card => {
+        card.addEventListener('click', () => {
+            const cat = card.getAttribute('data-cat');
+            card.classList.toggle('active');
+            if (card.classList.contains('active')) activeCategories.add(cat); else activeCategories.delete(cat);
+            renderTags();
+        });
+    });
   });
+
+  function renderTags() {
+      els.tagCloud.innerHTML = '';
+      if (activeCategories.size === 0) { els.tagCloud.innerHTML = '<div class="empty-tags-hint" style="font-size:13px; color:var(--text-sub);">Appuyez sur une catégorie...</div>'; return; }
+      activeCategories.forEach(cat => {
+          TAGS_DB[cat]?.forEach(tag => {
+              const pill = document.createElement('div'); pill.className = 'tag-pill'; pill.textContent = tag;
+              pill.onclick = () => pill.classList.toggle('selected'); els.tagCloud.appendChild(pill);
+          });
+      });
+  }
 
   function showScreen(name) {
     els.auth.style.display = 'none'; els.profile.style.display = 'none'; els.main.style.display = 'none';
-    
     if(name === 'auth') els.auth.style.display = 'flex';
     if(name === 'profile') els.profile.style.display = 'flex';
     if(name === 'main') {
-      els.main.style.display = 'block';
-      setTimeout(initMap, 100); // Init map after div is visible
+        els.main.style.display = 'block';
+        setTimeout(initMap, 100);
     }
   }
 
-  // 2. MAP LOGIC
-  function initMap() {
-    if(map) {
-        // Just update theme if map exists
-        updateMapTheme();
-        map.invalidateSize();
-        return;
-    }
+  function updateTabLine(activeTab) { els.tabLine.style.width = activeTab.offsetWidth + 'px'; els.tabLine.style.left = activeTab.offsetLeft + 'px'; }
+  els.tabLogin.addEventListener('click', () => { isRegisterMode=false; setTabs(); });
+  els.tabRegister.addEventListener('click', () => { isRegisterMode=true; setTabs(); });
+  function setTabs() {
+    if(isRegisterMode) { els.tabRegister.classList.add('active'); els.tabLogin.classList.remove('active'); els.authBtn.textContent = "Créer un compte"; updateTabLine(els.tabRegister); }
+    else { els.tabLogin.classList.add('active'); els.tabRegister.classList.remove('active'); els.authBtn.textContent = "Se connecter"; updateTabLine(els.tabLogin); }
+  }
 
-    // Paris Default
+  els.authBtn.addEventListener('click', () => { localStorage.setItem('gddLoggedIn', '1'); if(isRegisterMode) showScreen('profile'); else { loadProfileData(); showScreen('main'); } });
+  document.querySelectorAll('.social-btn').forEach(b => b.addEventListener('click', () => { localStorage.setItem('gddLoggedIn', '1'); showScreen('profile'); }));
+
+  // THEME
+  const themeBtns = document.querySelectorAll('#theme-selector .segment-pill');
+  themeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+          themeBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+          const mode = btn.getAttribute('data-val');
+          if(mode === 'light') document.documentElement.setAttribute('data-theme', 'light');
+          else if (mode === 'dark') document.documentElement.removeAttribute('data-theme');
+          else { if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', 'light'); }
+          updateMapTheme(); // Reload map tiles
+      });
+  });
+
+  // PROFILE NAV
+  document.getElementById('btn-save-profile').addEventListener('click', () => { localStorage.setItem('gddName', els.pFirstname.value); loadProfileData(); showScreen('main'); });
+  document.getElementById('btn-profile-open').addEventListener('click', () => { loadProfileData(); showScreen('profile'); });
+  document.getElementById('btn-profile-back').addEventListener('click', () => showScreen('main'));
+  document.getElementById('btn-logout').addEventListener('click', () => { localStorage.removeItem('gddLoggedIn'); showScreen('auth'); });
+
+  function loadProfileData() {
+    const name = localStorage.getItem('gddName') || 'Andrey';
+    els.pFirstname.value = name;
+    const initial = name.charAt(0).toUpperCase();
+    document.getElementById('profile-avatar-char').textContent = initial;
+    document.getElementById('btn-profile-open').textContent = initial; // Update Map Avatar
+  }
+
+  // MAP
+  function initMap() {
+    if(map) { map.invalidateSize(); updateMapTheme(); return; }
     map = L.map('map-container', { zoomControl: false }).setView([48.8566, 2.3522], 13);
-    updateMapTheme(); // Load correct tiles
+    updateMapTheme();
+    
+    // Add User Pulse Marker
+    const icon = L.divIcon({ className: 'user-marker-pulse', iconSize: [16, 16] });
+    userMarker = L.marker([48.8566, 2.3522], {icon: icon}).addTo(map);
   }
 
   function updateMapTheme() {
     if(!map) return;
-    
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    
-    // CartoDB Tiles (Free, Clean)
     const darkUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
     const lightUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-    
     const url = isLight ? lightUrl : darkUrl;
-
     if(tileLayer) map.removeLayer(tileLayer);
-    
-    tileLayer = L.tileLayer(url, {
-        maxZoom: 20,
-        attribution: '&copy; OpenStreetMap &copy; CARTO'
-    }).addTo(map);
+    tileLayer = L.tileLayer(url, { maxZoom: 20 }).addTo(map);
   }
 
-  // 3. NAVIGATION LOGIC
-  document.getElementById('btn-auth-action').addEventListener('click', () => {
-    localStorage.setItem('gddLoggedIn', '1'); showScreen('main');
-  });
-
-  document.getElementById('btn-profile-open').addEventListener('click', () => showScreen('profile'));
-  document.getElementById('btn-profile-back').addEventListener('click', () => showScreen('main'));
-  
-  document.getElementById('btn-logout').addEventListener('click', () => {
-    localStorage.removeItem('gddLoggedIn'); showScreen('auth');
-  });
-
   document.getElementById('btn-locate').addEventListener('click', () => {
-    if(map) {
-        map.locate({setView: true, maxZoom: 15});
-        // Fake location effect for demo
-        const btn = document.getElementById('btn-locate');
-        btn.style.color = '#4ade80';
-        setTimeout(() => btn.style.color = '', 2000);
-    }
-  });
-
-  // 4. THEME SWITCHER
-  const themeBtns = document.querySelectorAll('#theme-selector .segment-pill');
-  themeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-          themeBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          
-          const mode = btn.getAttribute('data-val');
-          if(mode === 'light') document.documentElement.setAttribute('data-theme', 'light');
-          else if (mode === 'dark') document.documentElement.removeAttribute('data-theme');
-          else document.documentElement.removeAttribute('data-theme'); // Auto = Default Dark for now
-          
-          // Update Map Tiles immediately
-          updateMapTheme();
-      });
+    if(map) map.setView([48.8566, 2.3522], 15); // Fake geoloc for demo
   });
 
 </script>
