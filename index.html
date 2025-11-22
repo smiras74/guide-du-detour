@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · v0.7.0</title>
+  <title>Guide du Détour · v0.7.0 Detour Engine</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -18,10 +18,12 @@
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
       
+      /* GLASS SETTINGS */
       --glass-border: rgba(255,255,255,0.15);
-      --glass-bg: rgba(2, 6, 23, 0.6); 
+      --glass-bg: rgba(2, 6, 23, 0.5); 
       --glass-blur: blur(20px);
       --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%);
+      --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 8px 20px rgba(0,0,0,0.3);
       
       --card-bg: rgba(255, 255, 255, 0.03);
       --active-card-bg: rgba(34, 197, 94, 0.15);
@@ -37,6 +39,7 @@
       --glass-border: rgba(0,0,0,0.08);
       --glass-bg: rgba(255,255,255,0.9);
       --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 100%);
+      --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 15px rgba(0,0,0,0.05);
       --card-bg: #f8fafc;
       --active-card-bg: #dcfce7; 
       --active-text: #166534;
@@ -54,6 +57,29 @@
     .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
 
+    /* --- POPUP STYLING (NEW) --- */
+    .leaflet-popup-content-wrapper {
+        background: var(--nav-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 16px;
+        color: var(--text-main);
+        padding: 0; overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .leaflet-popup-tip { background: var(--nav-bg); }
+    .leaflet-popup-content { margin: 0; width: 200px !important; }
+    
+    .popup-card { display: flex; flex-direction: column; }
+    .popup-img { width: 100%; height: 100px; background: #334155; object-fit: cover; }
+    .popup-body { padding: 12px; }
+    .popup-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--text-main); }
+    .popup-desc { font-size: 11px; color: var(--text-sub); margin-bottom: 10px; }
+    .popup-btn {
+        width: 100%; padding: 8px; border-radius: 8px; border: none;
+        background: var(--primary); color: #020617; font-weight: 600; font-size: 12px; cursor: pointer;
+    }
+
     /* --- SCREENS --- */
     #splash-screen, #auth-screen, #profile-screen, #main-screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
     
@@ -65,12 +91,10 @@
     .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
     .loading-text { font-size: 10px; color: #94a3b8; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; animation: fadeUp 1s forwards 0.2s;}
     
-    /* GLOBAL VERSION TAG STYLE */
     .app-version { 
         position: absolute; bottom: 30px; left: 0; right: 0;
         text-align: center; font-size: 10px; color: var(--text-sub); opacity: 0.5; font-family: monospace; 
     }
-    /* Profile specific version position */
     #profile-screen .app-version { position: relative; bottom: auto; margin-top: 20px; margin-bottom: 20px; }
 
     /* AUTH */
@@ -138,10 +162,10 @@
       backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border); box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 8px 30px rgba(0,0,0,0.2);
       border-radius: 24px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
-      position: relative; /* Context for absolute suggestion list */
+      position: relative;
     }
     
-    .route-row { display: flex; align-items: center; gap: 12px; position: relative; }
+    .route-row { display: flex; align-items: center; gap: 12px; }
     .route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .dot-start { background: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
     .dot-end { background: var(--primary); box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
@@ -156,29 +180,14 @@
     
     .divider-h { height: 1px; background: rgba(255,255,255,0.1); margin-left: 20px; opacity: 0.5; }
 
-    /* === FIXED SUGGESTIONS LIST === */
+    /* SUGGESTIONS LIST */
     #suggestions-list {
-        display: none;
-        position: absolute; 
-        top: 100%; left: 0; right: 0; 
-        margin-top: 10px;
-        /* HARD BACKGROUND TO FIX VISIBILITY ISSUES */
-        background: #0f172a; 
-        border: 1px solid rgba(255,255,255,0.2); border-radius: 16px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        max-height: 250px; overflow-y: auto; 
-        z-index: 9999; /* SUPER TOP */
-        padding: 8px;
+        display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 10px;
+        background: #0f172a; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8); max-height: 250px; overflow-y: auto; z-index: 9999; padding: 8px;
     }
-    /* Light theme adjustment */
     [data-theme="light"] #suggestions-list { background: #ffffff; border-color: #e2e8f0; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-
-    .suggestion-item {
-        padding: 14px; font-size: 14px; color: var(--text-main);
-        border-radius: 10px; cursor: pointer; transition: 0.2s;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        display: flex; align-items: center; gap: 10px;
-    }
+    .suggestion-item { padding: 14px; font-size: 14px; color: var(--text-main); border-radius: 10px; cursor: pointer; transition: 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; }
     .suggestion-item:last-child { border-bottom: none; }
     .suggestion-item:active { background: rgba(255,255,255,0.1); }
     .suggestion-icon { font-size: 14px; opacity: 0.7; }
@@ -188,7 +197,7 @@
     .side-btn {
       width: 44px; height: 44px; border-radius: 50%;
       background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--glass-border); box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 8px 20px rgba(0,0,0,0.2);
+      border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
       color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
     }
     .side-btn:active { transform: scale(0.92); }
@@ -205,7 +214,7 @@
     .avoid-btn {
       display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 14px;
       background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--glass-border); box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 4px 10px rgba(0,0,0,0.1);
+      border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
       color: var(--text-sub); font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap;
     }
     .avoid-btn.active {
@@ -219,6 +228,10 @@
     .user-marker-brand::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 2px solid #22c55e; opacity: 0; animation: pulse-green 2s infinite; }
     @keyframes pulse-green { 0% { transform: scale(0.5); opacity: 1; border-width: 4px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
     .marker-end { width: 16px; height: 16px; background: #000; border: 3px solid #4ade80; border-radius: 50%; }
+    
+    /* POI MARKER */
+    .poi-marker { width: 24px; height: 24px; background: var(--nav-bg); border-radius: 50%; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+    .poi-icon { font-size: 14px; }
   </style>
 </head>
 <body>
@@ -344,7 +357,7 @@
 </div>
 
 <script>
-  const APP_VERSION = 'v0.7.0 Hotfix';
+  const APP_VERSION = 'v0.7.0 Beta';
   
   const els = {
     splash: document.getElementById('splash-screen'),
@@ -363,7 +376,7 @@
     suggestionsList: document.getElementById('suggestions-list')
   };
 
-  let map, userMarker, tileLayer, routeLayer;
+  let map, userMarker, tileLayer, routeLayer, detourLayer; // Added detourLayer
   let isRegisterMode = false;
   
   let startCoords = null;
@@ -372,7 +385,6 @@
   let activeInput = null;
 
   document.addEventListener('DOMContentLoaded', () => {
-    // SET VERSION IN ALL PLACES
     document.querySelectorAll('.app-version').forEach(el => el.textContent = APP_VERSION);
 
     setTimeout(() => {
@@ -390,6 +402,53 @@
         });
     });
   });
+
+  // --- DETOUR LOGIC ---
+  // Mock Database of potential detours
+  const POI_ICONS = {
+      nature: '🌿', history: '🏰', hedonism: '🍷', curiosity: '👽'
+  };
+  
+  // Simulated generator
+  function generateDetours(routeCoords) {
+      detourLayer.clearLayers();
+      if(activeCategories.size === 0) return; // No interests selected
+
+      // Simple algorithm: Pick 5 random points along the route
+      for(let i=0; i<5; i++) {
+          const randIdx = Math.floor(Math.random() * routeCoords.length);
+          const [lat, lng] = routeCoords[randIdx];
+          
+          // Add random jitter (deviation)
+          const latOffset = (Math.random() - 0.5) * 0.05; // ~3-5km
+          const lngOffset = (Math.random() - 0.5) * 0.05;
+          
+          // Pick random active category
+          const cats = Array.from(activeCategories);
+          const cat = cats[Math.floor(Math.random() * cats.length)];
+          
+          const marker = L.marker([lat + latOffset, lng + lngOffset], {
+              icon: L.divIcon({
+                  className: 'poi-marker',
+                  html: `<span class="poi-icon">${POI_ICONS[cat]}</span>`,
+                  iconSize: [32, 32], iconAnchor: [16, 32]
+              })
+          }).addTo(detourLayer);
+          
+          // Glass Popup
+          const popupContent = `
+            <div class="popup-card">
+                <div class="popup-img"></div>
+                <div class="popup-body">
+                    <div class="popup-title">Lieu Mystère ${i+1}</div>
+                    <div class="popup-desc">Un détour parfait pour les amateurs de ${cat}.</div>
+                    <button class="popup-btn">Ajouter (+20 min)</button>
+                </div>
+            </div>
+          `;
+          marker.bindPopup(popupContent);
+      }
+  }
 
   // --- TAGS LOGIC ---
   const TAGS_DB = {
@@ -466,6 +525,7 @@
     const icon = L.divIcon({ className: 'custom-div-icon', html: "<div class='user-marker-brand'></div>", iconSize: [20, 20], iconAnchor: [10, 10] });
     userMarker = L.marker([48.8566, 2.3522], {icon: icon}).addTo(map);
     routeLayer = L.layerGroup().addTo(map);
+    detourLayer = L.layerGroup().addTo(map);
 
     // Auto default position
     if(!startCoords && navigator.geolocation) {
@@ -520,7 +580,6 @@
       inputElem.addEventListener('input', (e) => {
           const query = e.target.value;
           clearTimeout(debounceTimer);
-          // Debugging hint inside placeholder
           if(query.length === 0) els.suggestionsList.style.display = 'none'; 
           
           if(query.length < 3) { els.suggestionsList.style.display = 'none'; return; }
@@ -528,14 +587,10 @@
           debounceTimer = setTimeout(async () => {
               try {
                   // Visual feedback
-                  inputElem.style.opacity = 0.7;
-                  
                   const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`);
                   const data = await res.json();
-                  
-                  inputElem.style.opacity = 1;
                   showSuggestions(data, isStart);
-              } catch(err) { inputElem.style.opacity = 1; }
+              } catch(err) { }
           }, 300);
       });
   }
@@ -596,7 +651,7 @@
   els.traceBtn.addEventListener('click', async () => {
       if(!destCoords) { alert("Veuillez sélectionner une destination"); return; }
       if(!startCoords) { alert("Veuillez définir le départ"); return; } // Must have start
-      els.traceBtn.textContent = "Calcul avec évitement...";
+      els.traceBtn.textContent = "Calcul...";
       
       // Construct OSRM URL
       let url = `https://router.project-osrm.org/route/v1/driving/${startCoords.lon},${startCoords.lat};${destCoords.lon},${destCoords.lat}?overview=full&geometries=geojson`;
@@ -614,8 +669,14 @@
               const route = data.routes[0];
               routeLayer.clearLayers();
               if(destMarker) destMarker.addTo(routeLayer);
-              L.geoJSON(route.geometry, { style: { color: '#22c55e', weight: 5, opacity: 0.8 } }).addTo(routeLayer);
-              map.fitBounds(L.geoJSON(route.geometry).getBounds(), {padding: [50, 150]});
+              
+              // Draw Route
+              const geoJsonLayer = L.geoJSON(route.geometry, { style: { color: '#22c55e', weight: 5, opacity: 0.8 } }).addTo(routeLayer);
+              map.fitBounds(geoJsonLayer.getBounds(), {padding: [50, 150]});
+              
+              // GENERATE DETOURS
+              generateDetours(route.geometry.coordinates);
+              
           } else {
               alert("Aucune route trouvée avec ces restrictions.");
           }
