@@ -2,22 +2,47 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Ultimate Profile</title>
+  <title>Guide du Détour · Theme Engine</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
+    /* --- GLOBAL VARIABLES (THEME ENGINE) --- */
     :root {
-      --bg: #020617;
-      --primary: #22c55e;
-      --primary-gradient: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      /* Default (Dark) Colors */
+      --bg-color: #020617;
+      --bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
       --text-main: #ffffff;
       --text-sub: #94a3b8;
+      
+      --card-bg: rgba(30, 41, 59, 0.4);
       --glass-border: rgba(255,255,255,0.15);
       --glass-bg: rgba(255,255,255,0.05);
-      --card-bg: rgba(30, 41, 59, 0.4);
+      
+      --primary: #22c55e;
+      --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      
+      --nav-bg: rgba(2, 6, 23, 0.8);
+      --input-bg: rgba(255,255,255,0.05);
+      --input-focus-bg: rgba(255,255,255,0.15);
+    }
+
+    /* LIGHT THEME OVERRIDES */
+    [data-theme="light"] {
+      --bg-color: #f8fafc;
+      --bg-gradient: radial-gradient(circle at 50% -20%, #e2e8f0 0%, #f8fafc 80%);
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      
+      --card-bg: #ffffff;
+      --glass-border: rgba(0,0,0,0.1);
+      --glass-bg: rgba(255,255,255,0.8);
+      
+      --nav-bg: rgba(255, 255, 255, 0.8);
+      --input-bg: #ffffff;
+      --input-focus-bg: #f1f5f9;
     }
 
     * { box-sizing: border-box; }
@@ -25,36 +50,35 @@
     html, body {
       margin: 0; padding: 0; height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      background: var(--bg-color);
       color: var(--text-main);
       -webkit-font-smoothing: antialiased;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     body { display: flex; justify-content: center; align-items: stretch; }
 
     .app-shell {
       width: 100%; max-width: 430px; height: 100vh;
-      background: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
+      background: var(--bg-gradient);
       overflow: hidden; position: relative;
+      transition: background 0.3s ease;
     }
 
-    /* --- COMMON UI --- */
+    /* --- UI COMPONENTS --- */
     .btn-primary {
       width: 100%; padding: 16px; border-radius: 20px; border: none;
-      background: var(--primary-gradient);
+      background: var(--primary-grad);
       color: #020617; font-weight: 700; font-size: 16px; cursor: pointer;
       box-shadow: 0 10px 20px -10px rgba(34, 197, 94, 0.5);
       transform: scale(1); transition: 0.2s;
     }
     .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
 
-    /* --- SCROLLBAR HIDDEN --- */
-    ::-webkit-scrollbar { width: 0px; background: transparent; }
-
-    /* --- 1. SPLASH & AUTH (Keep existing styles) --- */
+    /* --- SPLASH --- */
     #splash-screen {
       position: absolute; inset: 0; z-index: 100;
-      background: #020617;
+      background: #020617; /* Splash всегда темный для стиля */
       display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;
     }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
@@ -64,146 +88,143 @@
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* AUTH */
+    /* --- AUTH --- */
     #auth-screen {
       position: absolute; inset: 0; z-index: 90; display: none;
       flex-direction: column; justify-content: center; padding: 32px;
     }
-    h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: #fff; }
-    p.auth-subtitle { font-size: 15px; color: #cbd5e1; margin: 0 0 48px; }
+    h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: var(--text-main); }
+    p.auth-subtitle { font-size: 15px; color: var(--text-sub); margin: 0 0 48px; }
     
     .auth-tabs { display: flex; gap: 32px; margin-bottom: 32px; position: relative; }
-    .tab { background: none; border: none; padding: 0 0 8px 0; font-size: 16px; color: rgba(255,255,255,0.5); font-weight: 600; cursor: pointer; transition: 0.3s; }
-    .tab.active { color: #fff; }
+    .tab { background: none; border: none; padding: 0 0 8px 0; font-size: 16px; color: var(--text-sub); font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .tab.active { color: var(--text-main); }
     .tab-indicator { position: absolute; bottom: 0; left: 0; height: 3px; width: 20px; background: #4ade80; border-radius: 10px; box-shadow: 0 0 10px rgba(74, 222, 128, 0.6); transition: left 0.3s, width 0.3s; }
 
     .input-wrapper { position: relative; margin-bottom: 20px; }
     .input-field {
       width: 100%; padding: 18px 16px 14px; border-radius: 20px;
-      border: 1px solid var(--glass-border); background: var(--glass-bg);
+      border: 1px solid var(--glass-border); background: var(--input-bg);
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      color: #fff; font-size: 16px; transition: 0.3s;
+      color: var(--text-main); font-size: 16px; transition: 0.3s;
     }
-    .input-field:focus { outline: none; border-color: #4ade80; background: rgba(255,255,255,0.15); }
-    .input-label { position: absolute; left: 18px; top: 18px; font-size: 15px; color: rgba(255,255,255,0.6); pointer-events: none; transition: 0.2s; }
+    .input-field:focus { outline: none; border-color: #4ade80; background: var(--input-focus-bg); }
+    .input-label { position: absolute; left: 18px; top: 18px; font-size: 15px; color: var(--text-sub); pointer-events: none; transition: 0.2s; }
     .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label { top: 7px; font-size: 11px; color: #4ade80; font-weight: 600; }
     .input-field { padding-top: 24px; padding-bottom: 10px; }
 
-    .divider { display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: #64748b; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .divider { display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: var(--text-sub); }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--glass-border); }
     .social-login { display: flex; justify-content: center; gap: 24px; }
-    .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; }
+    .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; }
 
 
-    /* --- 3. PROFILE SCREEN (NEW ARCHITECTURE) --- */
+    /* --- PROFILE SCREEN --- */
     #profile-screen {
       position: absolute; inset: 0; z-index: 95; display: none;
-      flex-direction: column; background: #020617; overflow-y: auto;
+      flex-direction: column; background: var(--bg-color); overflow-y: auto;
+      transition: background 0.3s ease;
       animation: fadeIn 0.4s ease-out;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Header Bar */
     .profile-nav {
       display: flex; justify-content: space-between; align-items: center;
       padding: 20px 24px; position: sticky; top: 0; z-index: 10;
-      background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: var(--nav-bg); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
     }
     .nav-title { font-weight: 700; font-size: 18px; }
-    .nav-btn { background: none; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; }
-    .nav-btn.danger { color: #ef4444; }
+    .nav-btn { background: none; border: none; color: var(--text-sub); font-size: 14px; cursor: pointer; }
 
-    /* Content Scroll */
     .profile-content { padding: 24px; padding-bottom: 100px; }
 
-    /* User Card */
     .user-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
     .avatar-big {
-      width: 90px; height: 90px; border-radius: 50%; background: #1e293b;
+      width: 90px; height: 90px; border-radius: 50%; background: var(--card-bg);
       display: flex; align-items: center; justify-content: center;
-      font-size: 32px; color: #fff; font-weight: bold;
-      border: 2px solid #334155; position: relative; margin-bottom: 20px;
+      font-size: 32px; color: var(--text-main); font-weight: bold;
+      border: 2px solid var(--glass-border); position: relative; margin-bottom: 20px;
     }
     .avatar-edit {
       position: absolute; bottom: 0; right: 0; width: 28px; height: 28px;
-      background: var(--primary); border-radius: 50%; border: 2px solid #020617;
+      background: var(--primary); border-radius: 50%; border: 2px solid var(--bg-color);
       display: flex; align-items: center; justify-content: center; font-size: 12px; color: #000;
     }
 
-    /* Section Styles */
-    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 16px; margin-top: 10px; }
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-sub); margin-bottom: 16px; margin-top: 10px; }
     
-    /* 4 Pillars Grid */
     .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
     .interest-card {
       background: var(--card-bg); border: 1px solid var(--glass-border);
       border-radius: 16px; padding: 16px; cursor: pointer; transition: 0.2s;
       display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--text-main);
     }
     .interest-card.active {
       background: rgba(34, 197, 94, 0.15); border-color: #22c55e;
     }
     .interest-icon { font-size: 24px; }
-    .interest-name { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+    .interest-name { font-size: 13px; font-weight: 600; }
     .interest-card.active .interest-name { color: #4ade80; }
 
+    /* NEW SEGMENTED CONTROLS */
+    .settings-container {
+        background: var(--card-bg); border: 1px solid var(--glass-border);
+        border-radius: 16px; padding: 16px; margin-bottom: 24px;
+    }
+    .settings-row { margin-bottom: 20px; }
+    .settings-row:last-child { margin-bottom: 0; }
+    .settings-label { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; }
+    
+    .segment-control {
+        display: flex; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 12px;
+        border: 1px solid var(--glass-border);
+    }
+    [data-theme="light"] .segment-control { background: rgba(0,0,0,0.05); }
+
+    .segment-btn {
+        flex: 1; padding: 8px; border: none; background: transparent;
+        color: var(--text-sub); font-size: 13px; font-weight: 500; cursor: pointer;
+        border-radius: 8px; transition: 0.2s; text-align: center;
+    }
+    .segment-btn.active {
+        background: var(--bg-color); color: var(--text-main);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 600;
+    }
+
     /* Slider */
-    .slider-container { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); margin-bottom: 30px; }
-    .slider-label { display: flex; justify-content: space-between; font-size: 13px; color: #e2e8f0; margin-bottom: 12px; font-weight: 600; }
+    .slider-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-main); margin-bottom: 12px; font-weight: 600; }
     .slider-value { color: #4ade80; }
     .range-input {
       width: 100%; -webkit-appearance: none; height: 6px; border-radius: 99px;
-      background: rgba(255,255,255,0.1); outline: none;
+      background: var(--glass-border); outline: none;
     }
     .range-input::-webkit-slider-thumb {
       -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
-      background: #22c55e; cursor: pointer; border: 2px solid #020617;
+      background: #22c55e; cursor: pointer; border: 2px solid var(--bg-color);
       box-shadow: 0 0 10px rgba(34,197,94,0.5);
     }
-
-    /* Settings List */
-    .settings-list { display: flex; flex-direction: column; gap: 1px; background: var(--glass-border); border-radius: 16px; overflow: hidden; border: 1px solid var(--glass-border); margin-bottom: 30px; }
-    .settings-item {
-      background: rgba(30,41,59, 0.6); padding: 16px; display: flex; justify-content: space-between; align-items: center;
-    }
-    .settings-text { font-size: 15px; color: #fff; }
-    .settings-sub { font-size: 12px; color: #94a3b8; margin-top: 2px; }
-    
-    /* iOS Toggle Switch */
-    .toggle-switch { position: relative; width: 50px; height: 28px; }
-    .toggle-input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #334155; border-radius: 34px; transition: .4s;
-    }
-    .toggle-slider:before {
-      position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px;
-      background-color: white; border-radius: 50%; transition: .4s;
-    }
-    .toggle-input:checked + .toggle-slider { background-color: #22c55e; }
-    .toggle-input:checked + .toggle-slider:before { transform: translateX(22px); }
 
     /* History Grid */
     .history-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .history-btn {
-      background: var(--card-bg); border: 1px solid var(--glass-border);
+      background: var(--card-bg); border: 1px solid var(--glass-border); color: var(--text-main);
       padding: 20px; border-radius: 16px; text-align: center; cursor: pointer;
     }
     .history-icon { font-size: 24px; margin-bottom: 8px; display: block; }
-    .history-label { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+    .history-label { font-size: 14px; font-weight: 600; }
 
-    /* Bottom Fixed Button */
     .profile-footer {
       position: fixed; bottom: 0; left: 0; right: 0;
-      padding: 20px 24px; background: linear-gradient(to top, #020617 80%, transparent);
+      padding: 20px 24px; background: linear-gradient(to top, var(--bg-color) 80%, transparent);
       z-index: 20;
     }
 
     /* --- 4. MAIN SCREEN --- */
     #main-screen { position: absolute; inset: 0; padding: 20px; display: none; }
     .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .avatar-circle { width: 42px; height: 42px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; cursor: pointer; border: 2px solid #020617; box-shadow: 0 0 0 1px #334155; }
+    .avatar-circle { width: 42px; height: 42px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; cursor: pointer; border: 2px solid var(--bg-color); box-shadow: 0 0 0 1px #334155; }
 
   </style>
 </head>
@@ -212,7 +233,7 @@
 <div class="app-shell">
 
   <div id="splash-screen">
-    <img src="logo_2.png" alt="Guide du Détour" class="splash-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';" />
+    <img src="logo_2.png" alt="Guide du Détour" class="splash-logo" onerror="this.style.display='none';" />
     <div class="splash-slogan">Ça vaut le détour — à chaque trajet.</div>
     <div class="splash-progress"><div class="splash-progress-bar"></div></div>
     <div class="loading-text">Chargement...</div>
@@ -221,166 +242,101 @@
   <div id="auth-screen">
     <h1 class="auth-title">Bienvenue</h1>
     <p class="auth-subtitle">Préparez-vous à sortir des sentiers battus.</p>
-
     <div class="auth-tabs">
       <button class="tab active" id="tab-login">Connexion</button>
       <button class="tab" id="tab-register">Inscription</button>
       <div class="tab-indicator" id="tab-line"></div>
     </div>
-
-    <div class="input-wrapper">
-      <input type="email" id="email" class="input-field" placeholder=" " />
-      <label class="input-label">Email</label>
-    </div>
-    <div class="input-wrapper">
-      <input type="password" id="pwd" class="input-field" placeholder=" " />
-      <label class="input-label">Mot de passe</label>
-    </div>
-
+    <div class="input-wrapper"><input type="email" id="email" class="input-field" placeholder=" " /><label class="input-label">Email</label></div>
+    <div class="input-wrapper"><input type="password" id="pwd" class="input-field" placeholder=" " /><label class="input-label">Mot de passe</label></div>
     <button id="btn-auth-action" class="btn-primary">Se connecter</button>
-
     <div class="divider"><span>ou continuer avec</span></div>
-    <div class="social-login">
-      <button class="social-btn"></button><button class="social-btn">G</button><button class="social-btn">Fb</button>
-    </div>
+    <div class="social-login"><button class="social-btn"></button><button class="social-btn">G</button><button class="social-btn">Fb</button></div>
   </div>
 
   <div id="profile-screen">
     <div class="profile-nav">
       <button class="nav-btn" id="btn-profile-back">← Retour</button>
       <span class="nav-title">Mon Profil</span>
-      <button class="nav-btn danger" id="btn-logout">Sortir</button>
+      <button class="nav-btn" style="color:#ef4444;" id="btn-logout">Sortir</button>
     </div>
 
     <div class="profile-content">
       <div class="user-header">
-        <div class="avatar-big">
-          <span id="profile-avatar-char">U</span>
-          <div class="avatar-edit">✎</div>
-        </div>
-        
+        <div class="avatar-big"><span id="profile-avatar-char">U</span><div class="avatar-edit">✎</div></div>
         <div style="width:100%">
-          <div class="input-wrapper" style="margin-bottom:12px">
-            <input id="p-name" class="input-field" placeholder=" " value="" />
-            <label class="input-label">Prénom</label>
-          </div>
-          <div class="input-wrapper" style="margin-bottom:12px">
-            <input id="p-lastname" class="input-field" placeholder=" " value="" />
-            <label class="input-label">Nom</label>
-          </div>
-          <div class="input-wrapper" style="margin-bottom:12px">
-            <input id="p-email" class="input-field" placeholder=" " value="" />
-            <label class="input-label">Email</label>
-          </div>
-          <div class="input-wrapper" style="margin-bottom:0">
-            <input id="p-country" class="input-field" placeholder=" " value="France" />
-            <label class="input-label">Pays</label>
-          </div>
+          <div class="input-wrapper" style="margin-bottom:12px"><input id="p-name" class="input-field" placeholder=" " /><label class="input-label">Prénom</label></div>
+          <div class="input-wrapper" style="margin-bottom:12px"><input id="p-lastname" class="input-field" placeholder=" " /><label class="input-label">Nom</label></div>
+          <div class="input-wrapper" style="margin-bottom:0"><input id="p-country" class="input-field" placeholder=" " value="France" /><label class="input-label">Pays</label></div>
         </div>
       </div>
 
       <div class="section-title">Mes Intérêts</div>
-      
       <div class="interest-grid">
-        <div class="interest-card active" onclick="this.classList.toggle('active')">
-          <div class="interest-icon">🌿</div>
-          <div class="interest-name">Nature</div>
-        </div>
-        <div class="interest-card" onclick="this.classList.toggle('active')">
-          <div class="interest-icon">🏰</div>
-          <div class="interest-name">Histoire</div>
-        </div>
-        <div class="interest-card active" onclick="this.classList.toggle('active')">
-          <div class="interest-icon">🍷</div>
-          <div class="interest-name">Hédonisme</div>
-        </div>
-        <div class="interest-card" onclick="this.classList.toggle('active')">
-          <div class="interest-icon">👽</div>
-          <div class="interest-name">Curiosités</div>
-        </div>
+        <div class="interest-card active" onclick="this.classList.toggle('active')"><div class="interest-icon">🌿</div><div class="interest-name">Nature</div></div>
+        <div class="interest-card" onclick="this.classList.toggle('active')"><div class="interest-icon">🏰</div><div class="interest-name">Histoire</div></div>
+        <div class="interest-card active" onclick="this.classList.toggle('active')"><div class="interest-icon">🍷</div><div class="interest-name">Hédonisme</div></div>
+        <div class="interest-card" onclick="this.classList.toggle('active')"><div class="interest-icon">👽</div><div class="interest-name">Curiosités</div></div>
       </div>
-
-      <div class="slider-container">
-        <div class="slider-label">
-          <span>Niveau d'aventure</span>
-          <span class="slider-value" id="slider-val-label">Explorateur</span>
-        </div>
+      
+      <div class="settings-container">
+        <div class="slider-label"><span>Niveau d'aventure</span><span class="slider-value" id="slider-val-label">Explorateur</span></div>
         <input type="range" min="1" max="3" value="2" class="range-input" id="adventure-slider">
-        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:10px; color:#64748b;">
-          <span>Touriste</span>
-          <span>Curieux</span>
-          <span>Explorateur</span>
-        </div>
       </div>
 
       <div class="section-title">Préférences</div>
-      <div class="settings-list">
-        <div class="settings-item">
-          <div>
-            <div class="settings-text">Thème Sombre</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" checked class="toggle-input">
-            <span class="toggle-slider"></span>
-          </label>
+      
+      <div class="settings-container">
+        <div class="settings-row">
+            <label class="settings-label">Thème</label>
+            <div class="segment-control" id="theme-selector">
+                <button class="segment-btn" data-val="auto">Auto</button>
+                <button class="segment-btn" data-val="light">☀️ Clair</button>
+                <button class="segment-btn active" data-val="dark">🌑 Sombre</button>
+            </div>
         </div>
-        <div class="settings-item">
-          <div>
-            <div class="settings-text">Guidage Vocal</div>
-            <div class="settings-sub">Seulement les POI</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" checked class="toggle-input">
-            <span class="toggle-slider"></span>
-          </label>
+
+        <div class="settings-row">
+            <label class="settings-label">Guidage Vocal</label>
+            <div class="segment-control" id="voice-selector">
+                <button class="segment-btn" data-val="mute">🔇 Off</button>
+                <button class="segment-btn active" data-val="poi">🔔 POI</button>
+                <button class="segment-btn" data-val="all">🗣 Tout</button>
+            </div>
         </div>
-        <div class="settings-item">
-          <div>
-            <div class="settings-text">Route Intelligente</div>
-            <div class="settings-sub">Proposer des variantes</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" checked class="toggle-input">
-            <span class="toggle-slider"></span>
-          </label>
+
+         <div class="settings-row" style="display:flex; justify-content:space-between; align-items:center;">
+            <label class="settings-label" style="margin:0">Anti-Routine</label>
+            <div style="font-size:12px; color:var(--text-sub); margin-right:auto; margin-left:8px;">(Trajets habituels)</div>
+            <div style="width:40px; height:22px; background:#22c55e; border-radius:20px; position:relative;">
+                <div style="width:18px; height:18px; background:#fff; border-radius:50%; position:absolute; right:2px; top:2px;"></div>
+            </div>
         </div>
       </div>
 
       <div class="section-title">Mon Carnet</div>
       <div class="history-grid">
-        <div class="history-btn">
-          <span class="history-icon">🗺️</span>
-          <span class="history-label">Mes Trajets</span>
-        </div>
-        <div class="history-btn">
-          <span class="history-icon">📍</span>
-          <span class="history-label">Mes Lieux</span>
-        </div>
+        <div class="history-btn"><span class="history-icon">🗺️</span><span class="history-label">Mes Trajets</span></div>
+        <div class="history-btn"><span class="history-icon">📍</span><span class="history-label">Mes Lieux</span></div>
       </div>
-
     </div>
-    <div class="profile-footer">
-      <button id="btn-save-profile" class="btn-primary">Enregistrer les modifications</button>
-    </div>
+    <div class="profile-footer"><button id="btn-save-profile" class="btn-primary">Enregistrer</button></div>
   </div>
 
   <div id="main-screen">
     <header class="app-header">
-      <div>
-        <h2 style="margin:0; color:#fff; font-size: 22px;">Bonjour !</h2>
-        <p style="margin:4px 0 0; color:#9ca3af; font-size:14px;">Où allons-nous aujourd'hui ?</p>
-      </div>
+      <div><h2 style="margin:0; font-size: 22px;">Bonjour !</h2><p style="margin:4px 0 0; color:var(--text-sub); font-size:14px;">Prêt à partir ?</p></div>
       <div class="avatar-circle" id="main-avatar">U</div>
     </header>
-    <div style="flex:1; height: 60vh; border:1px solid #1f2937; border-radius:24px; background:rgba(15,23,42,0.5); display:flex; align-items:center; justify-content:center; color:#6b7280; flex-direction:column;">
-      <div style="font-size:40px; margin-bottom:16px;">🗺️</div>
-      <div>Carte Interactive (À venir)</div>
+    <div style="flex:1; height: 60vh; border:1px solid var(--glass-border); border-radius:24px; background:var(--card-bg); display:flex; align-items:center; justify-content:center; color:var(--text-sub); flex-direction:column;">
+      <div style="font-size:40px; margin-bottom:16px;">🗺️</div><div>Carte Interactive</div>
     </div>
   </div>
 
 </div>
 
 <script>
+  /* LOGIC */
   const els = {
     splash: document.getElementById('splash-screen'),
     auth: document.getElementById('auth-screen'),
@@ -390,120 +346,113 @@
     tabRegister: document.getElementById('tab-register'),
     authBtn: document.getElementById('btn-auth-action'),
     tabLine: document.getElementById('tab-line'),
-    
-    // Profile inputs
     pName: document.getElementById('p-name'),
-    pEmail: document.getElementById('p-email'),
     slider: document.getElementById('adventure-slider'),
     sliderLabel: document.getElementById('slider-val-label')
   };
 
   let isRegisterMode = false;
 
-  // INIT
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       els.splash.style.display = 'none';
-      // Проверяем вход
       if(localStorage.getItem('gddLoggedIn')) {
-        loadProfileData();
-        showScreen('main');
-        updateAvatar();
+        loadProfileData(); showScreen('main');
       } else {
-        showScreen('auth');
-        updateTabLine(els.tabLogin);
+        showScreen('auth'); updateTabLine(els.tabLogin);
       }
     }, 6000);
   });
 
   function showScreen(name) {
-    els.auth.style.display = 'none';
-    els.profile.style.display = 'none';
-    els.main.style.display = 'none';
+    els.auth.style.display = 'none'; els.profile.style.display = 'none'; els.main.style.display = 'none';
     if(name === 'auth') els.auth.style.display = 'flex';
     if(name === 'profile') els.profile.style.display = 'flex';
     if(name === 'main') els.main.style.display = 'block';
   }
 
-  // AUTH LOGIC
   function updateTabLine(activeTab) {
     els.tabLine.style.width = activeTab.offsetWidth + 'px';
     els.tabLine.style.left = activeTab.offsetLeft + 'px';
   }
   els.tabLogin.addEventListener('click', () => { isRegisterMode=false; setTabs(); });
   els.tabRegister.addEventListener('click', () => { isRegisterMode=true; setTabs(); });
-
   function setTabs() {
-    if (isRegisterMode) {
-      els.tabRegister.classList.add('active'); els.tabLogin.classList.remove('active');
-      els.authBtn.textContent = "Créer un compte";
-      updateTabLine(els.tabRegister);
-    } else {
-      els.tabLogin.classList.add('active'); els.tabRegister.classList.remove('active');
-      els.authBtn.textContent = "Se connecter";
-      updateTabLine(els.tabLogin);
-    }
+    if(isRegisterMode) { els.tabRegister.classList.add('active'); els.tabLogin.classList.remove('active'); els.authBtn.textContent = "Créer un compte"; updateTabLine(els.tabRegister); }
+    else { els.tabLogin.classList.add('active'); els.tabRegister.classList.remove('active'); els.authBtn.textContent = "Se connecter"; updateTabLine(els.tabLogin); }
   }
 
-  els.authBtn.addEventListener('click', handleAuth);
-  document.querySelectorAll('.social-btn').forEach(btn => btn.addEventListener('click', handleAuth));
-
-  function handleAuth() {
+  els.authBtn.addEventListener('click', () => {
     localStorage.setItem('gddLoggedIn', '1');
-    // Имитация: берем email из поля входа
-    const emailVal = document.getElementById('email').value;
-    if(emailVal) localStorage.setItem('gddEmail', emailVal);
+    if(isRegisterMode) showScreen('profile'); else { showScreen('main'); loadProfileData(); }
+  });
 
-    if (isRegisterMode) {
-      showScreen('profile'); // Новый юзер -> Профиль
-    } else {
-      showScreen('main'); // Старый -> Главная
-      updateAvatar();
-    }
-  }
+  document.querySelectorAll('.social-btn').forEach(b => b.addEventListener('click', () => {
+    localStorage.setItem('gddLoggedIn', '1'); showScreen('profile');
+  }));
 
-  // PROFILE LOGIC
+  // PROFILE & THEME LOGIC
   els.slider.addEventListener('input', (e) => {
     const val = parseInt(e.target.value);
-    const texts = ['Touriste', 'Curieux', 'Explorateur'];
-    els.sliderLabel.textContent = texts[val-1];
+    els.sliderLabel.textContent = ['Touriste', 'Curieux', 'Explorateur'][val-1];
+  });
+
+  // Theme Selector Logic
+  const themeBtns = document.querySelectorAll('#theme-selector .segment-btn');
+  themeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+          // UI Update
+          themeBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          // Logic
+          const mode = btn.getAttribute('data-val');
+          if(mode === 'light') {
+              document.documentElement.setAttribute('data-theme', 'light');
+          } else if (mode === 'dark') {
+              document.documentElement.removeAttribute('data-theme');
+          } else {
+              // Auto: Check system
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  document.documentElement.removeAttribute('data-theme');
+              } else {
+                  document.documentElement.setAttribute('data-theme', 'light');
+              }
+          }
+      });
+  });
+
+  // Voice Selector UI (Visual only for now)
+  const voiceBtns = document.querySelectorAll('#voice-selector .segment-btn');
+  voiceBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+          voiceBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+      });
   });
 
   document.getElementById('btn-save-profile').addEventListener('click', () => {
-    saveProfileData();
+    localStorage.setItem('gddName', els.pName.value);
     showScreen('main');
-    updateAvatar();
-  });
-
-  document.getElementById('btn-logout').addEventListener('click', () => {
-    localStorage.removeItem('gddLoggedIn');
-    showScreen('auth');
-  });
-
-  document.getElementById('btn-profile-back').addEventListener('click', () => {
-    showScreen('main'); // Если мы пришли с главной
+    loadProfileData();
   });
 
   document.getElementById('main-avatar').addEventListener('click', () => {
-    loadProfileData();
-    showScreen('profile');
+    loadProfileData(); showScreen('profile');
   });
 
-  function saveProfileData() {
-    localStorage.setItem('gddName', els.pName.value);
-    localStorage.setItem('gddEmail', els.pEmail.value);
-  }
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    localStorage.removeItem('gddLoggedIn'); showScreen('auth');
+  });
+
+  document.getElementById('btn-profile-back').addEventListener('click', () => showScreen('main'));
 
   function loadProfileData() {
-    els.pName.value = localStorage.getItem('gddName') || '';
-    els.pEmail.value = localStorage.getItem('gddEmail') || '';
-    const initial = (els.pName.value || 'U').charAt(0).toUpperCase();
+    const name = localStorage.getItem('gddName') || '';
+    if(name) els.pName.value = name;
+    const initial = (name || 'U').charAt(0).toUpperCase();
     document.getElementById('profile-avatar-char').textContent = initial;
-  }
-
-  function updateAvatar() {
-    const name = localStorage.getItem('gddName') || 'User';
-    document.getElementById('main-avatar').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('main-avatar').textContent = initial;
   }
 
 </script>
