@@ -2,16 +2,15 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Fix Map</title>
+  <title>Guide du Détour · v0.6.8 Fix Search</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* --- 1. VARIABLES --- */
+    /* --- VARIABLES --- */
     :root {
-      /* DARK (Default) */
       --bg-color: #020617;
       --bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
       --text-main: #ffffff;
@@ -19,7 +18,6 @@
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
       
-      /* GLASS SETTINGS */
       --glass-border: rgba(255,255,255,0.15);
       --glass-bg: rgba(2, 6, 23, 0.45);
       --glass-blur: blur(20px);
@@ -33,16 +31,14 @@
     }
 
     [data-theme="light"] {
-      --bg-color: #ffffff;
-      --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+      --bg-color: #f8fafc;
+      --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 100%);
       --text-main: #0f172a;
       --text-sub: #475569;
-      
       --glass-border: rgba(0,0,0,0.08);
-      --glass-bg: rgba(255,255,255,0.65);
-      --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+      --glass-bg: rgba(255,255,255,0.85);
+      --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.5) 100%);
       --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 15px rgba(0,0,0,0.05);
-      
       --card-bg: #f8fafc;
       --active-card-bg: #dcfce7; 
       --active-text: #166534;
@@ -54,22 +50,24 @@
     body { display: flex; justify-content: center; align-items: stretch; }
     .app-shell { width: 100%; max-width: 430px; height: 100vh; background: var(--bg-gradient); overflow: hidden; position: relative; }
 
-    /* --- UI KIT --- */
     .btn-primary { width: 100%; padding: 16px; border-radius: 24px; border: none; background: var(--primary-grad); color: #020617; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px -6px rgba(34, 197, 94, 0.6); transform: scale(1); transition: 0.2s; }
     .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
     .icon { width: 24px; height: 24px; stroke-width: 2; stroke: currentColor; fill: none; }
     .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-    /* --- SCREENS --- */
-    #splash-screen, #auth-screen { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; background: #020617; }
+    /* --- SCREENS CSS --- */
+    #splash-screen, #auth-screen, #profile-screen, #main-screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
+    
+    #splash-screen { z-index: 100; background: #020617; align-items: center; justify-content: center; padding: 30px; }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
     .splash-slogan { width: 280px; font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 40px; opacity: 0; animation: fadeUp 1s forwards 0.8s; }
     .splash-progress { width: 280px; height: 2px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; margin-top: 40px;}
     .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
     .loading-text { font-size: 10px; color: #94a3b8; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; animation: fadeUp 1s forwards 0.2s;}
+    .app-version { position: absolute; bottom: 30px; font-size: 10px; color: #475569; font-family: monospace; }
 
-    #auth-screen { background: var(--bg-color); justify-content: center; z-index: 90; }
+    #auth-screen { z-index: 90; background: var(--bg-color); justify-content: center; padding: 32px; display: none; }
     h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: var(--text-main); }
     .auth-tabs { display: flex; gap: 32px; margin-bottom: 32px; position: relative; width: 100%; }
     .tab { background: none; border: none; padding: 0 0 8px 0; font-size: 16px; color: rgba(255,255,255,0.5); font-weight: 600; cursor: pointer; transition: 0.3s; }
@@ -82,16 +80,8 @@
     .social-login { display: flex; gap: 24px; }
     .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; }
 
-    @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* --- PROFILE --- */
-    #profile-screen { position: absolute; inset: 0; z-index: 95; display: none; flex-direction: column; background: var(--bg-color); overflow-y: auto; transition: background 0.3s ease; animation: fadeIn 0.4s ease-out; }
-    .profile-nav { 
-        display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; 
-        background: var(--nav-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--glass-border);
-    }
+    #profile-screen { z-index: 95; background: var(--bg-color); overflow-y: auto; display: none; }
+    .profile-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; background: var(--nav-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); }
     .nav-title { font-weight: 600; font-size: 17px; color: var(--text-main); opacity: 0.9; }
     .nav-btn { background: none; border: none; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-main); }
     .profile-content { padding: 0 24px 120px 24px; }
@@ -104,7 +94,6 @@
     .input-name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
     .input-sub { font-size: 15px; color: var(--text-sub); font-weight: 500; }
     .section-header { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 40px 0 16px; display: flex; align-items: center; justify-content: space-between; }
-    
     .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .interest-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 12px; }
     .interest-card.active { background: var(--active-card-bg); }
@@ -112,7 +101,6 @@
     .interest-card.active .interest-name { color: var(--active-text); }
     .interest-card .icon { stroke: var(--text-sub); }
     .interest-card.active .icon { stroke: var(--active-text); }
-    
     .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 40px; }
     .tag-pill { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.05); color: var(--text-sub); cursor: pointer; }
     [data-theme="light"] .tag-pill { background: #f1f5f9; }
@@ -125,77 +113,101 @@
     .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px 30px; background: linear-gradient(to top, var(--bg-color) 60%, transparent); z-index: 20; display: flex; justify-content: center; }
     .save-btn { width: 100%; max-width: 430px; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-
-    /* --- 5. MAP SCREEN (SUPER GLASS) --- */
-    #main-screen { position: absolute; inset: 0; z-index: 10; display: none; }
-    
-    /* !!! FIXED: Map Container full size !!! */
-    #map-container { 
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
-      z-index: 0; background: #0b1120; 
-    }
+    /* --- MAIN MAP SCREEN --- */
+    #main-screen { z-index: 10; display: none; }
+    #map-container { position: absolute; inset: 0; z-index: 0; background: #0b1120; }
     .leaflet-control-attribution { display: none; }
 
-    /* Top Bar with Glare */
     .map-top-bar { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
+    
+    /* Search Box Container */
     .route-box {
-      background: var(--glass-bg); 
+      background: var(--glass-bg-grad); 
       backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      box-shadow: var(--glass-shadow); 
-      background-image: var(--glass-bg-grad);
+      border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
       border-radius: 24px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+      position: relative; /* For suggestions absolute pos */
     }
-    .route-row { display: flex; align-items: center; gap: 12px; }
+    
+    .route-row { display: flex; align-items: center; gap: 12px; position: relative; }
     .route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .dot-start { background: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
     .dot-end { background: var(--primary); box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
-    .route-input { width: 100%; background: transparent; border: none; font-size: 15px; color: var(--text-main); font-weight: 500; padding: 4px 0; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    
+    .route-input {
+      width: 100%; background: transparent; border: none;
+      font-size: 15px; color: var(--text-main); font-weight: 500;
+      padding: 4px 0; text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
     .route-input::placeholder { color: var(--text-sub); opacity: 0.8; }
     .route-input:focus { outline: none; }
-    .divider-h { height: 1px; background: rgba(255,255,255,0.1); margin-left: 20px; }
+    
+    .divider-h { height: 1px; background: rgba(255,255,255,0.1); margin-left: 20px; opacity: 0.5; }
 
-    /* Side Buttons with Glare */
-    .map-side-btns { position: absolute; right: 16px; top: 150px; z-index: 20; display: flex; flex-direction: column; gap: 12px; }
+    /* UNIFIED SUGGESTIONS LIST (FLOATING) */
+    #suggestions-list {
+        display: none;
+        position: absolute; /* Relative to route-box */
+        top: 100%; left: 0; right: 0; 
+        margin-top: 8px;
+        background: var(--nav-bg);
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--glass-border); border-radius: 16px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        max-height: 220px; overflow-y: auto; z-index: 100;
+        padding: 6px;
+    }
+    .suggestion-item {
+        padding: 12px 14px; font-size: 14px; color: var(--text-main);
+        border-radius: 12px; cursor: pointer; transition: 0.2s;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        display: flex; align-items: center; gap: 8px;
+    }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:active { background: rgba(255,255,255,0.1); }
+    .suggestion-icon { font-size: 12px; opacity: 0.5; }
+
+    /* SIDE BUTTONS */
+    .map-side-btns { position: absolute; right: 16px; top: 160px; z-index: 20; display: flex; flex-direction: column; gap: 12px; }
     .side-btn {
       width: 44px; height: 44px; border-radius: 50%;
-      background: var(--glass-bg); 
-      background-image: var(--glass-bg-grad);
-      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border); box-shadow: var(--glass-shadow);
+      background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
       color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
     }
     .side-btn:active { transform: scale(0.92); }
     .side-btn.avatar-btn { font-weight: 700; font-size: 16px; }
 
-    /* Bottom Panel */
+    /* BOTTOM COCKPIT */
     .map-bottom-panel {
       position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; padding: 20px 16px 34px;
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
       display: flex; flex-direction: column; gap: 12px; pointer-events: none;
     }
     .avoid-row, .go-btn-row { pointer-events: auto; }
     .avoid-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; justify-content: center; }
-    /* Avoid Buttons with Glare */
     .avoid-btn {
       display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 14px;
-      background: var(--glass-bg); 
-      background-image: var(--glass-bg-grad);
-      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border); box-shadow: var(--glass-shadow);
+      background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
       color: var(--text-sub); font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap;
     }
-    .avoid-btn.active { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444; box-shadow: inset 0 1px 1px rgba(239, 68, 68, 0.3); }
+    /* Active Avoidance = Red Alert Style */
+    .avoid-btn.active {
+      background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444; box-shadow: inset 0 0 10px rgba(239,68,68,0.2);
+    }
     .avoid-btn .icon { width: 14px; height: 14px; }
     .go-btn-row { display: flex; width: 100%; }
     .go-btn { flex: 1; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); backdrop-filter: none; }
 
-    /* BRAND MARKER */
     .user-marker-brand { position: relative; width: 20px; height: 20px; background: #22c55e; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #22c55e; }
     .user-marker-brand::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 2px solid #22c55e; opacity: 0; animation: pulse-green 2s infinite; }
     @keyframes pulse-green { 0% { transform: scale(0.5); opacity: 1; border-width: 4px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
+    .marker-end { width: 16px; height: 16px; background: #000; border: 3px solid #4ade80; border-radius: 50%; }
+
+    @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -222,6 +234,7 @@
     <div class="splash-slogan">Ça vaut le détour — à chaque trajet.</div>
     <div class="splash-progress"><div class="splash-progress-bar"></div></div>
     <div class="loading-text">Chargement...</div>
+    <div class="app-version">v0.6.8 Fix Search</div>
   </div>
 
   <div id="auth-screen">
@@ -277,28 +290,39 @@
          <div class="interest-card" style="flex-direction:row; justify-content:center;"><svg class="icon" style="margin-right:8px;"><use href="#icon-map"></use></svg><span style="font-weight:600; font-size:14px;">Trajets</span></div>
          <div class="interest-card" style="flex-direction:row; justify-content:center;"><svg class="icon" style="margin-right:8px;"><use href="#icon-pin"></use></svg><span style="font-weight:600; font-size:14px;">Lieux</span></div>
       </div>
+      <div class="app-version">v0.6.8 Alpha</div>
     </div>
     <div class="profile-footer"><button id="btn-save-profile" class="btn-primary save-btn">Enregistrer</button></div>
   </div>
 
   <div id="main-screen">
     <div id="map-container"></div>
+    
     <div class="map-top-bar">
       <div class="route-box">
-        <div class="route-row"><div class="route-dot dot-start"></div><input class="route-input" id="start-input" value="Ma position actuelle" placeholder="Départ" /></div>
+        <div class="route-row">
+          <div class="route-dot dot-start"></div>
+          <input class="route-input" id="start-input" value="Ma position actuelle" placeholder="Départ" />
+        </div>
         <div class="divider-h"></div>
-        <div class="route-row"><div class="route-dot dot-end"></div><input class="route-input" id="destination-input" placeholder="Où on va ?" /></div>
+        <div class="route-row">
+          <div class="route-dot dot-end"></div>
+          <input class="route-input" id="dest-input" placeholder="Où on va ?" />
+        </div>
+        <div id="suggestions-list"></div>
       </div>
     </div>
+
     <div class="map-side-btns">
       <button class="side-btn avatar-btn" id="btn-profile-open">A</button>
       <button class="side-btn" id="btn-locate"><svg class="icon"><use href="#icon-loc"></use></svg></button>
     </div>
+
     <div class="map-bottom-panel">
       <div class="avoid-row">
-        <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-toll"></use></svg>Péages</button>
-        <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-hwy"></use></svg>Autoroutes</button>
-        <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-offroad"></use></svg>Chemins</button>
+        <button class="avoid-btn" id="btn-avoid-toll" onclick="toggleAvoid(this)"><svg class="icon"><use href="#icon-toll"></use></svg>Péages</button>
+        <button class="avoid-btn" id="btn-avoid-hwy" onclick="toggleAvoid(this)"><svg class="icon"><use href="#icon-hwy"></use></svg>Autoroutes</button>
+        <button class="avoid-btn" id="btn-avoid-offroad" onclick="toggleAvoid(this)"><svg class="icon"><use href="#icon-offroad"></use></svg>Chemins</button>
       </div>
       <div class="go-btn-row">
         <button class="btn-primary go-btn" id="btn-trace-route">Tracer l'itinéraire</button>
@@ -309,6 +333,8 @@
 </div>
 
 <script>
+  const APP_VERSION = 'v0.6.8 Fix Search';
+  
   const els = {
     splash: document.getElementById('splash-screen'),
     auth: document.getElementById('auth-screen'),
@@ -321,8 +347,9 @@
     pFirstname: document.getElementById('p-firstname'),
     tagCloud: document.getElementById('tag-cloud'),
     startInput: document.getElementById('start-input'),
-    destInput: document.getElementById('destination-input'),
-    traceBtn: document.getElementById('btn-trace-route')
+    destInput: document.getElementById('dest-input'),
+    traceBtn: document.getElementById('btn-trace-route'),
+    suggestionsList: document.getElementById('suggestions-list')
   };
 
   let map, userMarker, tileLayer, routeLayer;
@@ -331,8 +358,10 @@
   let startCoords = null;
   let destCoords = null;
   let destMarker = null;
+  let activeInput = null; // To know which input is focused for autocomplete
 
   document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('.app-version').textContent = APP_VERSION;
     setTimeout(() => {
       els.splash.style.display = 'none';
       if(localStorage.getItem('gddLoggedIn')) { loadProfileData(); showScreen('main'); } 
@@ -351,7 +380,7 @@
 
   // --- TAGS LOGIC ---
   const TAGS_DB = {
-    nature: ['Forêts', 'Lacs', 'Montagnes', 'Grottes', 'Cascades', 'Panoramas'],
+    nature: ['Forêts', 'Lacs', 'Montagnes', 'Grottes', 'Cascades'],
     history: ['Châteaux', 'Ruines', 'Églises', 'Monuments', 'Musées', 'Architecture'],
     hedonism: ['Vignobles', 'Brasseries', 'Marchés', 'Fermes', 'Fromageries', 'Gastronomie'],
     curiosity: ['Abandonné', 'Légendes', 'Street Art', 'Villages fantômes', 'Insolite']
@@ -377,7 +406,7 @@
         els.main.style.display = 'block';
         setTimeout(() => {
             initMap();
-            if(map) map.invalidateSize(); // FIX MAP BLACK SCREEN
+            if(map) map.invalidateSize();
         }, 100);
     }
   }
@@ -425,14 +454,22 @@
     userMarker = L.marker([48.8566, 2.3522], {icon: icon}).addTo(map);
     routeLayer = L.layerGroup().addTo(map);
 
+    // Auto default position
+    if(!startCoords && navigator.geolocation) {
+       navigator.geolocation.getCurrentPosition(pos => {
+          startCoords = {lat: pos.coords.latitude, lon: pos.coords.longitude};
+          map.setView([startCoords.lat, startCoords.lon], 14);
+          userMarker.setLatLng([startCoords.lat, startCoords.lon]);
+       });
+    }
+
     map.on('click', async (e) => {
         const {lat, lng} = e.latlng;
         if(destMarker) routeLayer.removeLayer(destMarker);
-        const endIcon = L.divIcon({ className: 'custom-div-icon', html: "<div style='width:16px;height:16px;background:#000;border:3px solid #4ade80;border-radius:50%'></div>", iconSize: [16,16] });
+        const endIcon = L.divIcon({ className: 'marker-end', iconSize: [16,16] });
         destMarker = L.marker([lat, lng], {icon: endIcon}).addTo(routeLayer);
         destCoords = {lat, lon: lng};
         els.destInput.value = "Point sur la carte...";
-        
         try {
             const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
             const data = await res.json();
@@ -463,12 +500,77 @@
     }
   });
 
+  // --- DUAL AUTOCOMPLETE ---
+  function setupAutocomplete(inputElem, isStart) {
+      let debounceTimer;
+      inputElem.addEventListener('focus', () => activeInput = inputElem);
+      inputElem.addEventListener('input', (e) => {
+          const query = e.target.value;
+          clearTimeout(debounceTimer);
+          if(query.length < 3) { els.suggestionsList.style.display = 'none'; return; }
+          
+          debounceTimer = setTimeout(async () => {
+              try {
+                  const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`);
+                  const data = await res.json();
+                  showSuggestions(data, isStart);
+              } catch(err) {}
+          }, 500);
+      });
+  }
+
+  setupAutocomplete(els.startInput, true);
+  setupAutocomplete(els.destInput, false);
+
+  function showSuggestions(data, isStart) {
+      els.suggestionsList.innerHTML = '';
+      if(!data || data.length === 0) { els.suggestionsList.style.display = 'none'; return; }
+      data.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'suggestion-item';
+          div.innerHTML = `<span class="suggestion-icon">📍</span> ${item.display_name.split(',').slice(0,2).join(',')}`;
+          div.onclick = () => {
+              if(isStart) {
+                  els.startInput.value = item.display_name.split(',')[0];
+                  startCoords = { lat: item.lat, lon: item.lon };
+                  map.setView([item.lat, item.lon], 14);
+                  userMarker.setLatLng([item.lat, item.lon]);
+              } else {
+                  els.destInput.value = item.display_name.split(',')[0];
+                  destCoords = { lat: item.lat, lon: item.lon };
+                  if(destMarker) routeLayer.removeLayer(destMarker);
+                  const endIcon = L.divIcon({ className: 'marker-end', iconSize: [16,16] });
+                  destMarker = L.marker([item.lat, item.lon], {icon: endIcon}).addTo(routeLayer);
+                  map.setView([item.lat, item.lon], 14);
+              }
+              els.suggestionsList.style.display = 'none';
+          };
+          els.suggestionsList.appendChild(div);
+      });
+      els.suggestionsList.style.display = 'block';
+  }
+
+  // Click outside closes suggestions
+  document.addEventListener('click', (e) => {
+      if(!e.target.closest('.route-box')) els.suggestionsList.style.display = 'none';
+  });
+
+  window.toggleAvoid = (btn) => btn.classList.toggle('active');
+
   els.traceBtn.addEventListener('click', async () => {
       if(!destCoords) { alert("Veuillez sélectionner une destination"); return; }
-      if(!startCoords) startCoords = {lat: 48.8566, lon: 2.3522};
-      els.traceBtn.textContent = "Calcul...";
+      if(!startCoords) { alert("Veuillez définir le départ"); return; } // Must have start
+      els.traceBtn.textContent = "Calcul avec évitement...";
       
+      // Construct OSRM URL
       let url = `https://router.project-osrm.org/route/v1/driving/${startCoords.lon},${startCoords.lat};${destCoords.lon},${destCoords.lat}?overview=full&geometries=geojson`;
+      
+      // Handle Exclusions
+      const exclude = [];
+      if(document.getElementById('btn-avoid-toll').classList.contains('active')) exclude.push('toll');
+      if(document.getElementById('btn-avoid-hwy').classList.contains('active')) exclude.push('motorway');
+      if(exclude.length > 0) url += `&exclude=${exclude.join(',')}`;
+
       try {
           const res = await fetch(url);
           const data = await res.json();
@@ -478,8 +580,11 @@
               if(destMarker) destMarker.addTo(routeLayer);
               L.geoJSON(route.geometry, { style: { color: '#22c55e', weight: 5, opacity: 0.8 } }).addTo(routeLayer);
               map.fitBounds(L.geoJSON(route.geometry).getBounds(), {padding: [50, 150]});
+          } else {
+              alert("Aucune route trouvée avec ces restrictions.");
           }
-      } catch(e) {} finally { els.traceBtn.textContent = "Tracer l'itinéraire"; }
+      } catch(e) { alert("Erreur de connexion au serveur de routage."); } 
+      finally { els.traceBtn.textContent = "Tracer l'itinéraire"; }
   });
 
 </script>
