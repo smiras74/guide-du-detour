@@ -2,16 +2,15 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Theme Engine</title>
+  <title>Guide du Détour · Dynamic Tags</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* --- GLOBAL VARIABLES (THEME ENGINE) --- */
+    /* --- VARIABLES & THEME --- */
     :root {
-      /* Default (Dark) Colors */
       --bg-color: #020617;
       --bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
       --text-main: #ffffff;
@@ -24,23 +23,20 @@
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
       
-      --nav-bg: rgba(2, 6, 23, 0.8);
+      --nav-bg: rgba(2, 6, 23, 0.9);
       --input-bg: rgba(255,255,255,0.05);
       --input-focus-bg: rgba(255,255,255,0.15);
     }
 
-    /* LIGHT THEME OVERRIDES */
     [data-theme="light"] {
       --bg-color: #f8fafc;
       --bg-gradient: radial-gradient(circle at 50% -20%, #e2e8f0 0%, #f8fafc 80%);
       --text-main: #0f172a;
       --text-sub: #64748b;
-      
       --card-bg: #ffffff;
       --glass-border: rgba(0,0,0,0.1);
       --glass-bg: rgba(255,255,255,0.8);
-      
-      --nav-bg: rgba(255, 255, 255, 0.8);
+      --nav-bg: rgba(255, 255, 255, 0.9);
       --input-bg: #ffffff;
       --input-focus-bg: #f1f5f9;
     }
@@ -65,7 +61,7 @@
       transition: background 0.3s ease;
     }
 
-    /* --- UI COMPONENTS --- */
+    /* --- UI KIT --- */
     .btn-primary {
       width: 100%; padding: 16px; border-radius: 20px; border: none;
       background: var(--primary-grad);
@@ -75,10 +71,12 @@
     }
     .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
 
-    /* --- SPLASH --- */
+    ::-webkit-scrollbar { width: 0px; background: transparent; }
+
+    /* --- 1. SPLASH --- */
     #splash-screen {
       position: absolute; inset: 0; z-index: 100;
-      background: #020617; /* Splash всегда темный для стиля */
+      background: #020617;
       display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;
     }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
@@ -88,7 +86,7 @@
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* --- AUTH --- */
+    /* --- 2. AUTH --- */
     #auth-screen {
       position: absolute; inset: 0; z-index: 90; display: none;
       flex-direction: column; justify-content: center; padding: 32px;
@@ -118,13 +116,11 @@
     .social-login { display: flex; justify-content: center; gap: 24px; }
     .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; }
 
-
-    /* --- PROFILE SCREEN --- */
+    /* --- 3. PROFILE --- */
     #profile-screen {
       position: absolute; inset: 0; z-index: 95; display: none;
       flex-direction: column; background: var(--bg-color); overflow-y: auto;
-      transition: background 0.3s ease;
-      animation: fadeIn 0.4s ease-out;
+      transition: background 0.3s ease; animation: fadeIn 0.4s ease-out;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -154,74 +150,58 @@
 
     .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-sub); margin-bottom: 16px; margin-top: 10px; }
     
-    .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    /* --- INTERESTS & TAGS --- */
+    .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .interest-card {
       background: var(--card-bg); border: 1px solid var(--glass-border);
       border-radius: 16px; padding: 16px; cursor: pointer; transition: 0.2s;
       display: flex; flex-direction: column; align-items: center; gap: 8px;
       color: var(--text-main);
     }
-    .interest-card.active {
-      background: rgba(34, 197, 94, 0.15); border-color: #22c55e;
-    }
+    .interest-card.active { background: rgba(34, 197, 94, 0.15); border-color: #22c55e; }
     .interest-icon { font-size: 24px; }
     .interest-name { font-size: 13px; font-weight: 600; }
     .interest-card.active .interest-name { color: #4ade80; }
 
-    /* NEW SEGMENTED CONTROLS */
-    .settings-container {
-        background: var(--card-bg); border: 1px solid var(--glass-border);
-        border-radius: 16px; padding: 16px; margin-bottom: 24px;
+    /* Tag Cloud Container */
+    .tag-cloud-wrapper {
+        min-height: 0; transition: all 0.3s ease; overflow: hidden; margin-bottom: 24px;
     }
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
+    .tag-pill {
+        font-size: 12px; padding: 6px 14px; border-radius: 20px;
+        background: var(--glass-bg); border: 1px solid var(--glass-border);
+        color: var(--text-sub); cursor: pointer; transition: 0.2s; user-select: none;
+    }
+    .tag-pill:hover { border-color: #4ade80; }
+    .tag-pill.selected {
+        background: var(--primary); color: #020617; border-color: var(--primary); font-weight: 600;
+    }
+    .empty-tags-hint { font-size: 12px; color: var(--text-sub); font-style: italic; opacity: 0.6; }
+
+    /* Settings & Slider */
+    .settings-container { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; margin-bottom: 24px; }
     .settings-row { margin-bottom: 20px; }
     .settings-row:last-child { margin-bottom: 0; }
     .settings-label { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; }
     
-    .segment-control {
-        display: flex; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 12px;
-        border: 1px solid var(--glass-border);
-    }
+    .segment-control { display: flex; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 12px; border: 1px solid var(--glass-border); }
     [data-theme="light"] .segment-control { background: rgba(0,0,0,0.05); }
+    .segment-btn { flex: 1; padding: 8px; border: none; background: transparent; color: var(--text-sub); font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+    .segment-btn.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 600; }
 
-    .segment-btn {
-        flex: 1; padding: 8px; border: none; background: transparent;
-        color: var(--text-sub); font-size: 13px; font-weight: 500; cursor: pointer;
-        border-radius: 8px; transition: 0.2s; text-align: center;
-    }
-    .segment-btn.active {
-        background: var(--bg-color); color: var(--text-main);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 600;
-    }
-
-    /* Slider */
     .slider-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-main); margin-bottom: 12px; font-weight: 600; }
     .slider-value { color: #4ade80; }
-    .range-input {
-      width: 100%; -webkit-appearance: none; height: 6px; border-radius: 99px;
-      background: var(--glass-border); outline: none;
-    }
-    .range-input::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
-      background: #22c55e; cursor: pointer; border: 2px solid var(--bg-color);
-      box-shadow: 0 0 10px rgba(34,197,94,0.5);
-    }
+    .range-input { width: 100%; -webkit-appearance: none; height: 6px; border-radius: 99px; background: var(--glass-border); outline: none; }
+    .range-input::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #22c55e; cursor: pointer; border: 2px solid var(--bg-color); box-shadow: 0 0 10px rgba(34,197,94,0.5); }
 
-    /* History Grid */
     .history-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .history-btn {
-      background: var(--card-bg); border: 1px solid var(--glass-border); color: var(--text-main);
-      padding: 20px; border-radius: 16px; text-align: center; cursor: pointer;
-    }
+    .history-btn { background: var(--card-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; }
     .history-icon { font-size: 24px; margin-bottom: 8px; display: block; }
     .history-label { font-size: 14px; font-weight: 600; }
+    .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); z-index: 20; }
 
-    .profile-footer {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      padding: 20px 24px; background: linear-gradient(to top, var(--bg-color) 80%, transparent);
-      z-index: 20;
-    }
-
-    /* --- 4. MAIN SCREEN --- */
+    /* --- 4. MAIN --- */
     #main-screen { position: absolute; inset: 0; padding: 20px; display: none; }
     .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .avatar-circle { width: 42px; height: 42px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; cursor: pointer; border: 2px solid var(--bg-color); box-shadow: 0 0 0 1px #334155; }
@@ -273,19 +253,25 @@
 
       <div class="section-title">Mes Intérêts</div>
       <div class="interest-grid">
-        <div class="interest-card active" onclick="this.classList.toggle('active')"><div class="interest-icon">🌿</div><div class="interest-name">Nature</div></div>
-        <div class="interest-card" onclick="this.classList.toggle('active')"><div class="interest-icon">🏰</div><div class="interest-name">Histoire</div></div>
-        <div class="interest-card active" onclick="this.classList.toggle('active')"><div class="interest-icon">🍷</div><div class="interest-name">Hédonisme</div></div>
-        <div class="interest-card" onclick="this.classList.toggle('active')"><div class="interest-icon">👽</div><div class="interest-name">Curiosités</div></div>
+        <div class="interest-card" data-cat="nature"><div class="interest-icon">🌿</div><div class="interest-name">Nature</div></div>
+        <div class="interest-card" data-cat="history"><div class="interest-icon">🏰</div><div class="interest-name">Histoire</div></div>
+        <div class="interest-card" data-cat="hedonism"><div class="interest-icon">🍷</div><div class="interest-name">Hédonisme</div></div>
+        <div class="interest-card" data-cat="curiosity"><div class="interest-icon">👽</div><div class="interest-name">Curiosités</div></div>
       </div>
       
+      <div class="tag-cloud-wrapper">
+        <div class="section-title" style="font-size:11px; margin-top:0;">Précisez vos envies</div>
+        <div class="tag-cloud" id="tag-cloud">
+           <div class="empty-tags-hint">Sélectionnez une catégorie ci-dessus pour voir les tags...</div>
+        </div>
+      </div>
+
       <div class="settings-container">
         <div class="slider-label"><span>Niveau d'aventure</span><span class="slider-value" id="slider-val-label">Explorateur</span></div>
         <input type="range" min="1" max="3" value="2" class="range-input" id="adventure-slider">
       </div>
 
       <div class="section-title">Préférences</div>
-      
       <div class="settings-container">
         <div class="settings-row">
             <label class="settings-label">Thème</label>
@@ -295,7 +281,6 @@
                 <button class="segment-btn active" data-val="dark">🌑 Sombre</button>
             </div>
         </div>
-
         <div class="settings-row">
             <label class="settings-label">Guidage Vocal</label>
             <div class="segment-control" id="voice-selector">
@@ -304,7 +289,6 @@
                 <button class="segment-btn" data-val="all">🗣 Tout</button>
             </div>
         </div>
-
          <div class="settings-row" style="display:flex; justify-content:space-between; align-items:center;">
             <label class="settings-label" style="margin:0">Anti-Routine</label>
             <div style="font-size:12px; color:var(--text-sub); margin-right:auto; margin-left:8px;">(Trajets habituels)</div>
@@ -329,7 +313,8 @@
       <div class="avatar-circle" id="main-avatar">U</div>
     </header>
     <div style="flex:1; height: 60vh; border:1px solid var(--glass-border); border-radius:24px; background:var(--card-bg); display:flex; align-items:center; justify-content:center; color:var(--text-sub); flex-direction:column;">
-      <div style="font-size:40px; margin-bottom:16px;">🗺️</div><div>Carte Interactive</div>
+      <div style="font-size:40px; margin-bottom:16px;">🗺️</div>
+      <div>Carte Interactive</div>
     </div>
   </div>
 
@@ -348,10 +333,20 @@
     tabLine: document.getElementById('tab-line'),
     pName: document.getElementById('p-name'),
     slider: document.getElementById('adventure-slider'),
-    sliderLabel: document.getElementById('slider-val-label')
+    sliderLabel: document.getElementById('slider-val-label'),
+    tagCloud: document.getElementById('tag-cloud')
   };
 
   let isRegisterMode = false;
+
+  // --- TAGS DATABASE ---
+  const TAGS_DB = {
+    nature: ['Forêts', 'Lacs & Rivières', 'Montagnes', 'Grottes', 'Cascades', 'Panoramas', 'Plages sauvages'],
+    history: ['Châteaux', 'Ruines', 'Églises & Chapelles', 'Monuments', 'Champs de bataille', 'Musées', 'Architecture'],
+    hedonism: ['Vignobles', 'Brasseries', 'Marchés locaux', 'Fermes', 'Fromageries', 'Restaurants typiques'],
+    curiosity: ['Lieux abandonnés', 'Légendes', 'Art de rue', 'Villages fantômes', 'Insolite', 'Mystique']
+  };
+  let activeCategories = new Set(); // Store active categories
 
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
@@ -362,7 +357,42 @@
         showScreen('auth'); updateTabLine(els.tabLogin);
       }
     }, 6000);
+
+    // Init Interest Cards Logic
+    document.querySelectorAll('.interest-card').forEach(card => {
+        card.addEventListener('click', () => {
+            card.classList.toggle('active');
+            const cat = card.getAttribute('data-cat');
+            if (card.classList.contains('active')) {
+                activeCategories.add(cat);
+            } else {
+                activeCategories.delete(cat);
+            }
+            renderTags();
+        });
+    });
   });
+
+  function renderTags() {
+      els.tagCloud.innerHTML = '';
+      if (activeCategories.size === 0) {
+          els.tagCloud.innerHTML = '<div class="empty-tags-hint">Sélectionnez une catégorie ci-dessus...</div>';
+          return;
+      }
+
+      activeCategories.forEach(cat => {
+          const tags = TAGS_DB[cat];
+          if(tags) {
+              tags.forEach(tag => {
+                  const pill = document.createElement('div');
+                  pill.className = 'tag-pill';
+                  pill.textContent = tag;
+                  pill.onclick = () => pill.classList.toggle('selected');
+                  els.tagCloud.appendChild(pill);
+              });
+          }
+      });
+  }
 
   function showScreen(name) {
     els.auth.style.display = 'none'; els.profile.style.display = 'none'; els.main.style.display = 'none';
@@ -391,7 +421,7 @@
     localStorage.setItem('gddLoggedIn', '1'); showScreen('profile');
   }));
 
-  // PROFILE & THEME LOGIC
+  // PROFILE LOGIC
   els.slider.addEventListener('input', (e) => {
     const val = parseInt(e.target.value);
     els.sliderLabel.textContent = ['Touriste', 'Curieux', 'Explorateur'][val-1];
@@ -401,28 +431,18 @@
   const themeBtns = document.querySelectorAll('#theme-selector .segment-btn');
   themeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-          // UI Update
           themeBtns.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          
-          // Logic
           const mode = btn.getAttribute('data-val');
-          if(mode === 'light') {
-              document.documentElement.setAttribute('data-theme', 'light');
-          } else if (mode === 'dark') {
-              document.documentElement.removeAttribute('data-theme');
-          } else {
-              // Auto: Check system
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  document.documentElement.removeAttribute('data-theme');
-              } else {
-                  document.documentElement.setAttribute('data-theme', 'light');
-              }
+          if(mode === 'light') document.documentElement.setAttribute('data-theme', 'light');
+          else if (mode === 'dark') document.documentElement.removeAttribute('data-theme');
+          else {
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.removeAttribute('data-theme');
+              else document.documentElement.setAttribute('data-theme', 'light');
           }
       });
   });
 
-  // Voice Selector UI (Visual only for now)
   const voiceBtns = document.querySelectorAll('#voice-selector .segment-btn');
   voiceBtns.forEach(btn => {
       btn.addEventListener('click', () => {
