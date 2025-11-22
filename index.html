@@ -2,550 +2,502 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour – Prototype</title>
+  <title>Guide du Détour · Live Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
   <style>
     :root {
-      --bg-main: #020617;
-      --bg-card: #020617;
-      --accent: #22c55e;
-      --accent-soft: #4ade80;
-      --accent-blue: #22d3ee;
-      --text-main: #f9fafb;
-      --text-muted: #9ca3af;
-      --border-soft: #111827;
-      --chip-bg: #020617;
-      --chip-border: #1f2937;
+      --bg: #050816;
+      --bg-card: #050816;
+      --bg-soft: #0b1120;
+      --primary: #22c55e;
+      --primary-soft: rgba(34, 197, 94, 0.15);
+      --accent: #a5b4fc;
+      --text-main: #e5e7eb;
+      --text-sub: #9ca3af;
+      --border-soft: #1f2937;
       --danger: #f97373;
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, -system-ui,
-        "Segoe UI", Roboto, sans-serif;
-      background: radial-gradient(circle at top, #020617 0%, #020617 40%, #000 100%);
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 40%, #020617 100%);
       color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .app-root {
-      width: 100%;
-      max-width: 480px;
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #020617 0%, #020617 40%, #000 100%);
-      color: var(--text-main);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* ---------- SPLASH ---------- */
-
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, #020617 0%, #020617 45%, #000 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 50;
-      padding: 0 24px;
-    }
-
-    .splash-inner {
-      text-align: center;
-      width: 100%;
-      max-width: 360px;
-      padding-top: 12vh;
-      animation: splashFadeIn 0.4s ease-out;
-    }
-
-    .splash-logo-img {
-      width: 260px;
-      max-width: 80vw;
-      display: block;
-      margin: 0 auto 10px auto;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: splashLogoIn 0.9s ease-out forwards 0.2s;
-    }
-
-    .splash-tagline {
-      margin: 0 0 26px 0;
-      font-size: 17px;
-      font-weight: 400;
-      color: var(--text-main);
-      opacity: 0.9;
-      opacity: 0;
-      transform: translateY(6px);
-      animation: splashTextIn 0.8s ease-out forwards 0.35s;
-    }
-
-    .splash-progress-wrapper {
-      width: 75%;
-      max-width: 320px;
-      height: 6px;
-      margin: 0 auto;
-      background: #020617;
-      border-radius: 999px;
-      overflow: hidden;
-      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 0 30px rgba(34, 197, 94, 0.15);
-    }
-
-    .splash-progress-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent-blue), var(--accent-soft), var(--accent));
-      border-radius: inherit;
-      box-shadow: 0 0 18px rgba(45, 212, 191, 0.9);
-      animation: splashProgress 5.4s ease-in-out forwards;
-    }
-
-    .splash-caption {
-      margin-top: 40px;
-      font-size: 11px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(148, 163, 184, 0.7);
-    }
-
-    @keyframes splashFadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes splashLogoIn {
-      from {
-        opacity: 0;
-        transform: translateY(14px) scale(0.97);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes splashTextIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes splashProgress {
-      0% {
-        width: 0%;
-      }
-      15% {
-        width: 18%;
-      }
-      40% {
-        width: 45%;
-      }
-      70% {
-        width: 78%;
-      }
-      100% {
-        width: 100%;
-      }
-    }
-
-    /* ---------- MAIN UI ---------- */
+    body { display: flex; justify-content: center; align-items: stretch; }
 
     .app-shell {
-      padding: 20px 18px 32px;
-      min-height: 100vh;
+      width: 100%; max-width: 430px; height: 100vh;
+      background: radial-gradient(circle at top, #020617 0%, #020617 26%, #020617 100%);
+      overflow: hidden; position: relative; color: var(--text-main);
     }
 
-    .app-chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 12px;
-      border-radius: 999px;
-      border: 1px solid #1e293b;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #9ca3af;
-      background: rgba(15, 23, 42, 0.9);
-    }
+    /* UTILS */
+    .hidden { display: none !important; }
+    .centered { display: flex; justify-content: center; align-items: center; }
 
-    .app-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 4px;
-      margin-bottom: 18px;
-    }
-
-    .avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      border: 1px solid #334155;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      background: radial-gradient(circle at 30% 0%, #0f172a 0%, #020617 50%, #000 100%);
-      color: #e5e7eb;
-      box-shadow: 0 0 0 1px rgba(15, 23, 42, 1), 0 0 15px rgba(148, 163, 184, 0.35);
-    }
-
-    h1 {
-      font-size: 26px;
-      margin: 4px 0 2px;
-    }
-
-    .subtitle {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .card {
-      background: radial-gradient(circle at top left, #020617 0%, #020617 40%, #000 100%);
-      border-radius: 24px;
-      padding: 18px 16px 18px;
-      border: 1px solid #0f172a;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-      margin-bottom: 18px;
-    }
-
-    .card-title {
-      font-size: 11px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #6b7280;
-      margin-bottom: 10px;
-    }
-
-    .field-label {
-      font-size: 11px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #6b7280;
-      margin-bottom: 4px;
-    }
-
-    .field {
-      position: relative;
-      margin-bottom: 10px;
-    }
-
-    .field-input {
-      width: 100%;
-      padding: 12px 12px 11px 32px;
-      border-radius: 14px;
-      border: 1px solid #1f2937;
-      background: #020617;
-      color: var(--text-main);
-      font-size: 14px;
-    }
-
-    .field-input:focus {
-      outline: none;
-      border-color: #22d3ee;
-      box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.4);
-    }
-
-    .field-icon {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 13px;
-      opacity: 0.7;
-    }
-
-    .field-help {
-      font-size: 11px;
-      color: #6b7280;
-      margin: 2px 0 6px;
-    }
-
-    .field-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 2px;
-    }
-
-    .btn-secondary {
-      flex: 1;
-      padding: 9px 10px;
-      border-radius: 999px;
-      border: 1px solid #1f2937;
-      background: #020617;
-      color: #e5e7eb;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .btn-secondary span.emoji {
-      font-size: 14px;
-    }
-
-    .section-caption {
-      font-size: 11px;
-      color: #6b7280;
-      margin-top: 4px;
-      margin-bottom: 6px;
-    }
-
-    .slider-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
-
-    .slider {
-      width: 100%;
-      -webkit-appearance: none;
-      height: 4px;
-      border-radius: 999px;
-      background: #020617;
-      outline: none;
-    }
-
-    .slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #4ade80 0%, #22c55e 60%, #16a34a 100%);
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35), 0 0 25px rgba(45, 212, 191, 0.9);
-      border: 1px solid #22c55e;
-      cursor: pointer;
-    }
-
-    .chip-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .chip-toggle {
-      padding: 7px 11px;
-      border-radius: 999px;
-      border: 1px solid var(--chip-border);
-      background: var(--chip-bg);
-      color: #e5e7eb;
-      font-size: 12px;
-    }
-
-    .chip-toggle.active {
-      background: rgba(22, 163, 74, 0.18);
-      border-color: #22c55e;
-      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35);
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px;
+      border-radius: 999px; border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+      color: #9ca3af; background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7));
     }
 
     .btn-primary {
-      width: 100%;
-      margin-top: 16px;
-      padding: 14px;
-      border-radius: 999px;
-      border: none;
-      background: linear-gradient(90deg, #22c55e, #16a34a);
-      color: #022c22;
-      font-weight: 600;
-      font-size: 15px;
-      box-shadow: 0 14px 35px rgba(34, 197, 94, 0.55);
+      width: 100%; padding: 16px; border-radius: 999px; border: none;
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+      color: #020617; font-weight: 700; font-size: 16px; cursor: pointer;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 15px 35px rgba(22, 163, 74, 0.5);
+      transition: transform 0.1s;
+    }
+    .btn-primary:active { transform: translateY(1px); box-shadow: 0 8px 22px rgba(22, 163, 74, 0.6); }
+
+    .section {
+      background: radial-gradient(circle at top left, rgba(15,23,42,0.9) 0%, #020617 55%);
+      border-radius: 24px; border: 1px solid rgba(31,41,55,0.9);
+      padding: 18px 18px 20px; margin-bottom: 14px;
+      box-shadow: 0 24px 60px rgba(15,23,42,0.9), 0 0 0 1px rgba(15,23,42,0.9);
+    }
+    .section-title { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: #6b7280; margin-bottom: 8px; }
+    .section-sub { font-size: 13px; color: var(--text-sub); margin-top: 6px; }
+
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .pill-toggle {
+      padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border-soft);
+      background: rgba(15,23,42,0.9); color: var(--text-sub); font-size: 13px; cursor: pointer;
+    }
+    .pill-toggle.active {
+      border-color: rgba(34,197,94,0.7);
+      background: radial-gradient(circle at top left, rgba(34,197,94,0.12), rgba(15,23,42,0.95));
+      color: #bbf7d0;
     }
 
-    .hint-bottom {
-      margin-top: 8px;
-      font-size: 11px;
-      color: #6b7280;
-      text-align: center;
+    /* SPLASH */
+    #splash-screen {
+      position: absolute; inset: 0; z-index: 20;
+      background: radial-gradient(circle at top, #020617 0%, #020617 40%, #020617 100%);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      padding: 32px 24px 40px;
+    }
+    .splash-logo { width: 120px; height: auto; margin-bottom: 18px; opacity: 0.9; }
+    .splash-title { font-size: 24px; letter-spacing: .25em; text-transform: uppercase; color: #e5e7eb; text-align: center; margin-bottom: 8px; }
+    .splash-sub { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #6b7280; text-align: center; margin-bottom: 30px; }
+    .splash-progress {
+      width: 70%; max-width: 320px; height: 3px; border-radius: 999px;
+      background: rgba(15,23,42,0.95); overflow: hidden; position: relative; margin-bottom: 20px;
+    }
+    .splash-progress-bar {
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(34,197,94,0), #22c55e, rgba(34,197,94,0.2), rgba(34,197,94,0));
+      animation: splashBar 3.5s ease-in-out forwards;
+    }
+    @keyframes splashBar { from { transform: translateX(-70%); opacity: 0.7; } 50% { opacity: 1; } to { transform: translateX(0); opacity: 1; } }
+    .splash-tagline { font-size: 13px; color: #d1d5db; text-align: center; }
+    .splash-tagline span { font-weight: 600; }
+    .splash-footer { position: absolute; bottom: 18px; font-size: 11px; color: #6b7280; text-align: center; width: 100%; }
+
+    /* AUTH */
+    #auth-screen {
+      position: absolute; inset: 0; z-index: 15; display: none;
+      justify-content: center; align-items: center; padding: 20px;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(15,23,42,0.98));
+    }
+    .auth-card {
+      width: 100%; max-width: 360px; background: radial-gradient(circle at top left, rgba(15,23,42,0.96), #020617);
+      border-radius: 28px; padding: 26px 22px 22px; border: 1px solid rgba(31,41,55,0.9);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.75), 0 0 0 1px rgba(15,23,42,1);
+    }
+    .logo-pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
+      border-radius: 999px; border: 1px solid rgba(148,163,184,0.6);
+      font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #9ca3af; margin-bottom: 14px;
+    }
+    .logo-pill::before {
+      content: ''; width: 6px; height: 6px; border-radius: 999px;
+      background: radial-gradient(circle, #22c55e 0%, #16a34a 40%, rgba(34,197,94,0.1) 100%);
+      box-shadow: 0 0 12px rgba(34,197,94,0.8);
+    }
+    .auth-tabs { display: flex; padding: 4px; border-radius: 999px; background: rgba(15,23,42,0.9); border: 1px solid rgba(31,41,55,0.9); margin-bottom: 18px; }
+    .auth-tabs .tab { flex: 1; padding: 8px 10px; font-size: 14px; border-radius: 999px; border: none; background: transparent; color: #9ca3af; font-weight: 500; cursor: pointer; }
+    .auth-tabs .tab.active { background: radial-gradient(circle at top left, rgba(148,163,184,0.18), rgba(15,23,42,1)); color: #e5e7eb; box-shadow: 0 0 0 1px rgba(148,163,184,0.6); }
+    .input-wrapper { position: relative; margin-bottom: 14px; }
+    .input-field {
+      width: 100%; padding: 14px 14px 12px; border-radius: 16px;
+      border: 1px solid rgba(31,41,55,1); background: rgba(15,23,42,0.96); color: #f9fafb; font-size: 15px;
+    }
+    .input-field:focus { outline: none; border-color: var(--accent); background: #020617; box-shadow: 0 0 0 1px rgba(129,140,248,0.7); }
+    .input-label { position: absolute; left: 14px; top: 13px; font-size: 14px; color: #6b7280; pointer-events: none; transition: .18s ease; }
+    .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label { top: -7px; left: 11px; font-size: 11px; padding: 0 4px; color: var(--accent); background: #020617; border-radius: 999px; }
+    .divider { display: flex; align-items: center; margin: 18px 0 10px; font-size: 12px; color: #6b7280; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(31,41,55,0.9); }
+    .divider span { padding: 0 10px; }
+    .social-login { display: flex; justify-content: center; gap: 12px; margin-bottom: 6px; }
+    .social-btn { width: 44px; height: 44px; border-radius: 16px; border: 1px solid rgba(31,41,55,1); background: radial-gradient(circle at top, rgba(15,23,42,1), #020617); color: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: default; }
+    .auth-hint { font-size: 11px; color: #6b7280; text-align: center; margin-top: 4px; }
+
+    /* MAIN */
+    #main-screen { position: absolute; inset: 0; padding: 18px 16px 20px; display: none; overflow-y: auto; }
+    header.app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .app-title h2 { font-size: 26px; margin: 0; }
+    .app-title p { margin: 0; font-size: 14px; color: var(--text-sub); }
+    .avatar-btn { width: 34px; height: 34px; border-radius: 999px; background: radial-gradient(circle at top left, rgba(148,163,184,0.2), rgba(15,23,42,1)); border: 1px solid rgba(148,163,184,0.7); color: #e5e7eb; display: flex; justify-content: center; align-items: center; font-weight: 600; cursor: pointer; }
+    .field-label { font-size: 13px; color: #9ca3af; margin-bottom: 4px; }
+    .route-field { width: 100%; padding: 12px 14px; border-radius: 999px; border: 1px solid rgba(31,41,55,1); background: rgba(15,23,42,0.96); color: #f9fafb; font-size: 15px; margin-bottom: 8px; }
+    .route-actions { display: flex; gap: 10px; margin-top: 6px; }
+    .btn-ghost { flex: 1; padding: 9px 10px; border-radius: 999px; border: 1px solid rgba(31,41,55,1); background: rgba(15,23,42,0.98); color: #e5e7eb; font-size: 13px; cursor: pointer; }
+    
+    /* SLIDER */
+    .slider-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+    .range-input { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 999px; background: linear-gradient(90deg, rgba(34,197,94,0.2), rgba(34,197,94,0.7)); outline: none; }
+    .range-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 999px; background: #22c55e; box-shadow: 0 0 0 6px rgba(34,197,94,0.25); border: none; cursor: pointer; }
+
+    /* MAP SCREEN */
+    #map-screen { position: absolute; inset: 0; padding: 18px 16px 20px; display: none; flex-direction: column; }
+    .map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-shrink: 0; }
+    .map-header h3 { margin: 0; font-size: 16px; color: #e5e7eb; }
+    .map-back { border-radius: 999px; padding: 6px 12px; border: 1px solid rgba(31,41,55,1); background: rgba(15,23,42,0.96); color: #e5e7eb; font-size: 13px; cursor: pointer; }
+    
+    /* Leaflet Container Override */
+    #map-container { 
+      flex: 1; border-radius: 24px; border: 1px solid rgba(31,41,55,1); 
+      margin-bottom: 14px; overflow: hidden; position: relative; z-index: 1;
     }
 
-    @media (min-width: 480px) {
-      .app-shell {
-        padding: 24px 20px 32px;
-      }
-    }
+    .map-note { font-size: 12px; color: #9ca3af; margin-top: auto; text-align: center; }
+
+    /* PROFILE MODAL */
+    #profile-modal { position: absolute; inset: 0; display: none; justify-content: center; align-items: flex-end; padding: 0 12px 16px; background: radial-gradient(circle at top, rgba(15,23,42,0.6), rgba(15,23,42,0.9)); z-index: 25; }
+    #profile-modal.visible { display: flex; }
+    .profile-card { width: 100%; max-width: 420px; background: radial-gradient(circle at top left, rgba(15,23,42,1), #020617); border-radius: 26px; border: 1px solid rgba(31,41,55,1); padding: 18px 18px 20px; box-shadow: 0 26px 80px rgba(0,0,0,0.9); }
+    .profile-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .profile-close { width: 26px; height: 26px; border-radius: 999px; border: 1px solid rgba(55,65,81,1); background: rgba(15,23,42,0.95); color: #9ca3af; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .pill-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .pill { padding: 7px 11px; border-radius: 999px; border: 1px solid rgba(31,41,55,1); font-size: 13px; background: rgba(15,23,42,0.96); color: #e5e7eb; cursor: pointer; }
+    .pill.selected { border-color: rgba(34,197,94,0.8); background: radial-gradient(circle at top left, rgba(34,197,94,0.18), rgba(15,23,42,1)); color: #bbf7d0; }
+
+    /* Leaflet Overrides for Dark Theme */
+    .leaflet-container { background: #0b1120; }
   </style>
 </head>
 <body>
-  <div class="app-root">
-    <!-- SPLASH -->
-    <div class="splash-screen" id="splashScreen">
-      <div class="splash-inner">
-        <img src="logo_2.png" alt="Guide du Détour" class="splash-logo-img" />
-        <p class="splash-tagline">Ça vaut le détour — à chaque trajet.</p>
+<div class="app-shell">
 
-        <div class="splash-progress-wrapper">
-          <div class="splash-progress-bar"></div>
-        </div>
-
-        <div class="splash-caption">
-          Prototype • données fictives<br />
-          Guide du Détour
-        </div>
-      </div>
-    </div>
-
-    <!-- MAIN APP -->
-    <main class="app-shell hidden" id="appShell">
-      <div class="app-header">
-        <div>
-          <div class="app-chip">Guide du Détour • v0.9.1-beta</div>
-          <h1>Bonjour&nbsp;!</h1>
-          <p class="subtitle">Choisissez un trajet, nous nous occupons des détours.</p>
-        </div>
-        <div class="avatar" id="openProfile">A</div>
-      </div>
-
-      <section class="card">
-        <div class="card-title">Trajet</div>
-
-        <div class="field-label">Point de départ</div>
-        <div class="field">
-          <span class="field-icon">📍</span>
-          <input
-            type="text"
-            id="fromInput"
-            class="field-input"
-            value="Saint-Germain-sur-Morin, France"
-          />
-        </div>
-
-        <div class="field-label">Destination</div>
-        <div class="field">
-          <span class="field-icon">🏁</span>
-          <input
-            type="text"
-            id="toInput"
-            class="field-input"
-            value="Parc Disneyland, Chessy, France"
-          />
-        </div>
-
-        <p class="field-help">
-          Touchez les champs pour modifier les adresses. Le choix sur la carte sera affiné dans l’écran suivant.
-        </p>
-
-        <div class="field-actions">
-          <button class="btn-secondary">
-            <span class="emoji">📡</span>
-            Ma position → départ
-          </button>
-          <button class="btn-secondary" id="chooseOnMapBtn">
-            <span class="emoji">🗺️</span>
-            Choisir sur la carte
-          </button>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="card-title">Rayon de liberté</div>
-
-        <div class="slider-row">
-          <div class="section-caption">Quelle distance de détour acceptez-vous&nbsp;?</div>
-          <div id="radiusValue">5 km</div>
-        </div>
-
-        <input type="range" min="2" max="25" value="5" class="slider" id="radiusSlider" />
-        <p class="section-caption">
-          Plus le rayon est grand, plus nous pouvons proposer de détours intéressants.
-        </p>
-      </section>
-
-      <section class="card">
-        <div class="card-title">Éviter les routes</div>
-        <p class="section-caption">
-          Nous respectons vos contraintes, tout en gardant le plaisir du détour.
-        </p>
-        <div class="chip-row" id="avoidChips">
-          <button class="chip-toggle">Péages</button>
-          <button class="chip-toggle active">Autoroutes</button>
-          <button class="chip-toggle">Routes non goudronnées</button>
-        </div>
-      </section>
-
-      <button class="btn-primary" id="traceBtn">Tracer mon itinéraire</button>
-      <div class="hint-bottom">
-        La carte et les points d’intérêt seront affichés sur l’écran suivant (prototype).
-      </div>
-    </main>
+  <div id="splash-screen">
+    <div style="font-size:40px; margin-bottom:10px;">🌀</div>
+    <div class="splash-title">GUIDE DU DÉTOUR</div>
+    <div class="splash-sub">LE VOYAGE HORS DE LA LIGNE DROITE</div>
+    <div class="splash-progress"><div class="splash-progress-bar"></div></div>
+    <div class="splash-tagline"><span>Ça vaut le détour</span> — à chaque trajet.</div>
+    <div class="splash-footer">Live Prototype · v0.9.5</div>
   </div>
 
-  <script>
-    // SPLASH → MAIN
-    window.addEventListener("load", () => {
-      const splash = document.getElementById("splashScreen");
-      const app = document.getElementById("appShell");
+  <div id="auth-screen">
+    <div class="auth-card">
+      <div class="logo-pill">Guide du Détour</div>
+      <h1>Bienvenue</h1>
+      <p class="subtitle" style="color:#9ca3af; margin-bottom:18px;">Connectez-vous pour préparer vos détours.</p>
 
-      // ~6 секунд сплэш
-      const SPLASH_DURATION = 6000;
+      <div class="auth-tabs">
+        <button class="tab active" id="tab-login">Connexion</button>
+        <button class="tab" id="tab-register">Inscription</button>
+      </div>
 
-      setTimeout(() => {
-        splash.style.opacity = "0";
-        splash.style.transition = "opacity 400ms ease-out";
-        setTimeout(() => {
-          splash.classList.add("hidden");
-          app.classList.remove("hidden");
-        }, 420);
-      }, SPLASH_DURATION);
-    });
+      <div class="input-wrapper">
+        <input type="email" id="auth-email" class="input-field" placeholder=" " value="demo@detour.fr" />
+        <label for="auth-email" class="input-label">Email</label>
+      </div>
+      <div class="input-wrapper">
+        <input type="password" id="auth-password" class="input-field" placeholder=" " value="123456" />
+        <label for="auth-password" class="input-label">Mot de passe</label>
+      </div>
 
-    // Радиус
-    const radiusSlider = document.getElementById("radiusSlider");
-    const radiusValue = document.getElementById("radiusValue");
-    if (radiusSlider && radiusValue) {
-      radiusSlider.addEventListener("input", () => {
-        radiusValue.textContent = radiusSlider.value + " km";
-      });
+      <button id="auth-action-btn" class="btn-primary">Se connecter</button>
+      <div class="divider"><span>ou</span></div>
+      <div class="social-login">
+        <button class="social-btn"></button><button class="social-btn">G</button><button class="social-btn">Fb</button>
+      </div>
+      <p class="auth-hint">Appuyez simplement sur "Se connecter" pour tester.</p>
+    </div>
+  </div>
+
+  <div id="main-screen">
+    <header class="app-header">
+      <div class="app-title">
+        <div class="chip">Guide du Détour · Live</div>
+        <h2>Bonjour !</h2>
+        <p>Choisissez un trajet, nous nous occupons des détours.</p>
+      </div>
+      <button id="avatar-btn" class="avatar-btn">A</button>
+    </header>
+
+    <section class="section">
+      <div class="section-title">Trajet</div>
+      <label class="field-label" for="start-input">Point de départ</label>
+      <input id="start-input" class="route-field" type="text" value="Saint-Germain-sur-Morin" />
+
+      <label class="field-label" for="end-input">Destination</label>
+      <input id="end-input" class="route-field" type="text" value="Disneyland Paris" />
+
+      <div class="route-actions">
+        <button id="btn-mypos" class="btn-ghost">📍 Ma position</button>
+        <button id="btn-swap" class="btn-ghost">🔄 Inverser</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Rayon de liberté</div>
+      <p class="section-sub">Distance maximale pour le détour.</p>
+      <div class="slider-row">
+        <input id="radius-range" type="range" min="1" max="20" value="5" class="range-input" />
+        <span id="radius-label">5 km</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Éviter</div>
+      <div class="pill-row" id="avoid-row">
+        <button class="pill-toggle" data-key="tolls">Péages</button>
+        <button class="pill-toggle active" data-key="motorways">Autoroutes</button>
+      </div>
+    </section>
+
+    <button id="trace-btn" class="btn-primary" style="margin-bottom:20px;">Tracer l'itinéraire</button>
+  </div>
+
+  <div id="map-screen">
+    <div class="map-header">
+      <h3>Carte Interactive</h3>
+      <button id="btn-back-main" class="map-back">← Retour</button>
+    </div>
+
+    <div class="section" style="padding: 10px 15px; margin-bottom: 10px;">
+        <div style="font-size:12px; color:#9ca3af;">
+            De <strong id="map-from" style="color:#fff;">A</strong> à <strong id="map-to" style="color:#fff;">B</strong> (+<span id="map-extra-km">0</span>km)
+        </div>
+    </div>
+
+    <div id="map-container"></div>
+
+    <button class="btn-primary map-nav-btn">🚗 Démarrer la navigation</button>
+    <p class="map-note">Les points jaunes sont des détours suggérés.</p>
+  </div>
+
+  <div id="profile-modal">
+    <div class="profile-card">
+      <div class="profile-header-row">
+        <h3>Profil du voyageur</h3>
+        <button id="profile-close" class="profile-close">×</button>
+      </div>
+      <div class="input-wrapper">
+        <input id="profile-name" class="input-field" placeholder=" " />
+        <label for="profile-name" class="input-label">Votre prénom</label>
+      </div>
+      <div class="section-sub" style="margin-bottom:8px;">Vos intérêts (pour générer les détours)</div>
+      <div class="pill-grid" id="interests-grid">
+        <button class="pill selected" data-key="gastronomie">Gastronomie</button>
+        <button class="pill" data-key="vignobles">Vignobles</button>
+        <button class="pill selected" data-key="nature">Nature</button>
+        <button class="pill" data-key="chateaux">Châteaux</button>
+      </div>
+      <button id="profile-save" class="btn-primary" style="margin-top:14px;">Enregistrer</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // === STATE & DOM ELEMENTS ===
+  const els = {
+    splash: document.getElementById('splash-screen'),
+    auth: document.getElementById('auth-screen'),
+    main: document.getElementById('main-screen'),
+    map: document.getElementById('map-screen'),
+    profile: document.getElementById('profile-modal'),
+    radiusRange: document.getElementById('radius-range'),
+    radiusLabel: document.getElementById('radius-label'),
+    startInput: document.getElementById('start-input'),
+    endInput: document.getElementById('end-input'),
+    mapContainer: document.getElementById('map-container')
+  };
+
+  let mapInstance = null;
+  let routeLayer = null;
+  let detourLayer = null;
+
+  // Координаты для демо (Saint-Germain -> Disney)
+  const DEMO_COORDS = {
+    start: [48.8896, 2.8147],
+    end: [48.8706, 2.7789]
+  };
+
+  // === LIFECYCLE ===
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      els.splash.style.display = 'none';
+      const loggedIn = localStorage.getItem('gddLoggedIn');
+      if(loggedIn) showScreen('main'); else showScreen('auth');
+      
+      const savedName = localStorage.getItem('gddName');
+      if(savedName) updateAvatar(savedName);
+    }, 3500);
+  });
+
+  function showScreen(name) {
+    [els.auth, els.main, els.map].forEach(el => el.style.display = 'none');
+    if(name === 'auth') els.auth.style.display = 'flex';
+    if(name === 'main') els.main.style.display = 'block';
+    if(name === 'map')  {
+      els.map.style.display = 'flex';
+      setTimeout(initMap, 100); // Даем время на отрисовку div
+    }
+  }
+
+  // === UI INTERACTIONS ===
+  
+  // Auth
+  document.getElementById('auth-action-btn').addEventListener('click', () => {
+    localStorage.setItem('gddLoggedIn', '1');
+    showScreen('main');
+    openProfile(true);
+  });
+
+  // Radius Slider
+  els.radiusRange.addEventListener('input', (e) => {
+    els.radiusLabel.textContent = e.target.value + ' km';
+  });
+
+  // My Position (Browser Geolocation)
+  document.getElementById('btn-mypos').addEventListener('click', () => {
+    if("geolocation" in navigator) {
+        const btn = document.getElementById('btn-mypos');
+        btn.textContent = '⏳ Localisation...';
+        navigator.geolocation.getCurrentPosition((pos) => {
+            els.startInput.value = "Ma position actuelle";
+            // В реальности здесь мы сохранили бы pos.coords.latitude/longitude
+            // Но для демо просто меняем текст
+            btn.textContent = '📍 Ma position';
+            // Обновляем демо координаты, чтобы карта центрировалась где-то рядом (для теста оставим фикс)
+        }, (err) => {
+            alert("Accès localisation refusé ou erreur.");
+            btn.textContent = '📍 Ma position';
+        });
+    } else {
+        alert("Géolocalisation non supportée.");
+    }
+  });
+
+  document.getElementById('btn-swap').addEventListener('click', () => {
+      const temp = els.startInput.value;
+      els.startInput.value = els.endInput.value;
+      els.endInput.value = temp;
+  });
+
+  // Go to Map
+  document.getElementById('trace-btn').addEventListener('click', () => {
+    if(!els.startInput.value || !els.endInput.value) return alert("Remplissez les champs !");
+    document.getElementById('map-from').textContent = els.startInput.value;
+    document.getElementById('map-to').textContent = els.endInput.value;
+    document.getElementById('map-extra-km').textContent = (Math.random() * 3).toFixed(1);
+    showScreen('map');
+  });
+
+  document.getElementById('btn-back-main').addEventListener('click', () => showScreen('main'));
+
+  // Profile
+  const openProfile = () => els.profile.classList.add('visible');
+  document.getElementById('avatar-btn').addEventListener('click', openProfile);
+  document.getElementById('profile-close').addEventListener('click', () => els.profile.classList.remove('visible'));
+  
+  document.getElementById('profile-save').addEventListener('click', () => {
+    const name = document.getElementById('profile-name').value;
+    if(name) {
+        localStorage.setItem('gddName', name);
+        updateAvatar(name);
+    }
+    els.profile.classList.remove('visible');
+  });
+
+  document.querySelectorAll('.pill').forEach(p => {
+      p.addEventListener('click', () => p.classList.toggle('selected'));
+  });
+
+  function updateAvatar(name) {
+      document.getElementById('avatar-btn').textContent = name.charAt(0).toUpperCase();
+  }
+
+  // === MAP LOGIC (LEAFLET) ===
+  function initMap() {
+    if (mapInstance) {
+        mapInstance.invalidateSize(); // Исправляет рендеринг при display:none -> block
+        generateRouteAndDetours();    // Перегенерировать маршрут
+        return;
     }
 
-    // Тогглы "избегать дорог"
-    const avoidChips = document.getElementById("avoidChips");
-    if (avoidChips) {
-      avoidChips.addEventListener("click", (e) => {
-        const btn = e.target.closest(".chip-toggle");
-        if (!btn) return;
-        btn.classList.toggle("active");
-      });
-    }
+    // 1. Создаем карту
+    mapInstance = L.map('map-container', {
+        zoomControl: false, // Скроем зум, чтобы было чище
+        attributionControl: false
+    }).setView(DEMO_COORDS.start, 13);
 
-    // Заглушка для "профиля" и "выбрать на карте"
-    document.getElementById("openProfile")?.addEventListener("click", () => {
-      alert("Dans la future application, cet écran ouvrira votre profil voyageur.");
-    });
+    // 2. Темная тема карты (CartoDB Dark Matter)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+    }).addTo(mapInstance);
 
-    document.getElementById("chooseOnMapBtn")?.addEventListener("click", () => {
-      alert(
-        "Dans la version complète, vous pourrez choisir A et B directement sur la carte. Ici, c’est un prototype."
-      );
-    });
+    // Группы слоев
+    routeLayer = L.layerGroup().addTo(mapInstance);
+    detourLayer = L.layerGroup().addTo(mapInstance);
 
-    document.getElementById("traceBtn")?.addEventListener("click", () => {
-      alert(
-        "Ici, le prototype tracerait un itinéraire enrichi en points d’intérêt selon votre profil et le rayon choisi."
-      );
-    });
-  </script>
+    generateRouteAndDetours();
+  }
+
+  function generateRouteAndDetours() {
+      routeLayer.clearLayers();
+      detourLayer.clearLayers();
+
+      const radius = parseInt(els.radiusRange.value);
+      
+      // Иконки
+      const iconStart = L.divIcon({html: '🟢', className: 'emoji-icon', iconSize: [20,20], iconAnchor: [10,10]});
+      const iconEnd = L.divIcon({html: '🏁', className: 'emoji-icon', iconSize: [20,20], iconAnchor: [10,10]});
+      const iconDetour = L.divIcon({html: '<div style="width:10px;height:10px;background:#fbbf24;border-radius:50%;box-shadow:0 0 8px #fbbf24;"></div>', className: 'dot-icon'});
+
+      // Маркеры Старт/Финиш
+      L.marker(DEMO_COORDS.start, {icon: iconStart}).addTo(routeLayer);
+      L.marker(DEMO_COORDS.end, {icon: iconEnd}).addTo(routeLayer);
+
+      // Рисуем линию (фейковый маршрут по прямой для демо)
+      const latlngs = [
+          DEMO_COORDS.start,
+          [48.8800, 2.7900], // промежуточная точка для кривизны
+          DEMO_COORDS.end
+      ];
+      const polyline = L.polyline(latlngs, {color: '#22c55e', weight: 4, opacity: 0.8, dashArray: '5, 10'}).addTo(routeLayer);
+
+      mapInstance.fitBounds(polyline.getBounds(), {padding: [50, 50]});
+
+      // Генерируем случайные "Детуры" (Интересные места)
+      const detourCount = Math.floor(radius / 1.5) + 2; // Больше радиус = больше точек
+      
+      for(let i=0; i<detourCount; i++) {
+          // Случайное смещение от центра карты
+          const center = mapInstance.getCenter();
+          const latOffset = (Math.random() - 0.5) * 0.04 * (radius/5);
+          const lngOffset = (Math.random() - 0.5) * 0.04 * (radius/5);
+          
+          const marker = L.marker([center.lat + latOffset, center.lng + lngOffset], {icon: iconDetour}).addTo(detourLayer);
+          marker.bindPopup(`<div style="color:#333"><strong>Lieu caché #${i+1}</strong><br>Détour: +${(Math.random()*5).toFixed(1)} min</div>`);
+      }
+  }
+
+</script>
 </body>
 </html>
