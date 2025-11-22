@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · v1.0.1 Stable</title>
+  <title>Guide du Détour</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   
   <link rel="icon" type="image/png" href="icon.png" />
@@ -15,7 +15,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* ... (VARIABLES SAME AS BEFORE) ... */
+    /* --- VARIABLES --- */
     :root {
       --bg-color: #020617;
       --bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
@@ -23,16 +23,18 @@
       --text-sub: #94a3b8;
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      
       --glass-border: rgba(255,255,255,0.15);
       --glass-bg: rgba(15, 23, 42, 0.8);
       --glass-blur: blur(20px);
       --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%);
-      --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 8px 20px rgba(0,0,0,0.3);
+      
       --card-bg: rgba(255, 255, 255, 0.03);
       --active-card-bg: rgba(34, 197, 94, 0.15);
       --active-text: #4ade80;
       --nav-bg: rgba(2, 6, 23, 0.95);
     }
+
     [data-theme="light"] {
       --bg-color: #f8fafc;
       --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 100%);
@@ -41,7 +43,6 @@
       --glass-border: rgba(0,0,0,0.08);
       --glass-bg: rgba(255,255,255,0.9);
       --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 100%);
-      --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 15px rgba(0,0,0,0.05);
       --card-bg: #f8fafc;
       --active-card-bg: #dcfce7; 
       --active-text: #166534;
@@ -52,6 +53,7 @@
     html, body { margin: 0; padding: 0; height: 100%; width: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; background: var(--bg-color); color: var(--text-main); overflow: hidden; }
     .app-shell { width: 100%; height: 100%; background: var(--bg-gradient); overflow: hidden; position: relative; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 
+    /* BASIC UI */
     .btn-primary { width: 100%; padding: 16px; border-radius: 24px; border: none; background: var(--primary-grad); color: #020617; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px -6px rgba(34, 197, 94, 0.6); transition: 0.2s; }
     .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
     .icon { width: 24px; height: 24px; stroke-width: 2; stroke: currentColor; fill: none; }
@@ -68,7 +70,7 @@
     .splash-progress { width: 280px; height: 2px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; margin-top: 40px;}
     .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
     .loading-text { font-size: 10px; color: #94a3b8; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; animation: fadeUp 1s forwards 0.2s;}
-    .app-version { position: absolute; bottom: calc(30px + env(safe-area-inset-bottom)); width: 100%; text-align: center; font-size: 10px; color: var(--text-sub); opacity: 0.5; font-family: monospace; }
+    .app-version { position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 10px; color: var(--text-sub); opacity: 0.5; font-family: monospace; }
 
     /* AUTH */
     #auth-screen { z-index: 90; background: var(--bg-color); justify-content: center; padding: 32px; display: none; overflow-y: auto; }
@@ -93,6 +95,7 @@
     .hero-section { display: flex; flex-direction: column; align-items: center; padding: 40px 0 30px; }
     .hero-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #334155, #1e293b); display: flex; align-items: center; justify-content: center; font-size: 36px; color: #fff; font-weight: 700; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); margin-bottom: 20px; position: relative; }
     .edit-badge { position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); border: 3px solid var(--bg-color); color: #000; display: flex; align-items: center; justify-content: center; }
+    .ghost-input-group { display: flex; flex-direction: column; gap: 4px; width: 100%; align-items: center; }
     .ghost-input { background: transparent; border: none; text-align: center; color: var(--text-main); font-family: inherit; width: 100%; padding: 4px; margin-bottom: 4px; }
     .ghost-input:focus { background: rgba(255,255,255,0.05); border-radius: 8px; outline: none; }
     .input-name { font-size: 26px; font-weight: 800; } .input-sub { font-size: 15px; color: var(--text-sub); }
@@ -104,13 +107,16 @@
     .interest-card.active .interest-name { color: var(--active-text); }
     .interest-card .icon { stroke: var(--text-sub); } .interest-card.active .icon { stroke: var(--active-text); }
     
-    /* FIXED SLIDER */
-    .slider-wrapper { width: 100%; padding: 10px 0; }
-    .range-input { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 99px; background: rgba(255,255,255,0.1); outline: none; margin: 15px 0; }
-    /* Default green track handled by JS linear-gradient */
-    .range-input::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 4px solid var(--bg-color); box-shadow: 0 2px 10px rgba(34, 197, 94, 0.5); margin-top: -1px; }
-    [data-theme="light"] .range-input::-webkit-slider-thumb { border-color: #f8fafc; }
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 40px; }
+    .tag-pill { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.05); color: var(--text-sub); cursor: pointer; }
+    [data-theme="light"] .tag-pill { background: #f1f5f9; }
+    .tag-pill.selected { background: var(--primary); color: #020617; font-weight: 600; }
 
+    .slider-wrapper { width: 100%; padding: 10px 0; }
+    .slider-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 14px; font-weight: 600; color: var(--text-main); }
+    .range-input { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 99px; background: rgba(255,255,255,0.1); outline: none; margin: 15px 0; }
+    .range-input::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 4px solid var(--bg-color); box-shadow: 0 2px 10px rgba(34, 197, 94, 0.5); margin-top: -1px; }
+    
     .settings-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
     .segment-pill-wrap { background: rgba(255,255,255,0.05); padding: 3px; border-radius: 99px; display: flex; gap: 2px; }
     .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition:0.2s;}
@@ -118,10 +124,11 @@
     .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px calc(20px + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--bg-color) 80%, transparent); z-index: 20; display: flex; justify-content: center; }
     .save-btn { width: 100%; max-width: 430px; }
 
-    /* MAIN MAP */
+    /* MAP SCREEN */
     #main-screen { z-index: 10; display: none; }
     #map-container { position: absolute; inset: 0; z-index: 0; background: #0b1120; }
-    
+    .leaflet-control-attribution { display: none; }
+
     .map-top-bar { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
     .route-box { background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-radius: 24px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; position: relative; }
     .route-row { display: flex; align-items: center; gap: 12px; }
@@ -136,30 +143,30 @@
     [data-theme="light"] #suggestions-list { background: #ffffff; border-color: #e2e8f0; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
     .suggestion-item { padding: 14px; font-size: 14px; color: var(--text-main); border-radius: 10px; cursor: pointer; transition: 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; }
     .suggestion-item:last-child { border-bottom: none; }
-    
+
     .map-side-btns { position: absolute; right: 16px; top: calc(160px + env(safe-area-inset-top)); z-index: 20; display: flex; flex-direction: column; gap: 12px; }
     .side-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
     .side-btn:active { transform: scale(0.92); }
-    
+
     .map-bottom-panel { position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; padding: 20px 16px calc(34px + env(safe-area-inset-bottom)); background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
     .avoid-row, .go-btn-row { pointer-events: auto; }
     .avoid-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; justify-content: center; }
     .avoid-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 14px; background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); color: var(--text-sub); font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; }
     .avoid-btn.active { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444; box-shadow: inset 0 0 10px rgba(239,68,68,0.2); }
     .go-btn { flex: 1; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); backdrop-filter: none; }
-
     #route-info-bar { display: none; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); color: #fff; padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 700; margin-bottom: 12px; text-align: center; align-self: center; pointer-events: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    [data-theme="light"] #route-info-bar { background: #fff; color: #0f172a; border-color: #e2e8f0; }
 
-    .user-marker-brand { position: relative; width: 20px; height: 20px; background: #3b82f6; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #3b82f6; }
+    /* MARKERS & POPUPS */
+    .user-marker-brand { width: 20px; height: 20px; background: #3b82f6; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #3b82f6; position:relative; }
     .user-marker-brand::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 2px solid #3b82f6; opacity: 0; animation: pulse-blue 2s infinite; }
     .marker-end { width: 20px; height: 20px; background: #22c55e; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #22c55e; }
     .marker-waypoint { width: 16px; height: 16px; background: #3b82f6; border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 0 8px rgba(59, 130, 246, 0.8); }
     .poi-marker { width: 36px; height: 36px; background: var(--nav-bg); border-radius: 50%; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 18px; }
-    
+
     .leaflet-popup-content-wrapper { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); color: #fff; border-radius: 16px; padding: 0; border: 1px solid rgba(255,255,255,0.1); }
     .leaflet-popup-tip { background: rgba(15, 23, 42, 0.95); }
-    .leaflet-popup-content { margin: 0; min-width: 200px !important; }
-    .popup-card { display: flex; flex-direction: column; }
+    .popup-card { display: flex; flex-direction: column; min-width: 200px; }
     .popup-img { width: 100%; height: 100px; background: #334155; object-fit: cover; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .popup-body { padding: 12px; }
     .popup-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; color: #fff; }
@@ -167,10 +174,12 @@
     .popup-btn { width: 100%; padding: 8px; border-radius: 8px; border: none; background: #22c55e; color: #020617; font-weight: 600; font-size: 12px; cursor: pointer; }
     .popup-btn.added { background: rgba(255,255,255,0.1); color: var(--text-sub); cursor: default; }
 
+    /* ANIMATIONS */
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
     @keyframes pulse-blue { 0% { transform: scale(0.5); opacity: 1; border-width: 4px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
 
+    /* RESTORED LANDSCAPE MODE */
     @media (orientation: landscape) {
         .map-top-bar { top: 20px; left: calc(20px + env(safe-area-inset-left)); width: 340px; right: auto; }
         .map-side-btns { right: calc(20px + env(safe-area-inset-right)); top: 20px; }
@@ -246,14 +255,8 @@
       
       <div class="section-header">Rayon de liberté</div>
       <div class="slider-wrapper">
-        <div class="slider-header">
-          <span style="color:var(--text-muted)">Intensité</span>
-          <span class="slider-val" id="slider-val-label">10 km • Curieux</span>
-        </div>
+        <div class="slider-header"><span style="color:var(--text-muted)">Intensité</span><span class="slider-val" id="slider-val-label">10 km • Curieux</span></div>
         <input type="range" min="2" max="50" value="10" step="1" class="range-input" id="adventure-slider">
-        <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-sub); margin-top:8px;">
-            <span>Touriste (2km)</span><span>Curieux (10km)</span><span>Explorateur (50km)</span>
-        </div>
       </div>
 
       <div class="section-header">Préférences</div>
@@ -262,6 +265,15 @@
           <span class="settings-label">Thème</span>
           <div class="segment-pill-wrap" id="theme-selector"><button class="segment-pill" data-val="auto">Auto</button><button class="segment-pill" data-val="light">☀️</button><button class="segment-pill active" data-val="dark">🌑</button></div>
         </div>
+        <div class="settings-row">
+          <span class="settings-label">Audio</span>
+          <div class="segment-pill-wrap" id="voice-selector"><button class="segment-pill" data-val="mute">Off</button><button class="segment-pill active" data-val="poi">POI</button><button class="segment-pill" data-val="all">Tout</button></div>
+        </div>
+      </div>
+      <div class="section-header" style="margin-top:30px;">Mon Carnet</div>
+      <div class="interest-grid" style="margin-bottom:40px;">
+         <div class="interest-card" style="flex-direction:row; justify-content:center;"><svg class="icon" style="margin-right:8px;"><use href="#icon-map"></use></svg><span style="font-weight:600; font-size:14px;">Trajets</span></div>
+         <div class="interest-card" style="flex-direction:row; justify-content:center;"><svg class="icon" style="margin-right:8px;"><use href="#icon-pin"></use></svg><span style="font-weight:600; font-size:14px;">Lieux</span></div>
       </div>
       
       <div class="app-version"></div>
@@ -273,15 +285,9 @@
     <div id="map-container"></div>
     <div class="map-top-bar">
       <div class="route-box">
-        <div class="route-row">
-          <div class="route-dot dot-start"></div>
-          <input class="route-input" id="start-input" value="Ma position actuelle" placeholder="Départ" autocomplete="off" />
-        </div>
+        <div class="route-row"><div class="route-dot dot-start"></div><input class="route-input" id="start-input" value="Ma position actuelle" placeholder="Départ" autocomplete="off" /></div>
         <div class="divider-h"></div>
-        <div class="route-row">
-          <div class="route-dot dot-end"></div>
-          <input class="route-input" id="dest-input" placeholder="Où on va ?" autocomplete="off" />
-        </div>
+        <div class="route-row"><div class="route-dot dot-end"></div><input class="route-input" id="dest-input" placeholder="Où on va ?" autocomplete="off" /></div>
         <div id="suggestions-list"></div>
       </div>
     </div>
@@ -301,126 +307,425 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <script>
-  const APP_VERSION = 'v1.0.1 Stable';
-  const els={splash:document.getElementById('splash-screen'),auth:document.getElementById('auth-screen'),profile:document.getElementById('profile-screen'),main:document.getElementById('main-screen'),tabLogin:document.getElementById('tab-login'),tabRegister:document.getElementById('tab-register'),authBtn:document.getElementById('btn-auth-action'),tabLine:document.getElementById('tab-line'),pFirstname:document.getElementById('p-firstname'),tagCloud:document.getElementById('tag-cloud'),slider:document.getElementById('adventure-slider'),sliderLabel:document.getElementById('slider-val-label'),startInput:document.getElementById('start-input'),destInput:document.getElementById('dest-input'),traceBtn:document.getElementById('btn-trace-route'),suggestionsList:document.getElementById('suggestions-list'),routeInfo:document.getElementById('route-info-bar')};
-  let map,userMarker,tileLayer,routeLayer,detourLayer,corridorLayer,waypointLayer;let isRegisterMode=false;let startCoords=null;let destCoords=null;let destMarker=null;let waypoints=[];let activeCategories=new Set(['nature','history','hedonism','curiosity']);
-  const SLIDER_MAPPING={}; // Dynamic
-  const POI_ICONS={nature:'🌿',history:'🏰',hedonism:'🍷',curiosity:'👽'};
-  const OVERPASS_TAGS={
-    nature:['"natural"="peak"','"tourism"="viewpoint"','"waterway"="waterfall"','"natural"="cave_entrance"'],
-    history:['"historic"="castle"','"historic"="ruins"','"historic"="monument"','"building"="church"','"historic"="battlefield"'],
-    hedonism:['"craft"="winery"','"shop"="cheese"','"shop"="wine"','"amenity"="marketplace"','"craft"="brewery"'],
-    curiosity:['"tourism"="artwork"','"tourism"="attraction"','"tourism"="theme_park"']
+  const APP_VERSION = 'v1.0.4 Stable Restore';
+  
+  const els = {
+    splash: document.getElementById('splash-screen'),
+    auth: document.getElementById('auth-screen'),
+    profile: document.getElementById('profile-screen'),
+    main: document.getElementById('main-screen'),
+    tabLogin: document.getElementById('tab-login'),
+    tabRegister: document.getElementById('tab-register'),
+    authBtn: document.getElementById('btn-auth-action'),
+    tabLine: document.getElementById('tab-line'),
+    pFirstname: document.getElementById('p-firstname'),
+    tagCloud: document.getElementById('tag-cloud'),
+    slider: document.getElementById('adventure-slider'),
+    sliderLabel: document.getElementById('slider-val-label'),
+    startInput: document.getElementById('start-input'),
+    destInput: document.getElementById('dest-input'),
+    traceBtn: document.getElementById('btn-trace-route'),
+    suggestionsList: document.getElementById('suggestions-list'),
+    routeInfo: document.getElementById('route-info-bar')
   };
 
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.app-version').forEach(el=>el.textContent=APP_VERSION);
-    setTimeout(()=>{els.splash.style.display='none';if(localStorage.getItem('gddLoggedIn')){loadProfileData();showScreen('main');}else{showScreen('auth');updateTabLine(els.tabLogin);}},2500);
-    document.querySelectorAll('.interest-card[data-cat]').forEach(c=>{const cat=c.getAttribute('data-cat');if(activeCategories.has(cat))c.classList.add('active');c.addEventListener('click',()=>{c.classList.toggle('active');if(c.classList.contains('active'))activeCategories.add(cat);else activeCategories.delete(cat);});});
-    updateSlider(els.slider.value);
+  let map, userMarker, tileLayer, routeLayer, detourLayer, corridorLayer, waypointLayer;
+  let isRegisterMode = false;
+  let startCoords = null;
+  let destCoords = null;
+  let destMarker = null;
+  let activeInput = null;
+  let activeCategories = new Set(['nature', 'history']);
+  let selectedTags = new Set();
+  let waypoints = []; // GLOBAL WAYPOINTS
+
+  // --- CONSTANTS ---
+  const SLIDER_MAPPING = {
+      1: { label: 'Touriste', km: '2 km' },
+      2: { label: 'Curieux', km: '10 km' },
+      3: { label: 'Explorateur', km: '50 km' }
+  };
+  const CORRIDOR_WIDTH = { 1: 20, 2: 50, 3: 100 }; 
+  const POI_ICONS = { nature: '🌿', history: '🏰', hedonism: '🍷', curiosity: '👽' };
+  const OVERPASS_TAGS = {
+    nature: ['"natural"="peak"', '"tourism"="viewpoint"', '"waterway"="waterfall"', '"natural"="cave_entrance"'],
+    history: ['"historic"="castle"', '"historic"="ruins"', '"historic"="monument"', '"building"="church"', '"historic"="battlefield"'],
+    hedonism: ['"craft"="winery"', '"shop"="cheese"', '"shop"="wine"', '"amenity"="marketplace"', '"craft"="brewery"'],
+    curiosity: ['"tourism"="artwork"', '"tourism"="attraction"', '"tourism"="theme_park"']
+  };
+  const TAGS_DB = {
+    nature: ['Forêts', 'Lacs', 'Montagnes', 'Grottes', 'Cascades'],
+    history: ['Châteaux', 'Ruines', 'Églises', 'Monuments', 'Musées', 'Architecture'],
+    hedonism: ['Vignobles', 'Brasseries', 'Marchés', 'Fermes', 'Fromageries', 'Gastronomie'],
+    curiosity: ['Abandonné', 'Légendes', 'Street Art', 'Villages fantômes', 'Insolite']
+  };
+
+  // --- INIT ---
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.app-version').forEach(el => el.textContent = APP_VERSION);
+
+    setTimeout(() => {
+      try {
+          els.splash.style.display = 'none';
+          if(localStorage.getItem('gddLoggedIn')) { loadProfileData(); showScreen('main'); } 
+          else { showScreen('auth'); updateTabLine(els.tabLogin); }
+      } catch(e) { console.error(e); }
+    }, 4000);
+    
+    document.querySelectorAll('.interest-card[data-cat]').forEach(card => {
+        card.addEventListener('click', () => {
+            const cat = card.getAttribute('data-cat');
+            card.classList.toggle('active');
+            if (card.classList.contains('active')) activeCategories.add(cat); else activeCategories.delete(cat);
+            renderTags();
+        });
+    });
+    renderTags();
   });
 
-  function updateSlider(val){
-      let label=''; if(val<10) label='Touriste'; else if(val<30) label='Curieux'; else label='Explorateur';
-      els.sliderLabel.textContent=`${val} km • ${label}`;
-      const perc=((val-2)/(50-2))*100; 
-      els.slider.style.background=`linear-gradient(to right, var(--primary) 0%, var(--primary) ${perc}%, rgba(255,255,255,0.1) ${perc}%, rgba(255,255,255,0.1) 100%)`;
+  // --- GLOBAL FUNCTIONS (Accessible from popup) ---
+  window.addWaypoint = (lat, lon, name, btn) => {
+      waypoints.push({lat, lon});
+      L.marker([lat, lon], {
+          icon: L.divIcon({className: 'marker-waypoint', iconSize: [16,16]})
+      }).addTo(waypointLayer);
+      
+      btn.textContent = "✅ Ajouté";
+      btn.classList.add('added');
+      btn.onclick = null;
+      
+      // Trigger route rebuild
+      document.getElementById('btn-trace-route').click();
+  };
+  
+  window.toggleAvoid = (btn) => btn.classList.toggle('active');
+
+  // --- UI LOGIC ---
+  els.slider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      let label = '';
+      if(val < 10) label = 'Touriste';
+      else if(val < 30) label = 'Curieux';
+      else label = 'Explorateur';
+      els.sliderLabel.textContent = `${val} km • ${label}`;
+  });
+  
+  function renderTags() {
+      els.tagCloud.innerHTML = '';
+      if (activeCategories.size === 0) { els.tagCloud.innerHTML = '<div class="empty-tags-hint" style="font-size:13px; color:var(--text-sub);">Appuyez sur une catégorie...</div>'; return; }
+      activeCategories.forEach(cat => {
+          TAGS_DB[cat]?.forEach(tag => {
+              const pill = document.createElement('div'); pill.className = 'tag-pill'; pill.textContent = tag;
+              if(selectedTags.has(tag)) pill.classList.add('selected');
+              pill.onclick = () => {
+                  pill.classList.toggle('selected');
+                  if(pill.classList.contains('selected')) selectedTags.add(tag); else selectedTags.delete(tag);
+              };
+              els.tagCloud.appendChild(pill);
+          });
+      });
   }
-  els.slider.addEventListener('input',(e)=>updateSlider(e.target.value));
 
-  function showScreen(n){els.auth.style.display='none';els.profile.style.display='none';els.main.style.display='none';if(n==='auth')els.auth.style.display='flex';if(n==='profile')els.profile.style.display='flex';if(n==='main'){els.main.style.display='block';setTimeout(()=>{initMap();},100);}}
-  function updateTabLine(t){els.tabLine.style.width=t.offsetWidth+'px';els.tabLine.style.left=t.offsetLeft+'px';}
-  els.tabLogin.addEventListener('click',()=>{isRegisterMode=false;setTabs();});els.tabRegister.addEventListener('click',()=>{isRegisterMode=true;setTabs();});
-  function setTabs(){if(isRegisterMode){els.tabRegister.classList.add('active');els.tabLogin.classList.remove('active');els.authBtn.textContent="Créer un compte";updateTabLine(els.tabRegister);}else{els.tabLogin.classList.add('active');els.tabRegister.classList.remove('active');els.authBtn.textContent="Se connecter";updateTabLine(els.tabLogin);}}
-  els.authBtn.addEventListener('click',()=>{localStorage.setItem('gddLoggedIn','1');if(isRegisterMode)showScreen('profile');else{loadProfileData();showScreen('main');}});
-  document.querySelectorAll('.segment-pill').forEach(b=>{b.addEventListener('click',()=>{b.parentElement.querySelectorAll('.segment-pill').forEach(i=>i.classList.remove('active'));b.classList.add('active');if(b.parentElement.id==='theme-selector'){const m=b.getAttribute('data-val');if(m==='light')document.documentElement.setAttribute('data-theme','light');else document.documentElement.removeAttribute('data-theme');updateMapTheme();}});});
-  document.getElementById('btn-save-profile').addEventListener('click',()=>{localStorage.setItem('gddName',els.pFirstname.value);loadProfileData();showScreen('main');});
-  document.getElementById('btn-profile-open').addEventListener('click',()=>{loadProfileData();showScreen('profile');});
-  document.getElementById('btn-profile-back').addEventListener('click',()=>{showScreen('main');});
-  document.getElementById('btn-logout').addEventListener('click',()=>{localStorage.removeItem('gddLoggedIn');showScreen('auth');});
-  function loadProfileData(){const n=localStorage.getItem('gddName')||'Andrey';els.pFirstname.value=n;document.getElementById('profile-avatar-char').textContent=n.charAt(0).toUpperCase();document.getElementById('btn-profile-open').textContent=n.charAt(0).toUpperCase();}
+  function showScreen(name) {
+    els.auth.style.display = 'none'; els.profile.style.display = 'none'; els.main.style.display = 'none';
+    if(name === 'auth') els.auth.style.display = 'flex';
+    if(name === 'profile') els.profile.style.display = 'flex';
+    if(name === 'main') {
+        els.main.style.display = 'block';
+        setTimeout(() => {
+            initMap();
+            if(map) map.invalidateSize();
+        }, 100);
+    }
+  }
 
-  /* MAP */
-  function initMap(){if(map){map.invalidateSize();updateMapTheme();return;}map=L.map('map-container',{zoomControl:false}).setView([48.8566,2.3522],13);updateMapTheme();userMarker=L.marker([48.8566,2.3522],{icon:L.divIcon({className:'custom-div-icon',html:"<div class='user-marker-brand'></div>",iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map);routeLayer=L.layerGroup().addTo(map);corridorLayer=L.layerGroup().addTo(map);detourLayer=L.layerGroup().addTo(map);waypointLayer=L.layerGroup().addTo(map);if(!startCoords&&navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{startCoords={lat:p.coords.latitude,lon:p.coords.longitude};map.setView([startCoords.lat,startCoords.lon],14);userMarker.setLatLng([startCoords.lat,startCoords.lon]);});}map.on('click',async(e)=>{const{lat,lng}=e.latlng;if(destMarker)map.removeLayer(destMarker);destMarker=L.marker([lat,lng],{icon:L.divIcon({className:'marker-end',iconSize:[16,16]})}).addTo(map);destCoords={lat,lon:lng};els.destInput.value="Point...";try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);const d=await r.json();if(d.display_name)els.destInput.value=d.display_name.split(',')[0];}catch{}});}
-  function updateMapTheme(){if(!map)return;const l=document.documentElement.getAttribute('data-theme')==='light';const u=l?'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png':'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';if(tileLayer)map.removeLayer(tileLayer);tileLayer=L.tileLayer(u,{maxZoom:20}).addTo(map);}
-  document.getElementById('btn-locate').addEventListener('click',()=>{if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{startCoords={lat:p.coords.latitude,lon:p.coords.longitude};map.setView([startCoords.lat,startCoords.lon],15);userMarker.setLatLng([startCoords.lat,startCoords.lon]);els.startInput.value="Ma position actuelle";});}});
-  function setupAC(el,isS){let t;el.addEventListener('input',(e)=>{clearTimeout(t);if(e.target.value.length<3){els.suggestionsList.style.display='none';return;}t=setTimeout(async()=>{try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${e.target.value}&limit=5`);const d=await r.json();showSugg(d,isS);}catch{}},300);});}
-  setupAC(els.startInput,true);setupAC(els.destInput,false);
-  function showSugg(d,isS){els.suggestionsList.innerHTML='';if(!d.length){els.suggestionsList.style.display='none';return;}d.forEach(i=>{const div=document.createElement('div');div.className='suggestion-item';div.innerHTML=`<span>📍</span>${i.display_name.split(',')[0]}`;div.onclick=()=>{if(isS){els.startInput.value=i.display_name.split(',')[0];startCoords={lat:i.lat,lon:i.lon};}else{els.destInput.value=i.display_name.split(',')[0];destCoords={lat:i.lat,lon:i.lon};if(destMarker)map.removeLayer(destMarker);destMarker=L.marker([i.lat,i.lon],{icon:L.divIcon({className:'marker-end',iconSize:[16,16]})}).addTo(map);}els.suggestionsList.style.display='none';};els.suggestionsList.appendChild(div);});els.suggestionsList.style.display='block';}
-  document.addEventListener('click',(e)=>{if(!e.target.closest('.route-box'))els.suggestionsList.style.display='none';});
-  window.toggleAvoid=(b)=>b.classList.toggle('active');
+  function updateTabLine(activeTab) { els.tabLine.style.width = activeTab.offsetWidth + 'px'; els.tabLine.style.left = activeTab.offsetLeft + 'px'; }
+  els.tabLogin.addEventListener('click', () => { isRegisterMode=false; setTabs(); });
+  els.tabRegister.addEventListener('click', () => { isRegisterMode=true; setTabs(); });
+  function setTabs() {
+    if(isRegisterMode) { els.tabRegister.classList.add('active'); els.tabLogin.classList.remove('active'); els.authBtn.textContent = "Créer un compte"; updateTabLine(els.tabRegister); }
+    else { els.tabLogin.classList.add('active'); els.tabRegister.classList.remove('active'); els.authBtn.textContent = "Se connecter"; updateTabLine(els.tabLogin); }
+  }
+  els.authBtn.addEventListener('click', () => { localStorage.setItem('gddLoggedIn', '1'); if(isRegisterMode) showScreen('profile'); else { loadProfileData(); showScreen('main'); } });
+  
+  const themeBtns = document.querySelectorAll('#theme-selector .segment-pill');
+  themeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+          themeBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+          const mode = btn.getAttribute('data-val');
+          if(mode === 'light') document.documentElement.setAttribute('data-theme', 'light');
+          else if (mode === 'dark') document.documentElement.removeAttribute('data-theme');
+          else { if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', 'light'); }
+          updateMapTheme(); 
+      });
+  });
 
-  // --- ROUTING & ADD WAYPOINT ---
-  els.traceBtn.addEventListener('click',()=>buildRoute());
+  document.getElementById('btn-save-profile').addEventListener('click', () => { localStorage.setItem('gddName', els.pFirstname.value); loadProfileData(); showScreen('main'); });
+  document.getElementById('btn-profile-open').addEventListener('click', () => { loadProfileData(); showScreen('profile'); });
+  document.getElementById('btn-profile-back').addEventListener('click', () => showScreen('main'));
+  document.getElementById('btn-logout').addEventListener('click', () => { localStorage.removeItem('gddLoggedIn'); showScreen('auth'); });
 
-  async function buildRoute(){
-    if(!destCoords||!startCoords)return alert("Départ et destination requis");
-    els.traceBtn.textContent="Calcul..."; els.routeInfo.style.display='none';
+  function loadProfileData() {
+    const name = localStorage.getItem('gddName') || 'Andrey';
+    els.pFirstname.value = name;
+    const initial = name.charAt(0).toUpperCase();
+    document.getElementById('profile-avatar-char').textContent = initial;
+    document.getElementById('btn-profile-open').textContent = initial;
+  }
+
+  /* MAP & ROUTING */
+  function initMap() {
+    if(map) { map.invalidateSize(); updateMapTheme(); return; }
+    map = L.map('map-container', { zoomControl: false }).setView([48.8566, 2.3522], 13);
+    updateMapTheme();
     
-    // Clear old detours ONLY if this is a fresh route search (not adding waypoint)
-    // Logic simplified: clear layers always for now to avoid dupes
-    routeLayer.clearLayers(); corridorLayer.clearLayers(); detourLayer.clearLayers();
+    userMarker = L.marker([48.8566, 2.3522], {icon: L.divIcon({className: 'custom-div-icon', html: "<div class='user-marker-brand'></div>", iconSize: [20, 20], iconAnchor: [10, 10]})}).addTo(map);
+    
+    routeLayer = L.layerGroup().addTo(map);
+    corridorLayer = L.layerGroup().addTo(map);
+    detourLayer = L.layerGroup().addTo(map);
+    waypointLayer = L.layerGroup().addTo(map);
 
-    const routePoints=[startCoords,...waypoints,destCoords];
-    const coordStr=routePoints.map(p=>`${p.lon},${p.lat}`).join(';');
-    let u=`https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
-    const exc=[]; if(document.getElementById('btn-avoid-toll').classList.contains('active'))exc.push('toll'); if(document.getElementById('btn-avoid-hwy').classList.contains('active'))exc.push('motorway'); if(exc.length)u+=`&exclude=${exc.join(',')}`;
+    if(!startCoords && navigator.geolocation) {
+       navigator.geolocation.getCurrentPosition(pos => {
+          startCoords = {lat: pos.coords.latitude, lon: pos.coords.longitude};
+          map.setView([startCoords.lat, startCoords.lon], 14);
+          userMarker.setLatLng([startCoords.lat, startCoords.lon]);
+       });
+    }
 
-    try{
-        const r=await fetch(u); const d=await r.json();
-        if(d.code!=='Ok') throw new Error('Route error'); // Fallback to catch
-        
-        const rt=d.routes[0];
-        L.geoJSON(rt.geometry,{style:{color:'#22c55e',weight:5}}).addTo(routeLayer);
-        const dist=(rt.distance/1000).toFixed(1); const dur=Math.round(rt.duration/60); const h=Math.floor(dur/60); const m=dur%60;
-        els.routeInfo.textContent=`${h>0?h+'h ':''}${m}min • ${dist} km`; els.routeInfo.style.display='block';
-        
-        // Re-draw waypoints
-        waypoints.forEach(wp => L.marker([wp.lat,wp.lon],{icon:L.divIcon({className:'marker-waypoint'})}).addTo(routeLayer));
-
-        const sVal=parseInt(els.slider.value)||2; 
-        L.geoJSON(rt.geometry,{style:{color:'#22c55e',weight:sVal*2,opacity:0.2,lineCap:'round'}}).addTo(corridorLayer); 
-        map.fitBounds(L.geoJSON(rt.geometry).getBounds(),{padding:[50,50]});
-        fetchRealDetours(rt.geometry.coordinates, sVal*1000);
-
-    }catch{
-        // Fallback logic if specific restriction fails
-        alert("Impossible avec ces restrictions. Essai sans filtres...");
-        // Disable filters visually and try again? No, user should decide.
-    }finally{els.traceBtn.textContent="Tracer l'itinéraire";}
+    map.on('click', async (e) => {
+        const {lat, lng} = e.latlng;
+        if(destMarker) routeLayer.removeLayer(destMarker);
+        const endIcon = L.divIcon({ className: 'marker-end', iconSize: [16,16] });
+        destMarker = L.marker([lat, lng], {icon: endIcon}).addTo(routeLayer);
+        destCoords = {lat, lon: lng};
+        els.destInput.value = "Point sur la carte...";
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const data = await res.json();
+            if(data && data.display_name) els.destInput.value = data.display_name.split(',')[0];
+        } catch(err) {}
+    });
   }
+
+  function updateMapTheme() {
+    if(!map) return;
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const darkUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    const lightUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+    const url = isLight ? lightUrl : darkUrl;
+    if(tileLayer) map.removeLayer(tileLayer);
+    tileLayer = L.tileLayer(url, { maxZoom: 20 }).addTo(map);
+  }
+
+  document.getElementById('btn-locate').addEventListener('click', () => {
+    if(navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const {latitude, longitude} = pos.coords;
+            startCoords = {lat: latitude, lon: longitude};
+            map.setView([latitude, longitude], 15);
+            userMarker.setLatLng([latitude, longitude]);
+            els.startInput.value = "Ma position actuelle";
+        });
+    }
+  });
+
+  // --- AUTOCOMPLETE ---
+  function setupAutocomplete(inputElem, isStart) {
+      let debounceTimer;
+      inputElem.addEventListener('focus', () => activeInput = inputElem);
+      inputElem.addEventListener('input', (e) => {
+          const query = e.target.value;
+          clearTimeout(debounceTimer);
+          if(query.length === 0) els.suggestionsList.style.display = 'none'; 
+          if(query.length < 3) { els.suggestionsList.style.display = 'none'; return; }
+          
+          debounceTimer = setTimeout(async () => {
+              try {
+                  const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`);
+                  const data = await res.json();
+                  showSuggestions(data, isStart);
+              } catch(err) {}
+          }, 300);
+      });
+  }
+  setupAutocomplete(els.startInput, true);
+  setupAutocomplete(els.destInput, false);
+
+  function showSuggestions(data, isStart) {
+      els.suggestionsList.innerHTML = '';
+      if(!data || data.length === 0) { els.suggestionsList.style.display = 'none'; return; }
+      data.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'suggestion-item';
+          const parts = item.display_name.split(',');
+          const mainText = parts[0];
+          const subText = parts.slice(1,3).join(',');
+          div.innerHTML = `<span class="suggestion-icon">📍</span> <div><span style="font-weight:600">${mainText}</span><br><span style="font-size:11px; opacity:0.6">${subText}</span></div>`;
+          div.onclick = () => {
+              if(isStart) {
+                  els.startInput.value = mainText;
+                  startCoords = { lat: item.lat, lon: item.lon };
+                  map.setView([item.lat, item.lon], 14);
+                  userMarker.setLatLng([item.lat, item.lon]);
+              } else {
+                  els.destInput.value = mainText;
+                  destCoords = { lat: item.lat, lon: item.lon };
+                  if(destMarker) routeLayer.removeLayer(destMarker);
+                  const endIcon = L.divIcon({ className: 'marker-end', iconSize: [16,16] });
+                  destMarker = L.marker([item.lat, item.lon], {icon: endIcon}).addTo(routeLayer);
+                  map.setView([item.lat, item.lon], 14);
+              }
+              els.suggestionsList.style.display = 'none';
+          };
+          els.suggestionsList.appendChild(div);
+      });
+      els.suggestionsList.style.display = 'block';
+  }
+  document.addEventListener('click', (e) => { if(!e.target.closest('.route-box')) els.suggestionsList.style.display = 'none'; });
+
+  /* ROUTING & DETOURS */
+  els.traceBtn.addEventListener('click', async () => {
+      if(!destCoords || !startCoords) return alert("Veuillez définir le départ et la destination");
+      els.traceBtn.textContent = "Calcul...";
+      els.routeInfo.style.display = 'none';
+
+      // IMPORTANT: Clear layers ONLY here (new search)
+      // Don't clear waypointLayer here if we want to keep them, 
+      // but for new route we usually want fresh start or re-calculation.
+      // If this is a 're-calculation' triggered by addWaypoint, we keep waypoints.
+      // If user changed input manually, we should probably clear waypoints? 
+      // For simplicity: Keep waypoints unless explicitly cleared.
+      
+      routeLayer.clearLayers();
+      corridorLayer.clearLayers();
+      detourLayer.clearLayers(); 
+
+      // Build Waypoints String
+      const points = [startCoords, ...waypoints, destCoords];
+      const coordStr = points.map(p => `${p.lon},${p.lat}`).join(';');
+      
+      let url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
+      const exclude = [];
+      if(document.getElementById('btn-avoid-toll').classList.contains('active')) exclude.push('toll');
+      if(document.getElementById('btn-avoid-hwy').classList.contains('active')) exclude.push('motorway');
+      if(exclude.length > 0) url += `&exclude=${exclude.join(',')}`;
+
+      try {
+          const res = await fetch(url);
+          const data = await res.json();
+          if(data.routes && data.routes.length > 0) {
+              const route = data.routes[0];
+              
+              // Draw Line
+              const geoJsonLayer = L.geoJSON(route.geometry, { style: { color: '#22c55e', weight: 5, opacity: 1 } }).addTo(routeLayer);
+              
+              // Add Destination Marker back (it was cleared)
+              if(destMarker) destMarker.addTo(routeLayer);
+              // Add Waypoints back
+              waypoints.forEach(wp => {
+                  L.marker([wp.lat, wp.lon], {icon: L.divIcon({className: 'marker-waypoint', iconSize:[16,16]})}).addTo(routeLayer);
+              });
+
+              // Display Info
+              const dist = (route.distance / 1000).toFixed(1);
+              const dur = Math.round(route.duration / 60);
+              const h = Math.floor(dur / 60);
+              const m = dur % 60;
+              els.routeInfo.textContent = `${h > 0 ? h + 'h ' : ''}${m}min • ${dist} km`;
+              els.routeInfo.style.display = 'block';
+              
+              // Draw Corridor
+              const sliderVal = parseInt(els.slider.value) || 2;
+              const width = CORRIDOR_WIDTH[sliderVal];
+              L.geoJSON(route.geometry, { 
+                  style: { color: '#22c55e', weight: width, opacity: 0.15, lineCap: 'round' } 
+              }).addTo(corridorLayer);
+
+              map.fitBounds(geoJsonLayer.getBounds(), {padding: [50, 150]});
+              
+              // Fetch Real Detours
+              fetchRealDetours(route.geometry.coordinates, sliderVal * 1000);
+          } else {
+              alert("Route introuvable (Essayez sans filtres)");
+          }
+      } catch(e) { alert("Erreur connexion OSRM"); } 
+      finally { els.traceBtn.textContent = "Tracer l'itinéraire"; }
+  });
 
   async function fetchRealDetours(routeCoords, radius){
       if(activeCategories.size===0)return;
-      const samples=[]; const step=Math.floor(routeCoords.length/8)||1; 
+      els.traceBtn.textContent="🔎 Recherche de pépites...";
+      
+      const samples=[]; 
+      const step=Math.floor(routeCoords.length/8)||1; 
       for(let i=0;i<routeCoords.length;i+=step) samples.push(routeCoords[i]);
-      let queries=[]; activeCategories.forEach(cat=>{ OVERPASS_TAGS[cat]?.forEach(tag=>{ samples.forEach(c=>{ queries.push(`node[${tag}](around:${radius},${c[1]},${c[0]});`); }); }); });
+      
+      let queries=[]; 
+      activeCategories.forEach(cat=>{ 
+          OVERPASS_TAGS[cat]?.forEach(tag=>{ 
+              samples.forEach(c=>{ 
+                  // c is [lon, lat] from geojson
+                  queries.push(`node[${tag}](around:${radius},${c[1]},${c[0]});`); 
+              }); 
+          }); 
+      });
+      
       const ql=`[out:json][timeout:15];(${queries.join('')});out body 20;>;out skel qt;`;
+
       try{
-          const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:ql}); const d=await r.json();
+          const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:ql}); 
+          const d=await r.json();
           const unique=new Set();
+          
           d.elements.forEach(el=>{
-              if(el.lat&&!unique.has(el.id)){
-                  unique.add(el.id); let icon='📍'; let cat='curiosity';
-                  if(el.tags.historic) {icon=POI_ICONS.history; cat='history';} else if(el.tags.natural||el.tags.waterway) {icon=POI_ICONS.nature; cat='nature';} else if(el.tags.craft||el.tags.shop) {icon=POI_ICONS.hedonism; cat='hedonism';}
-                  const m=L.marker([el.lat,el.lon],{icon:L.divIcon({className:'poi-marker',html:icon})}).addTo(detourLayer);
-                  const name=el.tags.name||(el.tags.historic||el.tags.natural||'Lieu Mystère');
-                  m.bindPopup(`<div class="popup-card"><div class="popup-title">${name}</div><div class="popup-desc">Détour: ${cat}</div><button class="popup-btn" onclick="addWaypoint(${el.lat},${el.lon})">Ajouter au trajet</button></div>`);
+              if(el.lat && !unique.has(el.id)){
+                  unique.add(el.id); 
+                  let icon='📍'; let cat='curiosity';
+                  
+                  if(el.tags.historic) {icon=POI_ICONS.history; cat='history';} 
+                  else if(el.tags.natural||el.tags.waterway) {icon=POI_ICONS.nature; cat='nature';} 
+                  else if(el.tags.craft||el.tags.shop||el.tags.amenity) {icon=POI_ICONS.hedonism; cat='hedonism';}
+                  
+                  const m=L.marker([el.lat,el.lon],{
+                      icon:L.divIcon({
+                          className:'poi-marker',
+                          html:icon,
+                          iconSize:[36,36],
+                          iconAnchor:[18,18]
+                      })
+                  }).addTo(detourLayer);
+                  
+                  const name=el.tags.name || (el.tags.historic||el.tags.natural||'Lieu Mystère');
+                  
+                  // POPUP WITH ACTION BUTTON
+                  const popupContent = document.createElement('div');
+                  popupContent.className = 'popup-card';
+                  popupContent.innerHTML = `
+                    <div class="popup-img"></div>
+                    <div class="popup-body">
+                        <div class="popup-title">${name}</div>
+                        <div class="popup-desc">Détour: ${cat}</div>
+                        <button class="popup-btn">Ajouter au trajet (+20 min)</button>
+                    </div>
+                  `;
+                  
+                  // Bind click event safely
+                  const btn = popupContent.querySelector('.popup-btn');
+                  btn.onclick = () => window.addWaypoint(el.lat, el.lon, name, btn);
+                  
+                  m.bindPopup(popupContent);
               }
           });
-      }catch(e){console.log(e);}
+      } catch(e){ console.log(e); } 
+      finally { els.traceBtn.textContent="Tracer l'itinéraire"; }
   }
 
-  // GLOBAL FUNCTION FOR POPUP BUTTON
-  window.addWaypoint = (lat, lon) => {
-      waypoints.push({lat, lon});
-      map.closePopup();
-      buildRoute(); // Re-calculate with new waypoint
-  };
 </script>
 </body>
 </html>
+
