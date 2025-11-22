@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Cinematic Profile</title>
+  <title>Guide du Détour · Premium Icons</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -14,86 +14,57 @@
       /* DARK (Default) */
       --bg-color: #020617;
       --bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
-      
       --text-main: #ffffff;
       --text-sub: #94a3b8;
       --text-muted: #64748b;
-      
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
-      
       --glass-border: rgba(255,255,255,0.08);
       --glass-bg: rgba(255,255,255,0.03);
-      
-      /* Карточки теперь без явных границ, работают на фоне */
       --card-bg: rgba(255, 255, 255, 0.03);
-      
-      /* Active states */
       --active-card-bg: rgba(34, 197, 94, 0.15);
       --active-text: #4ade80;
-      
       --nav-bg: rgba(2, 6, 23, 0.85);
+      --icon-color: #64748b; /* Цвет неактивных иконок */
     }
 
-    /* LIGHT THEME (High Contrast, No Borders) */
+    /* LIGHT THEME */
     [data-theme="light"] {
       --bg-color: #ffffff;
       --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-      
       --text-main: #0f172a;
       --text-sub: #475569;
       --text-muted: #94a3b8;
-      
       --glass-border: rgba(0,0,0,0.06);
       --glass-bg: #f1f5f9;
-      
       --card-bg: #f8fafc;
-      
-      /* Active states Light */
       --active-card-bg: #dcfce7; 
       --active-text: #166534;
-      
       --nav-bg: rgba(255, 255, 255, 0.95);
+      --icon-color: #94a3b8;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    html, body {
-      margin: 0; padding: 0; height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-      background: var(--bg-color);
-      color: var(--text-main);
-      -webkit-font-smoothing: antialiased;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
+    html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; background: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background 0.3s ease, color 0.3s ease; }
     body { display: flex; justify-content: center; align-items: stretch; }
-
-    .app-shell {
-      width: 100%; max-width: 430px; height: 100vh;
-      background: var(--bg-gradient);
-      overflow: hidden; position: relative;
-      transition: background 0.3s ease;
-    }
+    .app-shell { width: 100%; max-width: 430px; height: 100vh; background: var(--bg-gradient); overflow: hidden; position: relative; transition: background 0.3s ease; }
 
     /* --- UI KIT --- */
-    .btn-primary {
-      width: 100%; padding: 16px; border-radius: 24px; border: none;
-      background: var(--primary-grad);
-      color: #020617; font-weight: 700; font-size: 16px; cursor: pointer;
-      box-shadow: 0 8px 20px -6px rgba(34, 197, 94, 0.6);
-      transform: scale(1); transition: 0.2s;
-    }
+    .btn-primary { width: 100%; padding: 16px; border-radius: 24px; border: none; background: var(--primary-grad); color: #020617; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px -6px rgba(34, 197, 94, 0.6); transform: scale(1); transition: 0.2s; }
     .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
-
     ::-webkit-scrollbar { width: 0px; background: transparent; }
+    
+    /* ICONS STYLING */
+    .icon { width: 24px; height: 24px; stroke-width: 2; stroke: var(--icon-color); fill: none; transition: 0.3s; }
+    .icon-sm { width: 18px; height: 18px; }
+    .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
+    .interest-card.active .icon { stroke: var(--active-text); } /* Иконка загорается при активности */
+    .nav-btn .icon { stroke: var(--text-main); opacity: 0.8; }
+    .edit-badge .icon { stroke: #000; width: 14px; height: 14px; }
 
-    /* --- 2. SPLASH --- */
-    #splash-screen {
-      position: absolute; inset: 0; z-index: 100;
-      background: #020617; 
-      display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;
-    }
+
+    /* --- 2. SPLASH & 3. AUTH (Оставляем как было) --- */
+    #splash-screen { position: absolute; inset: 0; z-index: 100; background: #020617; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
     .splash-slogan { width: 280px; font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 40px; opacity: 0; animation: fadeUp 1s forwards 0.8s; }
     .splash-progress { width: 280px; height: 1px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; }
@@ -101,181 +72,76 @@
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* --- 3. AUTH --- */
-    #auth-screen {
-      position: absolute; inset: 0; z-index: 90; display: none;
-      flex-direction: column; justify-content: center; padding: 32px;
-    }
+    #auth-screen { position: absolute; inset: 0; z-index: 90; display: none; flex-direction: column; justify-content: center; padding: 32px; }
     h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: #fff; }
     p.auth-subtitle { font-size: 15px; color: #94a3b8; margin: 0 0 48px; }
-    
     .auth-tabs { display: flex; gap: 32px; margin-bottom: 32px; position: relative; }
     .tab { background: none; border: none; padding: 0 0 8px 0; font-size: 16px; color: rgba(255,255,255,0.5); font-weight: 600; cursor: pointer; transition: 0.3s; }
     .tab.active { color: #fff; }
     .tab-indicator { position: absolute; bottom: 0; left: 0; height: 3px; width: 20px; background: #4ade80; border-radius: 10px; box-shadow: 0 0 10px rgba(74, 222, 128, 0.6); transition: left 0.3s, width 0.3s; }
-
     .input-wrapper { position: relative; margin-bottom: 20px; }
-    #auth-screen .input-field {
-      width: 100%; padding: 18px 16px 14px; border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(10px); color: #fff; font-size: 16px; transition: 0.3s;
-    }
+    #auth-screen .input-field { width: 100%; padding: 18px 16px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: #fff; font-size: 16px; transition: 0.3s; }
     #auth-screen .input-field:focus { outline: none; border-color: #4ade80; background: rgba(255,255,255,0.15); }
     #auth-screen .input-label { position: absolute; left: 18px; top: 18px; font-size: 15px; color: rgba(255,255,255,0.6); pointer-events: none; transition: 0.2s; }
     #auth-screen .input-field:focus + .input-label, #auth-screen .input-field:not(:placeholder-shown) + .input-label { top: 7px; font-size: 11px; color: #4ade80; font-weight: 600; }
     .input-field { padding-top: 24px; padding-bottom: 10px; }
-
     .divider { display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: #64748b; }
     .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .social-login { display: flex; justify-content: center; gap: 24px; }
     .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; }
 
 
-    /* --- 4. CINEMATIC PROFILE --- */
-    #profile-screen {
-      position: absolute; inset: 0; z-index: 95; display: none;
-      flex-direction: column; background: var(--bg-color); overflow-y: auto;
-      transition: background 0.3s ease; animation: fadeIn 0.4s ease-out;
-    }
+    /* --- 4. PROFILE (ICONS UPDATE) --- */
+    #profile-screen { position: absolute; inset: 0; z-index: 95; display: none; flex-direction: column; background: var(--bg-color); overflow-y: auto; transition: background 0.3s ease; animation: fadeIn 0.4s ease-out; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Nav - Transparent & Clean */
-    .profile-nav {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 20px; position: sticky; top: 0; z-index: 10;
-      background: var(--nav-bg); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--glass-border);
-    }
+    .profile-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; background: var(--nav-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); }
     .nav-title { font-weight: 600; font-size: 17px; color: var(--text-main); opacity: 0.9; }
-    .nav-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; opacity: 0.7; padding: 4px; }
+    .nav-btn { background: none; border: none; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; }
 
     .profile-content { padding: 0 24px 120px 24px; }
+    .hero-section { display: flex; flex-direction: column; align-items: center; padding: 40px 0 30px; text-align: center; }
+    .hero-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #334155, #1e293b); display: flex; align-items: center; justify-content: center; font-size: 36px; color: #fff; font-weight: 700; border: 2px solid var(--glass-border); box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); margin-bottom: 20px; position: relative; }
+    .edit-badge { position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); border: 3px solid var(--bg-color); color: #000; display: flex; align-items: center; justify-content: center; }
 
-    /* Hero Section - No Boxes, Just Content */
-    .hero-section {
-      display: flex; flex-direction: column; align-items: center;
-      padding: 40px 0 30px; text-align: center;
-    }
-    
-    /* Glowing Avatar */
-    .hero-avatar {
-      width: 100px; height: 100px; border-radius: 50%;
-      background: linear-gradient(135deg, #334155, #1e293b);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 36px; color: #fff; font-weight: 700;
-      border: 2px solid var(--glass-border);
-      box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); /* GLOW EFFECT */
-      margin-bottom: 20px; position: relative;
-    }
-    .edit-badge {
-      position: absolute; bottom: 0; right: 0; 
-      width: 30px; height: 30px; border-radius: 50%;
-      background: var(--primary); border: 3px solid var(--bg-color);
-      color: #000; font-size: 14px; display: flex; align-items: center; justify-content: center;
-    }
-
-    /* Ghost Inputs (Look like text until clicked) */
     .ghost-input-group { display: flex; flex-direction: column; gap: 4px; width: 100%; align-items: center; }
-    
-    .ghost-input {
-      background: transparent; border: none; text-align: center;
-      color: var(--text-main); font-family: inherit; width: 100%;
-      transition: 0.2s; padding: 4px;
-    }
-    .ghost-input:focus {
-      background: var(--glass-bg); border-radius: 8px; outline: none;
-    }
-    
+    .ghost-input { background: transparent; border: none; text-align: center; color: var(--text-main); font-family: inherit; width: 100%; transition: 0.2s; padding: 4px; }
+    .ghost-input:focus { background: var(--glass-bg); border-radius: 8px; outline: none; }
     .input-name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
     .input-sub { font-size: 15px; color: var(--text-sub); font-weight: 500; }
 
-    /* Section Headers - Clean Typography */
-    .section-header {
-      font-size: 18px; font-weight: 700; color: var(--text-main);
-      margin: 40px 0 16px; display: flex; align-items: center; justify-content: space-between;
-    }
+    .section-header { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 40px 0 16px; display: flex; align-items: center; justify-content: space-between; }
     .section-hint { font-size: 13px; color: var(--text-muted); font-weight: 400; }
 
-    /* Interest Grid - Cleaner, larger touch targets */
     .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .interest-card {
-      background: var(--card-bg); 
-      border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-      /* No Border by default in dark mode for cleaner look */
-    }
+    .interest-card { background: var(--card-bg); border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; align-items: center; gap: 12px; }
     .interest-card:active { transform: scale(0.98); }
-    
-    .interest-icon { font-size: 28px; margin-bottom: 4px; filter: grayscale(100%) opacity(0.7); transition: 0.3s; }
     .interest-name { font-size: 14px; font-weight: 600; color: var(--text-sub); transition: 0.3s; }
-    
-    /* Active State */
     .interest-card.active { background: var(--active-card-bg); }
-    .interest-card.active .interest-icon { filter: grayscale(0%) opacity(1); transform: scale(1.1); }
     .interest-card.active .interest-name { color: var(--active-text); }
 
-    /* Tag Cloud - Floating Pills */
     .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 40px; }
-    .tag-pill {
-      padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500;
-      background: var(--glass-bg); color: var(--text-sub);
-      border: 1px solid transparent; transition: 0.2s; cursor: pointer;
-    }
+    .tag-pill { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; background: var(--glass-bg); color: var(--text-sub); border: 1px solid transparent; transition: 0.2s; cursor: pointer; }
     [data-theme="light"] .tag-pill { background: #f1f5f9; }
-    
-    .tag-pill.selected {
-      background: var(--primary); color: #020617; font-weight: 600;
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-    }
+    .tag-pill.selected { background: var(--primary); color: #020617; font-weight: 600; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); }
 
-    /* Slider - Minimal */
-    .slider-wrapper {
-      margin-top: 10px; padding: 10px 0;
-    }
+    .slider-wrapper { margin-top: 10px; padding: 10px 0; }
     .slider-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 14px; font-weight: 600; }
     .slider-val { color: var(--primary); }
-    
-    .range-input {
-      width: 100%; -webkit-appearance: none; height: 4px; border-radius: 99px;
-      background: var(--glass-border); outline: none;
-    }
-    .range-input::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
-      background: var(--primary); cursor: pointer; border: 4px solid var(--bg-color);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
+    .range-input { width: 100%; -webkit-appearance: none; height: 4px; border-radius: 99px; background: var(--glass-border); outline: none; }
+    .range-input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 4px solid var(--bg-color); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
-    /* Settings List - Clean Rows */
     .settings-list { display: flex; flex-direction: column; gap: 24px; }
     .settings-row { display: flex; align-items: center; justify-content: space-between; }
     .settings-info { display: flex; flex-direction: column; }
     .settings-label { font-size: 15px; font-weight: 500; color: var(--text-main); }
     .settings-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .segment-pill-wrap { background: var(--glass-bg); padding: 3px; border-radius: 99px; display: flex; gap: 2px; }
+    .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
+    .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     
-    /* Segmented Control (Pills) */
-    .segment-pill-wrap {
-      background: var(--glass-bg); padding: 3px; border-radius: 99px;
-      display: flex; gap: 2px;
-    }
-    .segment-pill {
-      padding: 6px 12px; border-radius: 99px; border: none; background: transparent;
-      font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer;
-    }
-    .segment-pill.active {
-      background: var(--bg-color); color: var(--text-main);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    
-    /* Footer */
-    .profile-footer {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      padding: 20px 24px 30px;
-      background: linear-gradient(to top, var(--bg-color) 60%, transparent);
-      z-index: 20; display: flex; justify-content: center;
-    }
-    .save-btn {
-      width: 100%; max-width: 430px;
-    }
+    .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px 30px; background: linear-gradient(to top, var(--bg-color) 60%, transparent); z-index: 20; display: flex; justify-content: center; }
+    .save-btn { width: 100%; max-width: 430px; }
 
     /* --- 5. MAIN SCREEN --- */
     #main-screen { position: absolute; inset: 0; padding: 20px; display: none; }
@@ -286,15 +152,26 @@
 </head>
 <body>
 
-<div class="app-shell">
+<svg style="display: none;">
+  <symbol id="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
+  <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></symbol>
+  <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
+  <symbol id="icon-nature" viewBox="0 0 24 24"><path d="M17.5,19C15,19,12.62,17.63,11,15.77C9.38,17.63,7,19,4.5,19C3.12,19,2,17.88,2,16.5C2,12,8,8,11,2C14,8,20,12,20,16.5C20,17.88,18.88,19,17.5,19ZM11,15.77C11,15.77,11,15.77,11,15.77ZM11,4.5C9.06,8.5,4,12.06,4,16.5C4,16.78,4.22,17,4.5,17C6.43,17,8.68,15.68,10.11,13.97L11,12.9L11.89,13.97C13.32,15.68,15.57,17,17.5,17C17.78,17,18,16.78,18,16.5C18,12.06,12.94,8.5,11,4.5Z"></path></symbol>
+  <symbol id="icon-history" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
+  <symbol id="icon-hedonism" viewBox="0 0 24 24"><path d="M7 10h10"></path><path d="M8 14h8"></path><path d="M12 18h0"></path><path d="M6.168 14.828a6 6 0 0 1 11.664 0"></path><path d="M17.832 9.172a6 6 0 0 1-11.664 0"></path><path d="M12 2v1"></path><path d="M12 21v1"></path><path d="M12 5v1"></path><path d="M12 17v1"></path><path d="M5 12H4"></path><path d="M20 12h-1"></path><path d="M9 12v.01"></path><path d="M15 12v.01"></path></symbol>
+  <symbol id="icon-curiosity" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></symbol>
+  <symbol id="icon-map" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></symbol>
+  <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></symbol>
+</svg>
 
+
+<div class="app-shell">
   <div id="splash-screen">
     <img src="logo_2.png" alt="Guide du Détour" class="splash-logo" onerror="this.style.display='none';" />
     <div class="splash-slogan">Ça vaut le détour — à chaque trajet.</div>
     <div class="splash-progress"><div class="splash-progress-bar"></div></div>
     <div class="loading-text">Chargement...</div>
   </div>
-
   <div id="auth-screen">
     <h1 class="auth-title">Bienvenue</h1>
     <p class="auth-subtitle">Préparez-vous à sortir des sentiers battus.</p>
@@ -312,8 +189,13 @@
 
   <div id="profile-screen">
     <div class="profile-nav">
-      <button class="nav-btn" id="btn-profile-back">✕</button> <span class="nav-title">Profil</span>
-      <button class="nav-btn" style="font-size:16px; color:#ef4444;" id="btn-logout">↗</button>
+      <button class="nav-btn" id="btn-profile-back">
+        <svg class="icon"><use href="#icon-close"></use></svg>
+      </button>
+      <span class="nav-title">Profil</span>
+      <button class="nav-btn" style="color:#ef4444;" id="btn-logout">
+        <svg class="icon"><use href="#icon-logout"></use></svg>
+      </button>
     </div>
 
     <div class="profile-content">
@@ -321,9 +203,8 @@
       <div class="hero-section">
         <div class="hero-avatar">
           <span id="profile-avatar-char">A</span>
-          <div class="edit-badge">✎</div>
+          <div class="edit-badge"><svg class="icon"><use href="#icon-edit"></use></svg></div>
         </div>
-        
         <div class="ghost-input-group">
           <input id="p-firstname" class="ghost-input input-name" value="Andrey" placeholder="Prénom" />
           <input id="p-lastname" class="ghost-input input-sub" value="Smiras" placeholder="Nom" />
@@ -338,19 +219,19 @@
       
       <div class="interest-grid">
         <div class="interest-card" data-cat="nature">
-          <div class="interest-icon">🌿</div>
+          <svg class="icon icon-lg"><use href="#icon-nature"></use></svg>
           <div class="interest-name">Nature</div>
         </div>
         <div class="interest-card" data-cat="history">
-          <div class="interest-icon">🏰</div>
+          <svg class="icon icon-lg"><use href="#icon-history"></use></svg>
           <div class="interest-name">Histoire</div>
         </div>
         <div class="interest-card" data-cat="hedonism">
-          <div class="interest-icon">🍷</div>
+          <svg class="icon icon-lg"><use href="#icon-hedonism"></use></svg>
           <div class="interest-name">Hédonisme</div>
         </div>
         <div class="interest-card" data-cat="curiosity">
-          <div class="interest-icon">👽</div>
+          <svg class="icon icon-lg"><use href="#icon-curiosity"></use></svg>
           <div class="interest-name">Curiosités</div>
         </div>
       </div>
@@ -370,7 +251,6 @@
 
       <div class="section-header">Préférences</div>
       <div class="settings-list">
-        
         <div class="settings-row">
           <div class="settings-info">
             <span class="settings-label">Thème</span>
@@ -381,7 +261,6 @@
              <button class="segment-pill active" data-val="dark">🌑</button>
           </div>
         </div>
-
         <div class="settings-row">
           <div class="settings-info">
             <span class="settings-label">Guidage Vocal</span>
@@ -392,7 +271,6 @@
              <button class="segment-pill" data-val="all">Tout</button>
           </div>
         </div>
-
         <div class="settings-row">
           <div class="settings-info">
             <span class="settings-label">Anti-Routine</span>
@@ -402,17 +280,16 @@
              <div style="width:20px; height:20px; background:#fff; border-radius:50%; position:absolute; right:2px; top:2px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></div>
           </div>
         </div>
-
       </div>
       
       <div class="section-header" style="margin-top:40px;">Mon Carnet</div>
       <div class="interest-grid" style="margin-bottom:20px;">
          <div class="interest-card" style="flex-direction:row; justify-content:center;">
-            <span style="font-size:20px; margin-right:8px;">🗺️</span>
+            <svg class="icon" style="margin-right:8px;"><use href="#icon-map"></use></svg>
             <span style="font-weight:600; font-size:14px;">Mes Trajets</span>
          </div>
          <div class="interest-card" style="flex-direction:row; justify-content:center;">
-            <span style="font-size:20px; margin-right:8px;">📍</span>
+            <svg class="icon" style="margin-right:8px;"><use href="#icon-pin"></use></svg>
             <span style="font-weight:600; font-size:14px;">Mes Lieux</span>
          </div>
       </div>
@@ -448,10 +325,8 @@
     tabRegister: document.getElementById('tab-register'),
     authBtn: document.getElementById('btn-auth-action'),
     tabLine: document.getElementById('tab-line'),
-    
-    pFirstname: document.getElementById('p-firstname'), // Updated ID
-    pLastname: document.getElementById('p-lastname'),   // Updated ID
-    
+    pFirstname: document.getElementById('p-firstname'), 
+    pLastname: document.getElementById('p-lastname'),
     slider: document.getElementById('adventure-slider'),
     sliderLabel: document.getElementById('slider-val-label'),
     tagCloud: document.getElementById('tag-cloud')
@@ -459,7 +334,6 @@
 
   let isRegisterMode = false;
 
-  // --- TAGS DATABASE ---
   const TAGS_DB = {
     nature: ['Forêts', 'Lacs & Rivières', 'Montagnes', 'Grottes', 'Cascades', 'Panoramas', 'Plages sauvages'],
     history: ['Châteaux', 'Ruines', 'Églises', 'Monuments', 'Champs de bataille', 'Musées', 'Architecture'],
@@ -478,13 +352,9 @@
       }
     }, 6000);
 
-    // Init Interest Cards Logic
-    document.querySelectorAll('.interest-card').forEach(card => {
+    document.querySelectorAll('.interest-card[data-cat]').forEach(card => {
         card.addEventListener('click', () => {
-            // Check if it's a category card (has data-cat)
             const cat = card.getAttribute('data-cat');
-            if (!cat) return; // Skip history buttons
-
             card.classList.toggle('active');
             if (card.classList.contains('active')) {
                 activeCategories.add(cat);
@@ -502,7 +372,6 @@
           els.tagCloud.innerHTML = '<div class="empty-tags-hint" style="font-size:13px; color:var(--text-muted);">Appuyez sur une catégorie ci-dessus...</div>';
           return;
       }
-
       activeCategories.forEach(cat => {
           const tags = TAGS_DB[cat];
           if(tags) {
@@ -544,13 +413,11 @@
     localStorage.setItem('gddLoggedIn', '1'); showScreen('profile');
   }));
 
-  // PROFILE LOGIC
   els.slider.addEventListener('input', (e) => {
     const val = parseInt(e.target.value);
     els.sliderLabel.textContent = ['Touriste', 'Curieux', 'Explorateur'][val-1];
   });
 
-  // Theme Selector Logic
   const themeBtns = document.querySelectorAll('#theme-selector .segment-pill');
   themeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -597,7 +464,6 @@
     document.getElementById('profile-avatar-char').textContent = initial;
     document.getElementById('main-avatar').textContent = initial;
   }
-
 </script>
 </body>
 </html>
