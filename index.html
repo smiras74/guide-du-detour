@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Glass Map</title>
+  <title>Guide du Détour · Super Glass</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -19,10 +19,10 @@
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
       
-      /* GLASS UI (More transparent) */
-      --glass-border: rgba(255,255,255,0.1);
-      --glass-bg: rgba(15, 23, 42, 0.4); /* Более прозрачный фон */
-      --glass-blur: blur(16px); /* Сильное размытие */
+      /* GLASS SETTINGS (ULTRA TRANSPARENT) */
+      --glass-border: rgba(255,255,255,0.15);
+      --glass-bg: rgba(2, 6, 23, 0.45); /* Гораздо прозрачнее */
+      --glass-blur: blur(20px); /* Сильное размытие */
       
       --card-bg: rgba(255, 255, 255, 0.03);
       --active-card-bg: rgba(34, 197, 94, 0.15);
@@ -35,12 +35,14 @@
       --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
       --text-main: #0f172a;
       --text-sub: #475569;
-      --glass-border: rgba(0,0,0,0.05);
-      --glass-bg: rgba(255,255,255,0.6); /* Прозрачный белый */
+      
+      --glass-border: rgba(0,0,0,0.08);
+      --glass-bg: rgba(255,255,255,0.65); /* Белое стекло */
+      
       --card-bg: #f8fafc;
       --active-card-bg: #dcfce7; 
       --active-text: #166534;
-      --nav-bg: rgba(255, 255, 255, 0.8);
+      --nav-bg: rgba(255, 255, 255, 0.9);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -55,7 +57,7 @@
     .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-    /* --- SPLASH & AUTH (Standard) --- */
+    /* --- SPLASH & AUTH & PROFILE (Collapsed for brevity, same logic) --- */
     #splash-screen, #auth-screen { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; background: #020617; }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
     .splash-slogan { width: 280px; font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 40px; opacity: 0; animation: fadeUp 1s forwards 0.8s; }
@@ -75,17 +77,11 @@
     .social-login { display: flex; gap: 24px; }
     .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; }
 
-    @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* --- PROFILE (From Previous Best Version) --- */
     #profile-screen { position: absolute; inset: 0; z-index: 95; display: none; flex-direction: column; background: var(--bg-color); overflow-y: auto; transition: background 0.3s ease; animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .profile-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; background: var(--nav-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); }
     .nav-title { font-weight: 600; font-size: 17px; color: var(--text-main); opacity: 0.9; }
     .nav-btn { background: none; border: none; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-main); }
     .profile-content { padding: 0 24px 120px 24px; }
-    
     .hero-section { display: flex; flex-direction: column; align-items: center; padding: 40px 0 30px; text-align: center; }
     .hero-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #334155, #1e293b); display: flex; align-items: center; justify-content: center; font-size: 36px; color: #fff; font-weight: 700; border: 2px solid var(--glass-border); box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); margin-bottom: 20px; position: relative; }
     .edit-badge { position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); border: 3px solid var(--bg-color); color: #000; display: flex; align-items: center; justify-content: center; }
@@ -94,9 +90,7 @@
     .ghost-input:focus { background: rgba(255,255,255,0.05); border-radius: 8px; outline: none; }
     .input-name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
     .input-sub { font-size: 15px; color: var(--text-sub); font-weight: 500; }
-
     .section-header { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 40px 0 16px; display: flex; align-items: center; justify-content: space-between; }
-    .section-hint { font-size: 13px; color: #64748b; font-weight: 400; }
     .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .interest-card { background: var(--card-bg); border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 12px; }
     .interest-card.active { background: var(--active-card-bg); }
@@ -104,42 +98,42 @@
     .interest-card.active .interest-name { color: var(--active-text); }
     .interest-card .icon { stroke: var(--text-sub); }
     .interest-card.active .icon { stroke: var(--active-text); }
-
     .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 40px; }
     .tag-pill { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.05); color: var(--text-sub); cursor: pointer; }
     [data-theme="light"] .tag-pill { background: #f1f5f9; }
     .tag-pill.selected { background: var(--primary); color: #020617; font-weight: 600; }
-
     .settings-list { display: flex; flex-direction: column; gap: 24px; }
     .settings-row { display: flex; align-items: center; justify-content: space-between; }
-    .settings-info { display: flex; flex-direction: column; }
     .settings-label { font-size: 15px; font-weight: 500; color: var(--text-main); }
     .segment-pill-wrap { background: rgba(255,255,255,0.05); padding: 3px; border-radius: 99px; display: flex; gap: 2px; }
     .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
     .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    
     .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px 30px; background: linear-gradient(to top, var(--bg-color) 60%, transparent); z-index: 20; display: flex; justify-content: center; }
     .save-btn { width: 100%; max-width: 430px; }
 
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* --- 5. MAP SCREEN (GLASS REFINED) --- */
+
+    /* --- 5. MAP SCREEN (SUPER GLASS) --- */
     #main-screen { position: absolute; inset: 0; z-index: 10; display: none; }
     #map-container { position: absolute; inset: 0; z-index: 0; background: #0b1120; }
     .leaflet-control-attribution { display: none; }
 
-    /* Top Bar (More Transparent) */
+    /* Top Bar (Ultra Transparent) */
     .map-top-bar {
       position: absolute; top: 16px; left: 16px; right: 16px; z-index: 20;
       display: flex; flex-direction: column; gap: 8px;
     }
     .route-box {
-      background: var(--glass-bg); /* Translucent */
-      backdrop-filter: var(--glass-blur);
+      background: var(--glass-bg); /* Using new variable */
+      backdrop-filter: var(--glass-blur); /* Strong Blur */
+      -webkit-backdrop-filter: var(--glass-blur); /* iOS Support */
       border: 1px solid var(--glass-border);
       border-radius: 24px;
       padding: 14px 16px;
       display: flex; flex-direction: column; gap: 10px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1); /* Soft shadow */
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     }
     .route-row { display: flex; align-items: center; gap: 12px; }
     .route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -151,11 +145,11 @@
       font-size: 15px; color: var(--text-main); font-weight: 500;
       padding: 4px 0; text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
-    .route-input::placeholder { color: var(--text-sub); opacity: 0.7; }
+    .route-input::placeholder { color: var(--text-sub); opacity: 0.8; }
     .route-input:focus { outline: none; }
     .divider-h { height: 1px; background: var(--glass-border); margin-left: 20px; opacity: 0.5; }
 
-    /* Side Buttons (Transparent) */
+    /* Side Buttons (Glassy) */
     .map-side-btns {
       position: absolute; right: 16px; top: 150px; z-index: 20;
       display: flex; flex-direction: column; gap: 12px;
@@ -164,60 +158,72 @@
       width: 44px; height: 44px; border-radius: 50%;
       background: var(--glass-bg); border: 1px solid var(--glass-border);
       backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       color: var(--text-main);
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer;
       transition: 0.2s;
     }
     .side-btn:active { transform: scale(0.92); }
-    .side-btn.avatar-btn { font-weight: 700; font-size: 16px; background: rgba(34, 197, 94, 0.2); border-color: var(--primary); color: #4ade80; }
+    /* Avatar on map is now user char */
+    .side-btn.avatar-btn { font-weight: 700; font-size: 16px; }
 
-    /* Bottom Cockpit (Transparent) */
+    /* Bottom Cockpit (Floating Gradient) */
     .map-bottom-panel {
       position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
       padding: 20px 16px 34px;
-      /* Gradient only at very bottom to fade map */
-      background: linear-gradient(to top, rgba(2,6,23,0.9) 0%, rgba(2,6,23,0.6) 40%, transparent 100%);
+      /* Only dark gradient at the very bottom */
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
       display: flex; flex-direction: column; gap: 12px;
-      pointer-events: none; /* Let clicks pass through gradient area */
+      pointer-events: none;
     }
-    /* Re-enable pointer events for buttons */
     .avoid-row, .go-btn-row { pointer-events: auto; }
 
     .avoid-row {
       display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
-      justify-content: center; /* Center buttons */
+      justify-content: center; 
     }
     .avoid-btn {
       display: flex; align-items: center; justify-content: center; gap: 6px;
       padding: 8px 12px; border-radius: 14px;
       background: var(--glass-bg); border: 1px solid var(--glass-border);
-      backdrop-filter: blur(20px); /* Heavy blur for readability */
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       color: var(--text-sub); font-size: 12px; font-weight: 600;
       cursor: pointer; transition: 0.2s; white-space: nowrap;
     }
     .avoid-btn.active {
-      background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444;
+      background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444;
     }
     .avoid-btn .icon { width: 14px; height: 14px; }
 
     .go-btn-row { display: flex; width: 100%; }
     .go-btn {
       flex: 1; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
-      /* Ensure button is readable over map */
       backdrop-filter: none; 
     }
 
-    /* MAP MARKER PULSE */
-    .user-marker-pulse {
-        width: 16px; height: 16px; background: #3b82f6; border-radius: 50%;
-        border: 2px solid white; box-shadow: 0 0 0 rgba(59, 130, 246, 0.4);
-        animation: pulse-blue 2s infinite;
+    /* --- CUSTOM MARKER STYLE (BRANDED) --- */
+    .user-marker-brand {
+        position: relative;
+        width: 20px; height: 20px;
+        background: #22c55e; /* Neon Green */
+        border: 3px solid #020617; /* Dark Border to pop */
+        border-radius: 50%;
+        box-shadow: 0 0 10px #22c55e;
     }
-    @keyframes pulse-blue {
-        0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-        70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    /* The Pulse Ring */
+    .user-marker-brand::after {
+        content: ''; position: absolute;
+        top: -10px; left: -10px; right: -10px; bottom: -10px;
+        border-radius: 50%;
+        border: 2px solid #22c55e;
+        opacity: 0;
+        animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+        0% { transform: scale(0.5); opacity: 1; border-width: 4px; }
+        100% { transform: scale(1.5); opacity: 0; border-width: 0px; }
     }
 
   </style>
@@ -439,7 +445,7 @@
     els.pFirstname.value = name;
     const initial = name.charAt(0).toUpperCase();
     document.getElementById('profile-avatar-char').textContent = initial;
-    document.getElementById('btn-profile-open').textContent = initial; // Update Map Avatar
+    document.getElementById('btn-profile-open').textContent = initial;
   }
 
   // MAP
@@ -448,8 +454,13 @@
     map = L.map('map-container', { zoomControl: false }).setView([48.8566, 2.3522], 13);
     updateMapTheme();
     
-    // Add User Pulse Marker
-    const icon = L.divIcon({ className: 'user-marker-pulse', iconSize: [16, 16] });
+    // NEW BRAND MARKER
+    const icon = L.divIcon({ 
+        className: 'custom-div-icon',
+        html: "<div class='user-marker-brand'></div>",
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
     userMarker = L.marker([48.8566, 2.3522], {icon: icon}).addTo(map);
   }
 
@@ -464,7 +475,7 @@
   }
 
   document.getElementById('btn-locate').addEventListener('click', () => {
-    if(map) map.setView([48.8566, 2.3522], 15); // Fake geoloc for demo
+    if(map) map.setView([48.8566, 2.3522], 15); 
   });
 
 </script>
