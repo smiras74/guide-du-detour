@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Balanced Splash</title>
+  <title>Guide du Détour · Refined Auth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,8 +12,10 @@
     :root {
       --bg: #020617;
       --primary: #22c55e;
-      --text-main: #e5e7eb;
-      --text-sub: #9ca3af;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-bg: rgba(255, 255, 255, 0.03);
     }
 
     * { box-sizing: border-box; }
@@ -30,37 +32,51 @@
 
     .app-shell {
       width: 100%; max-width: 430px; height: 100vh;
-      background: var(--bg);
+      background: radial-gradient(circle at top left, #0f172a, #020617 60%);
       overflow: hidden; position: relative;
     }
 
     /* --- UI COMPONENTS --- */
+    
+    /* Кнопка стала аккуратнее */
     .btn-primary {
-      width: 100%; padding: 16px; border-radius: 999px; border: none;
-      background: linear-gradient(90deg, #16a34a, #22c55e);
-      color: #020617; font-weight: 700; font-size: 16px; cursor: pointer;
-      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 15px 35px rgba(22, 163, 74, 0.5);
-      transition: transform 0.1s;
+      width: 100%; padding: 15px; border-radius: 16px; border: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #020617; font-weight: 600; font-size: 16px; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.25); /* Мягкая тень */
+      transition: transform 0.1s, box-shadow 0.2s;
+      letter-spacing: -0.01em;
     }
-    .btn-primary:active { transform: translateY(1px); }
+    .btn-primary:active { transform: scale(0.98); box-shadow: 0 2px 10px rgba(34, 197, 94, 0.2); }
 
-    .input-wrapper { position: relative; margin-bottom: 18px; }
+    .input-wrapper { position: relative; margin-bottom: 16px; }
+    
+    /* Поля ввода - Glassmorphism (Стекло) */
     .input-field {
-      width: 100%; padding: 16px 16px 14px; border-radius: 18px;
-      border: 1px solid rgba(31,41,55,1); background: rgba(15,23,42,0.6); color: #fff; font-size: 16px;
+      width: 100%; padding: 16px 16px 15px; border-radius: 16px;
+      border: 1px solid var(--glass-border); 
+      background: var(--glass-bg); /* Полупрозрачный фон */
+      color: #fff; font-size: 15px;
+      transition: all 0.2s ease;
     }
-    .input-field:focus { outline: none; border-color: var(--primary); background: #0f172a; }
+    .input-field:focus { 
+      outline: none; 
+      border-color: rgba(34, 197, 94, 0.5); 
+      background: rgba(255, 255, 255, 0.06);
+    }
     
     .input-label { 
-      position: absolute; left: 16px; top: 16px; font-size: 15px; color: #6b7280; 
-      pointer-events: none; transition: .2s ease; 
+      position: absolute; left: 16px; top: 16px; font-size: 15px; color: #64748b; 
+      pointer-events: none; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); 
     }
     .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label {
-      top: -9px; left: 12px; font-size: 12px; padding: 0 6px; 
-      color: var(--primary); background: var(--bg); border-radius: 99px;
+      top: 6px; font-size: 10px; color: var(--primary); transform: translateY(-2px);
     }
+    /* Хак чтобы лейбл не уезжал при focus, а просто уменьшался внутри поля */
+    .input-field { padding-top: 22px; padding-bottom: 10px; }
 
-    /* --- 1. SPLASH SCREEN (ИСПРАВЛЕНО) --- */
+
+    /* --- 1. SPLASH SCREEN --- */
     #splash-screen {
       position: absolute; inset: 0; z-index: 100;
       background: #020617;
@@ -72,74 +88,71 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Логотип */
     .splash-logo { 
-      width: 280px; /* Увеличили ширину для лучшей пропорции */
-      height: auto; 
-      margin-bottom: 8px; /* Минимальный отступ до слогана */
-      object-fit: contain; 
-      opacity: 0; 
-      animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
-      animation-delay: 0.3s;
+      width: 280px; height: auto; margin-bottom: 8px; object-fit: contain; 
+      opacity: 0; animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 0.3s;
     }
-    
-    /* Слоган */
     .splash-slogan {
-      width: 280px; /* Точно такая же ширина, как у логотипа */
-      font-size: 12px;
-      letter-spacing: 0.03em; 
-      color: #9ca3af; 
-      text-align: center; 
-      margin-bottom: 40px; /* Уменьшили отступ до прогресс-бара */
-      line-height: 1.4;
-      opacity: 0; 
-      animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-      animation-delay: 0.8s;
+      width: 280px; font-size: 12px; letter-spacing: 0.03em; color: #94a3b8; text-align: center; margin-bottom: 40px; line-height: 1.4;
+      opacity: 0; animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 0.8s;
     }
-    
-    /* Прогресс бар (тонкая линия) */
     .splash-progress { 
-      width: 280px; /* Тоже по ширине логотипа */
-      height: 1px; 
-      border-radius: 999px; 
-      background: rgba(30,41,59, 0.5); 
-      overflow: hidden; position: relative; 
-      opacity: 0;
-      animation: fadeUp 1s ease-out forwards;
-      animation-delay: 0.1s;
+      width: 280px; height: 1px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; position: relative; 
+      opacity: 0; animation: fadeUp 1s ease-out forwards; animation-delay: 0.1s;
     }
-
     .splash-progress-bar {
-      position: absolute; inset: 0;
-      background: linear-gradient(90deg, transparent, #22c55e, transparent);
-      transform: translateX(-100%);
-      animation: splashBar 6s ease-in-out forwards;
+      position: absolute; inset: 0; background: linear-gradient(90deg, transparent, #22c55e, transparent);
+      transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards;
     }
-    
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
-    
     .loading-text { 
-      margin-top: 12px; font-size: 10px; letter-spacing: 0.2em; 
-      text-transform: uppercase; color: #4b5563; 
+      margin-top: 12px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #475569; 
       opacity: 0; animation: fadeUp 1s forwards; animation-delay: 1s;
     }
 
 
-    /* --- 2. AUTH SCREEN --- */
+    /* --- 2. AUTH SCREEN (REFINED) --- */
     #auth-screen {
       position: absolute; inset: 0; z-index: 90; display: none;
-      flex-direction: column; justify-content: center; padding: 24px;
-      background: radial-gradient(circle at top left, #0f172a, #020617);
+      flex-direction: column; justify-content: center; padding: 32px;
+      background: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 70%); /* Более глубокий фон */
     }
-    .auth-tabs { display: flex; background: rgba(30,41,59,0.4); padding: 4px; border-radius: 99px; margin-bottom: 30px; }
-    .tab { flex: 1; padding: 10px; border: none; background: none; color: #6b7280; border-radius: 99px; font-size: 14px; cursor: pointer; transition: 0.2s; }
-    .tab.active { background: rgba(255,255,255,0.08); color: #fff; font-weight: 600; box-shadow: 0 0 0 1px rgba(255,255,255,0.05); }
     
-    .social-login { display: flex; justify-content: center; gap: 14px; margin-top: 30px; }
-    .social-btn { width: 50px; height: 50px; border-radius: 14px; border: 1px solid #334155; background: #1e293b; color: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
-    .divider { display: flex; align-items: center; margin: 30px 0 0; font-size: 12px; color: #4b5563; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #1f2937; }
-    .divider span { padding: 0 10px; }
+    /* Заголовки */
+    h1.auth-title { font-size: 32px; font-weight: 700; margin: 0 0 8px; color: #fff; letter-spacing: -0.02em; }
+    p.auth-subtitle { font-size: 15px; color: #94a3b8; margin: 0 0 40px; line-height: 1.5; }
+
+    /* Новые ТАБЫ (Минимализм) */
+    .auth-tabs { 
+      display: flex; gap: 24px; margin-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.05); 
+      padding-bottom: 0; /* Линия на всю ширину */
+    }
+    .tab { 
+      background: none; border: none; padding: 0 0 12px 0; 
+      font-size: 16px; color: #64748b; font-weight: 500; cursor: pointer; 
+      position: relative; transition: color 0.3s;
+    }
+    .tab.active { color: #fff; }
+    .tab.active::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; 
+      background: #22c55e; border-radius: 2px 2px 0 0;
+      box-shadow: 0 -2px 8px rgba(34,197,94,0.6); /* Свечение активной вкладки */
+    }
+    
+    /* Разделитель */
+    .divider { display: flex; align-items: center; margin: 32px 0 24px; font-size: 13px; color: #475569; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .divider span { padding: 0 12px; }
+
+    /* Соцсети - теперь круглые */
+    .social-login { display: flex; justify-content: center; gap: 20px; }
+    .social-btn { 
+      width: 52px; height: 52px; border-radius: 50%; /* КРУГЛЫЕ */
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); 
+      color: #e2e8f0; display: flex; align-items: center; justify-content: center; 
+      font-size: 20px; cursor: pointer; transition: 0.2s;
+    }
+    .social-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
 
 
     /* --- 3. PROFILE SCREEN --- */
@@ -150,7 +163,6 @@
       animation: fadeInScreen 0.4s ease-out;
     }
     @keyframes fadeInScreen { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
     .profile-header { margin-top: 40px; margin-bottom: 30px; }
     .profile-header h1 { font-size: 28px; margin: 0 0 8px; color: #fff; }
     .profile-header p { margin: 0; font-size: 15px; color: #9ca3af; line-height: 1.4; }
@@ -162,6 +174,7 @@
     }
     .pill.selected { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #bbf7d0; }
     .bottom-action { margin-top: auto; }
+
 
     /* --- 4. MAIN SCREEN --- */
     #main-screen { position: absolute; inset: 0; padding: 20px; display: none; }
@@ -177,14 +190,13 @@
   <div id="splash-screen">
     <img src="logo_2.png" alt="Guide du Détour" class="splash-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';" />
     <div class="splash-slogan">Ça vaut le détour — à chaque trajet.</div>
-
     <div class="splash-progress"><div class="splash-progress-bar"></div></div>
     <div class="loading-text">Chargement...</div>
   </div>
 
   <div id="auth-screen">
-    <h1 style="color:white; margin:0 0 10px; font-size:28px;">Bienvenue</h1>
-    <p id="auth-subtitle" style="color:#9ca3af; margin:0 0 30px; font-size:15px;">Préparez-vous à sortir des sentiers battus.</p>
+    <h1 class="auth-title">Bienvenue</h1>
+    <p class="auth-subtitle">Préparez-vous à sortir des sentiers battus.</p>
 
     <div class="auth-tabs">
       <button class="tab active" id="tab-login">Connexion</button>
@@ -203,6 +215,7 @@
     <button id="btn-auth-action" class="btn-primary">Se connecter</button>
 
     <div class="divider"><span>ou continuer avec</span></div>
+    
     <div class="social-login">
       <button class="social-btn"></button>
       <button class="social-btn">G</button>
@@ -215,12 +228,10 @@
       <h1>Créez votre profil</h1>
       <p>Dites-nous ce que vous aimez pour que nous puissions personnaliser vos détours.</p>
     </div>
-
     <div class="input-wrapper">
       <input id="profile-name" class="input-field" placeholder=" " />
       <label class="input-label">Votre Prénom</label>
     </div>
-
     <div class="section-label">Vos centres d'intérêt</div>
     <div class="pill-grid">
       <button class="pill">🏰 Châteaux</button>
@@ -230,7 +241,6 @@
       <button class="pill">🎨 Art & Histoire</button>
       <button class="pill">📸 Points de vue</button>
     </div>
-
     <div class="bottom-action">
       <button id="btn-save-profile" class="btn-primary">Commencer l'aventure</button>
     </div>
@@ -244,7 +254,6 @@
       </div>
       <div class="avatar-circle" id="main-avatar">U</div>
     </header>
-    
     <div style="flex:1; height: 60vh; border:1px solid #1f2937; border-radius:24px; background:rgba(15,23,42,0.5); display:flex; align-items:center; justify-content:center; color:#6b7280; flex-direction:column;">
       <div style="font-size:40px; margin-bottom:16px;">🗺️</div>
       <div>Carte Interactive</div>
