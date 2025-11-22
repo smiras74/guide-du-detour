@@ -2,14 +2,14 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · v0.7.2 Stable</title>
+  <title>Guide du Détour · v0.7.4 Radius Fix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* --- 1. VARIABLES --- */
+    /* --- VARIABLES --- */
     :root {
       --bg-color: #020617;
       --bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
@@ -18,7 +18,6 @@
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
       
-      /* GLASS SETTINGS */
       --glass-border: rgba(255,255,255,0.15);
       --glass-bg: rgba(2, 6, 23, 0.6); 
       --glass-blur: blur(20px);
@@ -55,7 +54,7 @@
     .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-    /* SCREENS CSS */
+    /* --- SCREENS --- */
     #splash-screen, #auth-screen, #profile-screen, #main-screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
     
     /* SPLASH */
@@ -65,8 +64,12 @@
     .splash-progress { width: 280px; height: 2px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; margin-top: 40px;}
     .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
     .loading-text { font-size: 10px; color: #94a3b8; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; animation: fadeUp 1s forwards 0.2s;}
-    .app-version { position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 10px; color: #475569; font-family: monospace; opacity: 0; animation: fadeUp 1s forwards 1s; }
-    #profile-screen .app-version { position: relative; bottom: auto; margin-top: 20px; margin-bottom: 20px; opacity: 0.5; animation: none; }
+    
+    .app-version { 
+        position: absolute; bottom: 30px; left: 0; right: 0;
+        text-align: center; font-size: 10px; color: var(--text-sub); opacity: 0.5; font-family: monospace; 
+    }
+    #profile-screen .app-version { position: relative; bottom: auto; margin-top: 20px; margin-bottom: 20px; }
 
     /* AUTH */
     #auth-screen { z-index: 90; background: var(--bg-color); justify-content: center; padding: 32px; display: none; }
@@ -155,7 +158,7 @@
     
     .divider-h { height: 1px; background: rgba(255,255,255,0.1); margin-left: 20px; opacity: 0.5; }
 
-    /* SUGGESTIONS LIST (FIXED Z-INDEX) */
+    /* SUGGESTIONS LIST */
     #suggestions-list {
         display: none;
         position: absolute; 
@@ -301,11 +304,11 @@
       </div>
       <div class="tag-cloud" id="tag-cloud"><div class="empty-tags-hint" style="font-size:13px; color:var(--text-sub); padding:10px;">Appuyez sur une catégorie...</div></div>
       
-      <div class="section-header">Mon Rythme</div>
+      <div class="section-header">Rayon de liberté</div>
       <div class="slider-wrapper">
         <div class="slider-header">
           <span style="color:var(--text-muted)">Intensité</span>
-          <span class="slider-val" id="slider-val-label">Explorateur</span>
+          <span class="slider-val" id="slider-val-label">10 km • Curieux</span>
         </div>
         <input type="range" min="1" max="3" value="2" class="range-input" id="adventure-slider">
       </div>
@@ -370,21 +373,8 @@
 </div>
 
 <script>
-  /* CONFIG */
-  const APP_VERSION = 'v0.7.2 Stable';
+  const APP_VERSION = 'v0.7.4 Radius Fix';
   
-  // Constants defined at TOP
-  const POI_ICONS = { nature: '🌿', history: '🏰', hedonism: '🍷', curiosity: '👽' };
-  const SLIDER_VALUES = { 1: 'Touriste', 2: 'Curieux', 3: 'Explorateur' };
-  const CORRIDOR_WIDTH = { 1: 20, 2: 50, 3: 100 }; 
-  
-  const TAGS_DB = {
-    nature: ['Forêts', 'Lacs', 'Montagnes', 'Grottes', 'Cascades'],
-    history: ['Châteaux', 'Ruines', 'Églises', 'Monuments', 'Musées', 'Architecture'],
-    hedonism: ['Vignobles', 'Brasseries', 'Marchés', 'Fermes', 'Fromageries', 'Gastronomie'],
-    curiosity: ['Abandonné', 'Légendes', 'Street Art', 'Villages fantômes', 'Insolite']
-  };
-
   const els = {
     splash: document.getElementById('splash-screen'),
     auth: document.getElementById('auth-screen'),
@@ -410,50 +400,115 @@
   let destCoords = null;
   let destMarker = null;
   let activeInput = null;
-  let activeCategories = new Set();
+  let activeCategories = new Set(['nature', 'history']);
+  let selectedTags = new Set();
 
-  // --- INIT ---
+  // --- SLIDER DATA ---
+  const SLIDER_MAPPING = {
+      1: { label: 'Touriste', km: '2 km' },
+      2: { label: 'Curieux', km: '10 km' },
+      3: { label: 'Explorateur', km: '50 km' }
+  };
+  const CORRIDOR_WIDTH = { 1: 20, 2: 50, 3: 100 }; // Visual buffer size
+
   document.addEventListener('DOMContentLoaded', () => {
-    // Set version
     document.querySelectorAll('.app-version').forEach(el => el.textContent = APP_VERSION);
 
-    // Wait 4s then init
     setTimeout(() => {
       try {
           els.splash.style.display = 'none';
-          if(localStorage.getItem('gddLoggedIn')) { 
-              loadProfileData(); 
-              showScreen('main'); 
-          } else { 
-              showScreen('auth'); 
-              updateTabLine(els.tabLogin); 
-          }
-      } catch(e) {
-          console.error("Init error", e);
-          alert("Erreur de chargement: " + e.message);
-      }
+          if(localStorage.getItem('gddLoggedIn')) { loadProfileData(); showScreen('main'); } 
+          else { showScreen('auth'); updateTabLine(els.tabLogin); }
+      } catch(e) { console.error(e); }
     }, 4000);
     
     // Init Interest Cards
     document.querySelectorAll('.interest-card[data-cat]').forEach(card => {
+        const cat = card.getAttribute('data-cat');
+        if(activeCategories.has(cat)) card.classList.add('active');
+        
         card.addEventListener('click', () => {
-            const cat = card.getAttribute('data-cat');
             card.classList.toggle('active');
             if (card.classList.contains('active')) activeCategories.add(cat); else activeCategories.delete(cat);
             renderTags();
         });
     });
+    renderTags();
   });
 
-  // --- LOGIC ---
+  // --- SLIDER LOGIC ---
+  els.slider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      els.sliderLabel.textContent = `${SLIDER_MAPPING[val].km} • ${SLIDER_MAPPING[val].label}`;
+  });
+
+  // --- DETOUR LOGIC ---
+  const POI_ICONS = { nature: '🌿', history: '🏰', hedonism: '🍷', curiosity: '👽' };
+  
+  function generateDetours(routeCoords) {
+      detourLayer.clearLayers();
+      if(activeCategories.size === 0) {
+          activeCategories.add('nature'); activeCategories.add('history');
+      }
+
+      const sliderVal = parseInt(els.slider.value) || 2;
+      const spreadFactor = 0.03 * sliderVal; 
+
+      for(let i=0; i<5; i++) {
+          const randIdx = Math.floor(Math.random() * routeCoords.length);
+          const [lat, lng] = routeCoords[randIdx];
+          // Swap logic depends on GeoJSON source, usually [lon, lat] in geom
+          const mLat = lng; const mLng = lat;
+          
+          const latOffset = (Math.random() - 0.5) * spreadFactor;
+          const lngOffset = (Math.random() - 0.5) * spreadFactor;
+          
+          const cats = Array.from(activeCategories);
+          const cat = cats[Math.floor(Math.random() * cats.length)];
+          
+          const marker = L.marker([mLat + latOffset, mLng + lngOffset], {
+              icon: L.divIcon({
+                  className: 'poi-marker',
+                  html: `<span class="poi-icon">${POI_ICONS[cat] || '📍'}</span>`,
+                  iconSize: [32, 32], iconAnchor: [16, 32]
+              })
+          }).addTo(detourLayer);
+          
+          const popupContent = `
+            <div class="popup-card">
+                <div class="popup-img"></div>
+                <div class="popup-body">
+                    <div class="popup-title">Lieu Mystère ${i+1}</div>
+                    <div class="popup-desc">Détour pour : ${cat}</div>
+                    <button class="popup-btn">Ajouter (+20 min)</button>
+                </div>
+            </div>`;
+          marker.bindPopup(popupContent);
+      }
+  }
+
+  // --- TAGS LOGIC ---
+  const TAGS_DB = {
+    nature: ['Forêts', 'Lacs', 'Montagnes', 'Grottes', 'Cascades'],
+    history: ['Châteaux', 'Ruines', 'Églises', 'Monuments', 'Musées', 'Architecture'],
+    hedonism: ['Vignobles', 'Brasseries', 'Marchés', 'Fermes', 'Fromageries', 'Gastronomie'],
+    curiosity: ['Abandonné', 'Légendes', 'Street Art', 'Villages fantômes', 'Insolite']
+  };
   
   function renderTags() {
       els.tagCloud.innerHTML = '';
       if (activeCategories.size === 0) { els.tagCloud.innerHTML = '<div class="empty-tags-hint" style="font-size:13px; color:var(--text-sub);">Appuyez sur une catégorie...</div>'; return; }
+      
       activeCategories.forEach(cat => {
           TAGS_DB[cat]?.forEach(tag => {
               const pill = document.createElement('div'); pill.className = 'tag-pill'; pill.textContent = tag;
-              pill.onclick = () => pill.classList.toggle('selected'); els.tagCloud.appendChild(pill);
+              if(selectedTags.has(tag)) pill.classList.add('selected');
+              
+              pill.onclick = () => {
+                  pill.classList.toggle('selected');
+                  if(pill.classList.contains('selected')) selectedTags.add(tag); else selectedTags.delete(tag);
+              };
+              els.tagCloud.appendChild(pill);
           });
       });
   }
@@ -499,16 +554,14 @@
 
   function loadProfileData() {
     const name = localStorage.getItem('gddName') || 'Andrey';
-    if(els.pFirstname) els.pFirstname.value = name;
+    els.pFirstname.value = name;
     const initial = name.charAt(0).toUpperCase();
     document.getElementById('profile-avatar-char').textContent = initial;
     document.getElementById('btn-profile-open').textContent = initial;
   }
 
-  // --- MAP ---
   function initMap() {
     if(map) { map.invalidateSize(); updateMapTheme(); return; }
-    
     map = L.map('map-container', { zoomControl: false }).setView([48.8566, 2.3522], 13);
     updateMapTheme();
     
@@ -596,9 +649,7 @@
           const parts = item.display_name.split(',');
           const mainText = parts[0];
           const subText = parts.slice(1,3).join(',');
-          
           div.innerHTML = `<span class="suggestion-icon">📍</span> <div><span style="font-weight:600">${mainText}</span><br><span style="font-size:11px; opacity:0.6">${subText}</span></div>`;
-          
           div.onclick = () => {
               if(isStart) {
                   els.startInput.value = mainText;
@@ -620,64 +671,12 @@
       els.suggestionsList.style.display = 'block';
   }
 
-  // Slider Logic
-  if(els.slider) {
-      els.slider.addEventListener('input', (e) => {
-          const val = parseInt(e.target.value);
-          if(els.sliderLabel) els.sliderLabel.textContent = SLIDER_VALUES[val];
-      });
-  }
-
   document.addEventListener('click', (e) => { if(!e.target.closest('.route-box')) els.suggestionsList.style.display = 'none'; });
   window.toggleAvoid = (btn) => btn.classList.toggle('active');
 
-  // DETOUR GENERATION
-  function generateDetours(routeCoords) {
-      detourLayer.clearLayers();
-      if(activeCategories.size === 0 && document.querySelectorAll('.interest-card.active').length === 0) {
-          activeCategories.add('nature'); activeCategories.add('history');
-      }
-
-      const sliderVal = parseInt(els.slider.value) || 2;
-      const spreadFactor = 0.02 * sliderVal; 
-
-      for(let i=0; i<5; i++) {
-          const randIdx = Math.floor(Math.random() * routeCoords.length);
-          const [lat, lng] = routeCoords[randIdx]; // GeoJSON is [lon, lat] usually but Leaflet handles it
-          // OSRM GeoJSON is [lon, lat], so we need to swap for Marker
-          const mLat = lng; 
-          const mLng = lat;
-          
-          const latOffset = (Math.random() - 0.5) * spreadFactor;
-          const lngOffset = (Math.random() - 0.5) * spreadFactor;
-          
-          const cats = Array.from(activeCategories.size > 0 ? activeCategories : ['nature','history']);
-          const cat = cats[Math.floor(Math.random() * cats.length)];
-          
-          const marker = L.marker([mLat + latOffset, mLng + lngOffset], {
-              icon: L.divIcon({
-                  className: 'poi-marker',
-                  html: `<span class="poi-icon">${POI_ICONS[cat] || '📍'}</span>`,
-                  iconSize: [32, 32], iconAnchor: [16, 32]
-              })
-          }).addTo(detourLayer);
-          
-          const popupContent = `
-            <div class="popup-card">
-                <div class="popup-img"></div>
-                <div class="popup-body">
-                    <div class="popup-title">Lieu Mystère ${i+1}</div>
-                    <div class="popup-desc">Détour pour : ${cat}</div>
-                    <button class="popup-btn">Ajouter (+20 min)</button>
-                </div>
-            </div>`;
-          marker.bindPopup(popupContent);
-      }
-  }
-
   els.traceBtn.addEventListener('click', async () => {
       if(!destCoords) { alert("Veuillez sélectionner une destination"); return; }
-      if(!startCoords) { alert("Veuillez définir le départ"); return; }
+      if(!startCoords) { alert("Veuillez définir le départ"); return; } 
       els.traceBtn.textContent = "Calcul...";
       
       let url = `https://router.project-osrm.org/route/v1/driving/${startCoords.lon},${startCoords.lat};${destCoords.lon},${destCoords.lat}?overview=full&geometries=geojson`;
@@ -697,11 +696,11 @@
               
               const geoJsonLayer = L.geoJSON(route.geometry, { style: { color: '#22c55e', weight: 5, opacity: 1 } }).addTo(routeLayer);
               
-              // Corridor
+              // DRAW CORRIDOR BASED ON SLIDER
               const sliderVal = parseInt(els.slider.value) || 2;
               const width = CORRIDOR_WIDTH[sliderVal];
               L.geoJSON(route.geometry, { 
-                  style: { color: '#22c55e', weight: width, opacity: 0.1, lineCap: 'round' } 
+                  style: { color: '#22c55e', weight: width, opacity: 0.15, lineCap: 'round' } 
               }).addTo(corridorLayer);
 
               map.fitBounds(geoJsonLayer.getBounds(), {padding: [50, 150]});
