@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · v0.6.0 (Routing)</title>
+  <title>Guide du Détour · Smart Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -21,39 +21,30 @@
       
       /* GLASS SETTINGS */
       --glass-border: rgba(255,255,255,0.15);
-      --glass-bg: rgba(2, 6, 23, 0.45);
+      --glass-bg: rgba(2, 6, 23, 0.6); /* Чуть темнее для читаемости списка */
       --glass-blur: blur(20px);
       --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%);
-      --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 8px 20px rgba(0,0,0,0.2);
+      --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 8px 20px rgba(0,0,0,0.3);
       
-      --card-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 100%);
-      --card-border: 1px solid rgba(255,255,255,0.1);
-      --card-shadow: inset 0 1px 0.5px rgba(255,255,255,0.2);
-
+      --card-bg: rgba(255, 255, 255, 0.03);
       --active-card-bg: rgba(34, 197, 94, 0.15);
       --active-text: #4ade80;
-      
-      --nav-bg-grad: linear-gradient(to bottom, rgba(2,6,23,0.9) 0%, rgba(2,6,23,0.7) 100%);
+      --nav-bg: rgba(2, 6, 23, 0.85);
     }
 
     [data-theme="light"] {
-      --bg-color: #f8fafc;
-      --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 100%);
+      --bg-color: #ffffff;
+      --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
       --text-main: #0f172a;
       --text-sub: #475569;
-      
-      --glass-bg: rgba(255,255,255,0.65);
-      --glass-border: 1px solid rgba(255,255,255,0.6);
-      --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+      --glass-border: rgba(0,0,0,0.08);
+      --glass-bg: rgba(255,255,255,0.85);
+      --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.5) 100%);
       --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 15px rgba(0,0,0,0.05);
-      
-      --card-bg-grad: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
-      --card-border: 1px solid rgba(0,0,0,0.05);
-      --card-shadow: 0 2px 5px rgba(0,0,0,0.03);
-
+      --card-bg: #f8fafc;
       --active-card-bg: #dcfce7; 
       --active-text: #166534;
-      --nav-bg-grad: linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%);
+      --nav-bg: rgba(255, 255, 255, 0.9);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -68,14 +59,13 @@
     .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-    /* --- SPLASH & AUTH --- */
+    /* --- SPLASH & AUTH & PROFILE (Collapsed) --- */
     #splash-screen, #auth-screen { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; background: #020617; }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
     .splash-slogan { width: 280px; font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 40px; opacity: 0; animation: fadeUp 1s forwards 0.8s; }
-    .splash-progress { width: 280px; height: 2px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; margin-top: 40px;}
+    .splash-progress { width: 280px; height: 1px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; margin-top: 40px;}
     .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
-    .loading-text { font-size: 10px; color: #94a3b8; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; animation: fadeUp 1s forwards 0.2s;}
-
+    
     #auth-screen { background: var(--bg-color); justify-content: center; z-index: 90; }
     h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: var(--text-main); }
     .auth-tabs { display: flex; gap: 32px; margin-bottom: 32px; position: relative; width: 100%; }
@@ -83,22 +73,14 @@
     .tab.active { color: var(--text-main); }
     .tab-indicator { position: absolute; bottom: 0; left: 0; height: 3px; width: 20px; background: #4ade80; border-radius: 10px; transition: left 0.3s, width 0.3s; }
     .input-wrapper { width: 100%; margin-bottom: 16px; }
-    .input-field { width: 100%; padding: 18px 16px; border-radius: 20px; border: var(--card-border); background: var(--card-bg-grad); color: var(--text-main); font-size: 16px; box-shadow: var(--card-shadow); }
+    .input-field { width: 100%; padding: 18px 16px; border-radius: 20px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main); font-size: 16px; }
     .divider { width: 100%; display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: #64748b; }
     .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .social-login { display: flex; gap: 24px; }
-    .social-btn { width: 56px; height: 56px; border-radius: 50%; border: var(--card-border); background: var(--card-bg-grad); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: var(--card-shadow); }
+    .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; }
 
-    @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* --- PROFILE --- */
     #profile-screen { position: absolute; inset: 0; z-index: 95; display: none; flex-direction: column; background: var(--bg-color); overflow-y: auto; transition: background 0.3s ease; animation: fadeIn 0.4s ease-out; }
-    .profile-nav { 
-        display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; 
-        background: var(--nav-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-        border-bottom: var(--glass-border); box-shadow: var(--glass-shadow);
-    }
+    .profile-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; background: var(--nav-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); }
     .nav-title { font-weight: 600; font-size: 17px; color: var(--text-main); opacity: 0.9; }
     .nav-btn { background: none; border: none; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-main); }
     .profile-content { padding: 0 24px 120px 24px; }
@@ -111,40 +93,43 @@
     .input-name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
     .input-sub { font-size: 15px; color: var(--text-sub); font-weight: 500; }
     .section-header { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 40px 0 16px; display: flex; align-items: center; justify-content: space-between; }
-    
     .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .interest-card { background: var(--card-bg-grad); border: var(--card-border); box-shadow: var(--card-shadow); border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-    .interest-card.active { background: var(--active-card-bg); border-color: var(--active-text); }
+    .interest-card { background: var(--card-bg); border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .interest-card.active { background: var(--active-card-bg); }
     .interest-name { font-size: 14px; font-weight: 600; color: var(--text-sub); transition: 0.3s; }
     .interest-card.active .interest-name { color: var(--active-text); }
     .interest-card .icon { stroke: var(--text-sub); }
     .interest-card.active .icon { stroke: var(--active-text); }
-    
     .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 40px; }
-    .tag-pill { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; cursor: pointer; background: var(--card-bg-grad); border: var(--card-border); color: var(--text-sub); box-shadow: var(--card-shadow); }
-    .tag-pill.selected { background: var(--primary); color: #020617; font-weight: 600; border-color: var(--primary); }
-    
+    .tag-pill { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; background: rgba(255,255,255,0.05); color: var(--text-sub); cursor: pointer; }
+    [data-theme="light"] .tag-pill { background: #f1f5f9; }
+    .tag-pill.selected { background: var(--primary); color: #020617; font-weight: 600; }
     .settings-list { display: flex; flex-direction: column; gap: 24px; }
     .settings-row { display: flex; align-items: center; justify-content: space-between; }
     .settings-label { font-size: 15px; font-weight: 500; color: var(--text-main); }
-    .segment-pill-wrap { background: var(--card-bg-grad); border: var(--card-border); box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); padding: 3px; border-radius: 99px; display: flex; gap: 2px; }
-    .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition:0.2s;}
-    .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .segment-pill-wrap { background: rgba(255,255,255,0.05); padding: 3px; border-radius: 99px; display: flex; gap: 2px; }
+    .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
+    .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px 30px; background: linear-gradient(to top, var(--bg-color) 60%, transparent); z-index: 20; display: flex; justify-content: center; }
     .save-btn { width: 100%; max-width: 430px; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
 
 
-    /* --- 5. MAP SCREEN --- */
+    /* --- 5. MAP SCREEN (SMART & GLASS) --- */
     #main-screen { position: absolute; inset: 0; z-index: 10; display: none; }
     #map-container { position: absolute; inset: 0; z-index: 0; background: #0b1120; }
     .leaflet-control-attribution { display: none; }
 
+    /* Top Bar */
     .map-top-bar { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
     .route-box {
-      background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      background: var(--glass-bg-grad); 
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border); box-shadow: var(--glass-shadow);
       border-radius: 24px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+      position: relative;
     }
     .route-row { display: flex; align-items: center; gap: 12px; }
     .route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -155,6 +140,24 @@
     .route-input:focus { outline: none; }
     .divider-h { height: 1px; background: rgba(255,255,255,0.1); margin-left: 20px; }
 
+    /* SUGGESTIONS DROPDOWN */
+    #suggestions-list {
+        display: none;
+        position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px;
+        background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+        border: var(--glass-border); border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        max-height: 200px; overflow-y: auto; z-index: 30; padding: 8px;
+    }
+    .suggestion-item {
+        padding: 10px 12px; font-size: 14px; color: var(--text-main);
+        border-radius: 8px; cursor: pointer; transition: 0.2s;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:hover { background: rgba(255,255,255,0.1); }
+
+    /* Side Buttons */
     .map-side-btns { position: absolute; right: 16px; top: 150px; z-index: 20; display: flex; flex-direction: column; gap: 12px; }
     .side-btn {
       width: 44px; height: 44px; border-radius: 50%;
@@ -165,6 +168,7 @@
     .side-btn:active { transform: scale(0.92); }
     .side-btn.avatar-btn { font-weight: 700; font-size: 16px; }
 
+    /* Bottom Panel */
     .map-bottom-panel {
       position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; padding: 20px 16px 34px;
       background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
@@ -183,9 +187,14 @@
     .go-btn-row { display: flex; width: 100%; }
     .go-btn { flex: 1; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); backdrop-filter: none; }
 
+    /* MARKER STYLES */
     .user-marker-brand { position: relative; width: 20px; height: 20px; background: #22c55e; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #22c55e; }
     .user-marker-brand::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 2px solid #22c55e; opacity: 0; animation: pulse-green 2s infinite; }
     @keyframes pulse-green { 0% { transform: scale(0.5); opacity: 1; border-width: 4px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
+    
+    .marker-end {
+        width: 16px; height: 16px; background: #000; border: 3px solid #4ade80; border-radius: 50%;
+    }
   </style>
 </head>
 <body>
@@ -277,7 +286,8 @@
       <div class="route-box">
         <div class="route-row"><div class="route-dot dot-start"></div><input class="route-input" id="start-input" value="Ma position actuelle" placeholder="Départ" /></div>
         <div class="divider-h"></div>
-        <div class="route-row"><div class="route-dot dot-end"></div><input class="route-input" id="destination-input" placeholder="Où on va ?" /></div>
+        <div class="route-row"><div class="route-dot dot-end"></div><input class="route-input" id="dest-input" placeholder="Où on va ?" /></div>
+        <div id="suggestions-list"></div>
       </div>
     </div>
     <div class="map-side-btns">
@@ -286,9 +296,9 @@
     </div>
     <div class="map-bottom-panel">
       <div class="avoid-row">
-        <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-toll"></use></svg>Péages</button>
-        <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-hwy"></use></svg>Autoroutes</button>
-        <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-offroad"></use></svg>Chemins</button>
+        <button class="avoid-btn" id="btn-avoid-toll" onclick="toggleAvoid(this)"><svg class="icon"><use href="#icon-toll"></use></svg>Péages</button>
+        <button class="avoid-btn" id="btn-avoid-hwy" onclick="toggleAvoid(this)"><svg class="icon"><use href="#icon-hwy"></use></svg>Autoroutes</button>
+        <button class="avoid-btn" id="btn-avoid-offroad" onclick="toggleAvoid(this)"><svg class="icon"><use href="#icon-offroad"></use></svg>Chemins</button>
       </div>
       <div class="go-btn-row">
         <button class="btn-primary go-btn" id="btn-trace-route">Tracer l'itinéraire</button>
@@ -299,6 +309,7 @@
 </div>
 
 <script>
+  /* --- APP STATE --- */
   const els = {
     splash: document.getElementById('splash-screen'),
     auth: document.getElementById('auth-screen'),
@@ -311,48 +322,30 @@
     pFirstname: document.getElementById('p-firstname'),
     tagCloud: document.getElementById('tag-cloud'),
     startInput: document.getElementById('start-input'),
-    destInput: document.getElementById('destination-input'),
-    traceBtn: document.getElementById('btn-trace-route')
+    destInput: document.getElementById('dest-input'),
+    traceBtn: document.getElementById('btn-trace-route'),
+    suggestionsList: document.getElementById('suggestions-list')
   };
 
-  let map, userMarker, tileLayer, routeLayer;
+  let map, userMarker, routeLayer;
   let isRegisterMode = false;
+  
+  // Coordinates State
+  let startCoords = null; // {lat, lon}
+  let destCoords = null;  // {lat, lon}
+  let destMarker = null;
 
-  const TAGS_DB = {
-    nature: ['Forêts', 'Lacs', 'Montagnes', 'Grottes', 'Cascades', 'Panoramas'],
-    history: ['Châteaux', 'Ruines', 'Églises', 'Monuments', 'Musées', 'Architecture'],
-    hedonism: ['Vignobles', 'Brasseries', 'Marchés', 'Fermes', 'Fromageries', 'Gastronomie'],
-    curiosity: ['Abandonné', 'Légendes', 'Street Art', 'Villages fantômes', 'Insolite']
-  };
-  let activeCategories = new Set(); 
-
+  /* --- INIT --- */
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       els.splash.style.display = 'none';
       if(localStorage.getItem('gddLoggedIn')) { loadProfileData(); showScreen('main'); } 
       else { showScreen('auth'); updateTabLine(els.tabLogin); }
     }, 4000);
-
-    document.querySelectorAll('.interest-card[data-cat]').forEach(card => {
-        card.addEventListener('click', () => {
-            const cat = card.getAttribute('data-cat');
-            card.classList.toggle('active');
-            if (card.classList.contains('active')) activeCategories.add(cat); else activeCategories.delete(cat);
-            renderTags();
-        });
-    });
+    
+    // Init Interest Logic
+    document.querySelectorAll('.interest-card[data-cat]').forEach(card => card.addEventListener('click', toggleInterest));
   });
-
-  function renderTags() {
-      els.tagCloud.innerHTML = '';
-      if (activeCategories.size === 0) { els.tagCloud.innerHTML = '<div class="empty-tags-hint" style="font-size:13px; color:var(--text-sub);">Appuyez sur une catégorie...</div>'; return; }
-      activeCategories.forEach(cat => {
-          TAGS_DB[cat]?.forEach(tag => {
-              const pill = document.createElement('div'); pill.className = 'tag-pill'; pill.textContent = tag;
-              pill.onclick = () => pill.classList.toggle('selected'); els.tagCloud.appendChild(pill);
-          });
-      });
-  }
 
   function showScreen(name) {
     els.auth.style.display = 'none'; els.profile.style.display = 'none'; els.main.style.display = 'none';
@@ -364,6 +357,7 @@
     }
   }
 
+  /* --- AUTH & PROFILE LOGIC --- */
   function updateTabLine(activeTab) { els.tabLine.style.width = activeTab.offsetWidth + 'px'; els.tabLine.style.left = activeTab.offsetLeft + 'px'; }
   els.tabLogin.addEventListener('click', () => { isRegisterMode=false; setTabs(); });
   els.tabRegister.addEventListener('click', () => { isRegisterMode=true; setTabs(); });
@@ -371,10 +365,9 @@
     if(isRegisterMode) { els.tabRegister.classList.add('active'); els.tabLogin.classList.remove('active'); els.authBtn.textContent = "Créer un compte"; updateTabLine(els.tabRegister); }
     else { els.tabLogin.classList.add('active'); els.tabRegister.classList.remove('active'); els.authBtn.textContent = "Se connecter"; updateTabLine(els.tabLogin); }
   }
-
   els.authBtn.addEventListener('click', () => { localStorage.setItem('gddLoggedIn', '1'); if(isRegisterMode) showScreen('profile'); else { loadProfileData(); showScreen('main'); } });
-  document.querySelectorAll('.social-btn').forEach(b => b.addEventListener('click', () => { localStorage.setItem('gddLoggedIn', '1'); showScreen('profile'); }));
-
+  
+  // Theme Switcher
   const themeBtns = document.querySelectorAll('#theme-selector .segment-pill');
   themeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -400,7 +393,33 @@
     document.getElementById('btn-profile-open').textContent = initial;
   }
 
-  // --- MAP & ROUTING ---
+  /* --- INTERESTS LOGIC --- */
+  const TAGS_DB = {
+    nature: ['Forêts', 'Lacs', 'Montagnes', 'Grottes', 'Cascades'],
+    history: ['Châteaux', 'Ruines', 'Églises', 'Monuments'],
+    hedonism: ['Vignobles', 'Brasseries', 'Marchés', 'Fermes'],
+    curiosity: ['Abandonné', 'Légendes', 'Street Art', 'Villages fantômes']
+  };
+  let activeCategories = new Set(); 
+  function toggleInterest(e) {
+      const card = e.currentTarget;
+      const cat = card.getAttribute('data-cat');
+      card.classList.toggle('active');
+      if (card.classList.contains('active')) activeCategories.add(cat); else activeCategories.delete(cat);
+      renderTags();
+  }
+  function renderTags() {
+      els.tagCloud.innerHTML = '';
+      if (activeCategories.size === 0) { els.tagCloud.innerHTML = '<div class="empty-tags-hint" style="font-size:13px; color:var(--text-sub);">Appuyez sur une catégorie...</div>'; return; }
+      activeCategories.forEach(cat => {
+          TAGS_DB[cat]?.forEach(tag => {
+              const pill = document.createElement('div'); pill.className = 'tag-pill'; pill.textContent = tag;
+              pill.onclick = () => pill.classList.toggle('selected'); els.tagCloud.appendChild(pill);
+          });
+      });
+  }
+
+  /* --- MAP & ROUTING ENGINE --- */
   function initMap() {
     if(map) { map.invalidateSize(); updateMapTheme(); return; }
     map = L.map('map-container', { zoomControl: false }).setView([48.8566, 2.3522], 13);
@@ -409,6 +428,29 @@
     const icon = L.divIcon({ className: 'custom-div-icon', html: "<div class='user-marker-brand'></div>", iconSize: [20, 20], iconAnchor: [10, 10] });
     userMarker = L.marker([48.8566, 2.3522], {icon: icon}).addTo(map);
     routeLayer = L.layerGroup().addTo(map);
+
+    // Map Click to Set Destination
+    map.on('click', async (e) => {
+        const {lat, lng} = e.latlng;
+        // Visual feedback
+        if(destMarker) routeLayer.removeLayer(destMarker);
+        const endIcon = L.divIcon({ className: 'marker-end', iconSize: [16,16] });
+        destMarker = L.marker([lat, lng], {icon: endIcon}).addTo(routeLayer);
+        
+        destCoords = {lat, lon: lng};
+        els.destInput.value = "Point sur la carte...";
+        
+        // Reverse Geocode
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const data = await res.json();
+            if(data && data.display_name) {
+                // Shorten address
+                const parts = data.display_name.split(',');
+                els.destInput.value = parts[0] + (parts[1] ? ','+parts[1] : '');
+            }
+        } catch(err) { console.log(err); }
+    });
   }
 
   function updateMapTheme() {
@@ -421,63 +463,98 @@
     tileLayer = L.tileLayer(url, { maxZoom: 20 }).addTo(map);
   }
 
+  // LOCATE ME
   document.getElementById('btn-locate').addEventListener('click', () => {
     if(navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
             const {latitude, longitude} = pos.coords;
+            startCoords = {lat: latitude, lon: longitude};
             map.setView([latitude, longitude], 15);
             userMarker.setLatLng([latitude, longitude]);
             els.startInput.value = "Ma position actuelle";
         });
-    } else {
-        alert("Géolocalisation non supportée");
-    }
+    } else { alert("Géolocalisation non supportée"); }
   });
 
-  // REAL ROUTING
+  // AUTOCOMPLETE (Nominatim)
+  let debounceTimer;
+  els.destInput.addEventListener('input', (e) => {
+      const query = e.target.value;
+      clearTimeout(debounceTimer);
+      if(query.length < 3) { els.suggestionsList.style.display = 'none'; return; }
+      
+      debounceTimer = setTimeout(async () => {
+          try {
+              const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`);
+              const data = await res.json();
+              showSuggestions(data);
+          } catch(err) {}
+      }, 500);
+  });
+
+  function showSuggestions(data) {
+      els.suggestionsList.innerHTML = '';
+      if(!data || data.length === 0) { els.suggestionsList.style.display = 'none'; return; }
+      
+      data.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'suggestion-item';
+          div.textContent = item.display_name.split(',').slice(0,3).join(','); // Shorten
+          div.onclick = () => {
+              els.destInput.value = div.textContent;
+              destCoords = { lat: item.lat, lon: item.lon };
+              els.suggestionsList.style.display = 'none';
+              
+              // Move map to selection
+              if(destMarker) routeLayer.removeLayer(destMarker);
+              const endIcon = L.divIcon({ className: 'marker-end', iconSize: [16,16] });
+              destMarker = L.marker([item.lat, item.lon], {icon: endIcon}).addTo(routeLayer);
+              map.setView([item.lat, item.lon], 14);
+          };
+          els.suggestionsList.appendChild(div);
+      });
+      els.suggestionsList.style.display = 'block';
+  }
+
+  // ROUTING & AVOIDANCE
+  window.toggleAvoid = (btn) => btn.classList.toggle('active');
+
   els.traceBtn.addEventListener('click', async () => {
-    const dest = els.destInput.value;
-    if(!dest) { alert("Veuillez entrer une destination"); return; }
-    
-    els.traceBtn.textContent = "Calcul...";
-    
-    try {
-        // 1. Get Dest Coords (Nominatim)
-        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${dest}`);
-        const data = await resp.json();
-        if(!data || data.length === 0) throw new Error("Adresse introuvable");
-        
-        const endLat = data[0].lat;
-        const endLon = data[0].lon;
-        
-        // 2. Get Start Coords (Fixed for demo or Geolocation)
-        let startLat = 48.8566, startLon = 2.3522; // Default Paris
-        // In real app, use navigator.geolocation logic here
-        
-        // 3. OSRM Routing
-        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
-        const routeResp = await fetch(osrmUrl);
-        const routeData = await routeResp.json();
-        
-        if(routeData.routes && routeData.routes.length > 0) {
-            const geometry = routeData.routes[0].geometry;
-            
-            routeLayer.clearLayers();
-            // Draw Route Line
-            const routeLine = L.geoJSON(geometry, {
-                style: { color: '#22c55e', weight: 5, opacity: 0.8 }
-            }).addTo(routeLayer);
-            
-            map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
-            
-            // Add Markers
-            L.circleMarker([endLat, endLon], {radius: 6, color: '#22c55e', fillColor: '#fff', fillOpacity: 1}).addTo(routeLayer);
-        }
-    } catch(e) {
-        alert("Erreur: " + e.message);
-    } finally {
-        els.traceBtn.textContent = "Tracer l'itinéraire";
-    }
+      if(!destCoords) { alert("Veuillez sélectionner une destination"); return; }
+      // Default Start if not set (Paris)
+      if(!startCoords) startCoords = {lat: 48.8566, lon: 2.3522};
+
+      els.traceBtn.textContent = "Calcul...";
+      
+      // Build OSRM URL with exclusions
+      let url = `https://router.project-osrm.org/route/v1/driving/${startCoords.lon},${startCoords.lat};${destCoords.lon},${destCoords.lat}?overview=full&geometries=geojson`;
+      
+      // Note: Public OSRM mostly ignores exclude, but we implement logic
+      const exclude = [];
+      if(document.getElementById('btn-avoid-toll').classList.contains('active')) exclude.push('toll');
+      if(document.getElementById('btn-avoid-hwy').classList.contains('active')) exclude.push('motorway');
+      if(exclude.length > 0) url += `&exclude=${exclude.join(',')}`;
+
+      try {
+          const res = await fetch(url);
+          const data = await res.json();
+          if(data.routes && data.routes.length > 0) {
+              const route = data.routes[0];
+              const geojson = route.geometry;
+              
+              routeLayer.clearLayers();
+              if(destMarker) destMarker.addTo(routeLayer);
+              
+              L.geoJSON(geojson, {
+                  style: { color: '#22c55e', weight: 5, opacity: 0.8 }
+              }).addTo(routeLayer);
+              
+              // Fit map
+              const bounds = L.geoJSON(geojson).getBounds();
+              map.fitBounds(bounds, {padding: [50, 150]}); // Extra padding bottom for cockpit
+          }
+      } catch(e) { alert("Erreur itinéraire"); } 
+      finally { els.traceBtn.textContent = "Tracer l'itinéraire"; }
   });
 
 </script>
