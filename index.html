@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Logic Flow</title>
+  <title>Guide du Détour · Animations</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -10,10 +10,10 @@
 
   <style>
     :root {
-      --bg: #050816;
+      --bg: #020617;
       --primary: #22c55e;
-      --accent: #a5b4fc;
       --text-main: #e5e7eb;
+      --text-sub: #9ca3af;
     }
 
     * { box-sizing: border-box; }
@@ -21,7 +21,7 @@
     html, body {
       margin: 0; padding: 0; height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-      background: #020617;
+      background: var(--bg);
       color: var(--text-main);
       -webkit-font-smoothing: antialiased;
     }
@@ -30,11 +30,11 @@
 
     .app-shell {
       width: 100%; max-width: 430px; height: 100vh;
-      background: #020617;
+      background: var(--bg);
       overflow: hidden; position: relative;
     }
 
-    /* КНОПКИ И ИНПУТЫ */
+    /* --- UI COMPONENTS --- */
     .btn-primary {
       width: 100%; padding: 16px; border-radius: 999px; border: none;
       background: linear-gradient(90deg, #16a34a, #22c55e);
@@ -44,78 +44,122 @@
     }
     .btn-primary:active { transform: translateY(1px); }
 
-    .input-wrapper { position: relative; margin-bottom: 14px; }
+    .input-wrapper { position: relative; margin-bottom: 18px; }
     .input-field {
-      width: 100%; padding: 14px 14px 12px; border-radius: 16px;
-      border: 1px solid rgba(31,41,55,1); background: rgba(15,23,42,0.96); color: #f9fafb; font-size: 15px;
+      width: 100%; padding: 16px 16px 14px; border-radius: 18px;
+      border: 1px solid rgba(31,41,55,1); background: rgba(15,23,42,0.6); color: #fff; font-size: 16px;
     }
-    .input-label { position: absolute; left: 14px; top: 13px; font-size: 14px; color: #6b7280; pointer-events: none; transition: .18s ease; }
+    .input-field:focus { outline: none; border-color: var(--primary); background: #0f172a; }
+    
+    .input-label { 
+      position: absolute; left: 16px; top: 16px; font-size: 15px; color: #6b7280; 
+      pointer-events: none; transition: .2s ease; 
+    }
     .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label {
-      top: -7px; left: 11px; font-size: 11px; padding: 0 4px; color: var(--accent); background: #020617; border-radius: 999px;
+      top: -9px; left: 12px; font-size: 12px; padding: 0 6px; 
+      color: var(--primary); background: var(--bg); border-radius: 99px;
     }
 
-    /* SPLASH */
+    /* --- 1. SPLASH SCREEN (ANIMATED) --- */
     #splash-screen {
       position: absolute; inset: 0; z-index: 100;
       background: #020617;
       display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;
     }
-    .splash-logo { width: 140px; height: auto; margin-bottom: 24px; object-fit: contain; }
-    .splash-title { font-size: 24px; letter-spacing: .25em; text-transform: uppercase; color: #e5e7eb; margin-bottom: 8px; text-align: center; }
-    .splash-sub { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #6b7280; margin-bottom: 40px; text-align: center; }
-    .splash-progress { width: 70%; max-width: 300px; height: 3px; border-radius: 999px; background: rgba(30,41,59, 0.5); overflow: hidden; position: relative; }
+    
+    /* Анимация появления (снизу вверх + прозрачность) */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .splash-logo { 
+      width: 180px; height: auto; margin-bottom: 16px; object-fit: contain; 
+      opacity: 0; /* Скрыт изначально */
+      animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; /* Плавное появление */
+      animation-delay: 0.3s; /* Небольшая задержка */
+    }
+    
+    .splash-slogan {
+      font-size: 13px; letter-spacing: 0.05em; color: #9ca3af; 
+      text-align: center; margin-bottom: 60px; max-width: 220px; line-height: 1.5;
+      opacity: 0; /* Скрыт изначально */
+      animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      animation-delay: 0.8s; /* Появляется после логотипа */
+    }
+    
+    /* Прогресс бар */
+    .splash-progress { 
+      width: 60%; max-width: 240px; 
+      height: 1px; /* <-- Сделали совсем тонким (было 3px) */
+      border-radius: 999px; 
+      background: rgba(30,41,59, 0.5); 
+      overflow: hidden; position: relative; 
+      /* Тоже анимируем появление, чтобы не висело в пустоте */
+      opacity: 0;
+      animation: fadeUp 1s ease-out forwards;
+      animation-delay: 0.1s;
+    }
+
     .splash-progress-bar {
       position: absolute; inset: 0;
       background: linear-gradient(90deg, transparent, #22c55e, transparent);
       transform: translateX(-100%);
-      animation: splashBar 6s ease-in-out forwards; /* 6 секунд */
+      animation: splashBar 6s ease-in-out forwards;
     }
+    
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
+    
+    .loading-text { 
+      margin-top: 12px; font-size: 10px; letter-spacing: 0.2em; 
+      text-transform: uppercase; color: #4b5563; 
+      opacity: 0; animation: fadeUp 1s forwards; animation-delay: 1s;
+    }
 
-    /* AUTH SCREEN */
+
+    /* --- 2. AUTH SCREEN --- */
     #auth-screen {
       position: absolute; inset: 0; z-index: 90; display: none;
-      justify-content: center; align-items: center; padding: 20px;
-      background: radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(15,23,42,1));
+      flex-direction: column; justify-content: center; padding: 24px;
+      background: radial-gradient(circle at top left, #0f172a, #020617);
     }
-    .auth-card {
-      width: 100%; max-width: 360px; background: #0b1120;
-      border-radius: 28px; padding: 26px 22px; border: 1px solid rgba(31,41,55,1);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-    }
-    .auth-tabs { display: flex; background: rgba(15,23,42,0.5); padding: 4px; border-radius: 99px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-    .tab { flex: 1; padding: 8px; border: none; background: none; color: #6b7280; border-radius: 99px; font-size: 14px; cursor: pointer; transition: 0.2s; }
-    .tab.active { background: rgba(255,255,255,0.1); color: #fff; font-weight: 600; }
+    .auth-tabs { display: flex; background: rgba(30,41,59,0.4); padding: 4px; border-radius: 99px; margin-bottom: 30px; }
+    .tab { flex: 1; padding: 10px; border: none; background: none; color: #6b7280; border-radius: 99px; font-size: 14px; cursor: pointer; transition: 0.2s; }
+    .tab.active { background: rgba(255,255,255,0.08); color: #fff; font-weight: 600; box-shadow: 0 0 0 1px rgba(255,255,255,0.05); }
     
-    .social-login { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
-    .social-btn { width: 44px; height: 44px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s; }
-    .social-btn:hover { background: #334155; }
-    .divider { display: flex; align-items: center; margin: 20px 0 0; font-size: 12px; color: #6b7280; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #334155; }
+    .social-login { display: flex; justify-content: center; gap: 14px; margin-top: 30px; }
+    .social-btn { width: 50px; height: 50px; border-radius: 14px; border: 1px solid #334155; background: #1e293b; color: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+    .divider { display: flex; align-items: center; margin: 30px 0 0; font-size: 12px; color: #4b5563; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #1f2937; }
     .divider span { padding: 0 10px; }
 
-    /* PROFILE MODAL */
-    #profile-modal {
-      position: absolute; inset: 0; z-index: 95; display: none;
-      justify-content: center; align-items: flex-end; padding: 0 12px 16px;
-      background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
-    }
-    #profile-modal.visible { display: flex; }
-    .profile-card {
-      width: 100%; max-width: 420px; background: #0b1120;
-      border-radius: 26px; border: 1px solid rgba(31,41,55,1);
-      padding: 24px; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .pill-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; margin-top: 10px; }
-    .pill { padding: 8px 14px; border-radius: 99px; border: 1px solid #1f2937; background: #0f172a; color: #9ca3af; font-size: 13px; cursor: pointer; }
-    .pill.selected { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #bbf7d0; }
 
-    /* MAIN SCREEN */
+    /* --- 3. PROFILE SCREEN (FULL PAGE) --- */
+    #profile-screen {
+      position: absolute; inset: 0; z-index: 95; display: none;
+      flex-direction: column; padding: 24px 24px 40px;
+      background: #020617; overflow-y: auto;
+      animation: fadeInScreen 0.4s ease-out; /* Плавное появление экрана */
+    }
+    @keyframes fadeInScreen { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .profile-header { margin-top: 40px; margin-bottom: 30px; }
+    .profile-header h1 { font-size: 28px; margin: 0 0 8px; color: #fff; }
+    .profile-header p { margin: 0; font-size: 15px; color: #9ca3af; line-height: 1.4; }
+    .section-label { font-size: 14px; font-weight: 600; color: #e5e7eb; margin-top: 20px; margin-bottom: 12px; }
+    .pill-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+    .pill { 
+      padding: 10px 16px; border-radius: 99px; border: 1px solid #1f2937; 
+      background: #0f172a; color: #9ca3af; font-size: 14px; cursor: pointer; transition: 0.2s;
+    }
+    .pill.selected { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #bbf7d0; }
+    .bottom-action { margin-top: auto; }
+
+    /* --- 4. MAIN SCREEN --- */
     #main-screen { position: absolute; inset: 0; padding: 20px; display: none; }
     .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; cursor: pointer; }
+    .avatar-circle { width: 42px; height: 42px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; cursor: pointer; border: 2px solid #020617; box-shadow: 0 0 0 1px #334155; }
+
   </style>
 </head>
 <body>
@@ -124,184 +168,154 @@
 
   <div id="splash-screen">
     <img src="logo_2.png" alt="Guide du Détour" class="splash-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';" />
-    <div id="fallback-logo" style="font-size:50px; display:none; margin-bottom:20px;">🌀</div>
-    <div class="splash-title">GUIDE DU DÉTOUR</div>
-    <div class="splash-sub">Chargement...</div>
+    <div class="splash-slogan">Ça vaut le détour — à chaque trajet.</div>
+
     <div class="splash-progress"><div class="splash-progress-bar"></div></div>
+    <div class="loading-text">Chargement...</div>
   </div>
 
   <div id="auth-screen">
-    <div class="auth-card">
-      <h1 class="auth-title" style="color:white; margin:0 0 6px;">Bienvenue</h1>
-      <p id="auth-subtitle" style="color:#9ca3af; margin-bottom:20px; font-size:14px;">Connectez-vous pour continuer.</p>
+    <h1 style="color:white; margin:0 0 10px; font-size:28px;">Bienvenue</h1>
+    <p id="auth-subtitle" style="color:#9ca3af; margin:0 0 30px; font-size:15px;">Préparez-vous à sortir des sentiers battus.</p>
 
-      <div class="auth-tabs">
-        <button class="tab active" id="tab-login">Connexion</button>
-        <button class="tab" id="tab-register">Inscription</button>
-      </div>
+    <div class="auth-tabs">
+      <button class="tab active" id="tab-login">Connexion</button>
+      <button class="tab" id="tab-register">Inscription</button>
+    </div>
 
-      <div class="input-wrapper">
-        <input type="email" id="email" class="input-field" placeholder=" " />
-        <label class="input-label">Email</label>
-      </div>
-      <div class="input-wrapper">
-        <input type="password" id="pwd" class="input-field" placeholder=" " />
-        <label class="input-label">Mot de passe</label>
-      </div>
+    <div class="input-wrapper">
+      <input type="email" id="email" class="input-field" placeholder=" " />
+      <label class="input-label">Email</label>
+    </div>
+    <div class="input-wrapper">
+      <input type="password" id="pwd" class="input-field" placeholder=" " />
+      <label class="input-label">Mot de passe</label>
+    </div>
 
-      <button id="btn-auth-action" class="btn-primary" style="margin-top:10px;">Se connecter</button>
+    <button id="btn-auth-action" class="btn-primary">Se connecter</button>
 
-      <div class="divider"><span>ou via</span></div>
-      <div class="social-login">
-        <button class="social-btn" title="Apple"></button>
-        <button class="social-btn" title="Google">G</button>
-        <button class="social-btn" title="Facebook">Fb</button>
-      </div>
+    <div class="divider"><span>ou continuer avec</span></div>
+    <div class="social-login">
+      <button class="social-btn"></button>
+      <button class="social-btn">G</button>
+      <button class="social-btn">Fb</button>
     </div>
   </div>
 
-  <div id="profile-modal">
-    <div class="profile-card">
-      <h3 style="margin-top:0; font-size:20px; color:#fff;">Créez votre profil</h3>
-      <p style="color:#9ca3af; font-size:14px;">Configurez vos préférences pour vos premiers détours.</p>
-      
-      <div class="input-wrapper">
-        <input id="profile-name" class="input-field" placeholder=" " />
-        <label class="input-label">Votre Prénom</label>
-      </div>
+  <div id="profile-screen">
+    <div class="profile-header">
+      <h1>Créez votre profil</h1>
+      <p>Dites-nous ce que vous aimez pour que nous puissions personnaliser vos détours.</p>
+    </div>
 
-      <div style="font-size:13px; color:#fff; margin-top:15px;">Vos intérêts :</div>
-      <div class="pill-grid">
-        <button class="pill">🏰 Châteaux</button>
-        <button class="pill">🍷 Vin</button>
-        <button class="pill">🌲 Nature</button>
-        <button class="pill">🍰 Gastronomie</button>
-      </div>
+    <div class="input-wrapper">
+      <input id="profile-name" class="input-field" placeholder=" " />
+      <label class="input-label">Votre Prénom</label>
+    </div>
 
-      <button id="btn-save-profile" class="btn-primary">Enregistrer</button>
+    <div class="section-label">Vos centres d'intérêt</div>
+    <div class="pill-grid">
+      <button class="pill">🏰 Châteaux</button>
+      <button class="pill">🍷 Vin & Vignes</button>
+      <button class="pill">🌲 Nature sauvage</button>
+      <button class="pill">🍰 Gastronomie</button>
+      <button class="pill">🎨 Art & Histoire</button>
+      <button class="pill">📸 Points de vue</button>
+    </div>
+
+    <div class="bottom-action">
+      <button id="btn-save-profile" class="btn-primary">Commencer l'aventure</button>
     </div>
   </div>
 
   <div id="main-screen">
     <header class="app-header">
       <div>
-        <h2 style="margin:0; color:#fff;">Bonjour !</h2>
-        <p style="margin:0; color:#9ca3af; font-size:14px;">Prêt pour un détour ?</p>
+        <h2 style="margin:0; color:#fff; font-size: 22px;">Bonjour !</h2>
+        <p style="margin:4px 0 0; color:#9ca3af; font-size:14px;">Où allons-nous aujourd'hui ?</p>
       </div>
       <div class="avatar-circle" id="main-avatar">U</div>
     </header>
     
-    <div style="padding: 20px; border:1px solid #1f2937; border-radius:16px; background:rgba(15,23,42,0.5); text-align:center; color:#6b7280;">
-      <div style="font-size:40px; margin-bottom:10px;">🗺️</div>
-      Здесь будет карта и настройки маршрута.
+    <div style="flex:1; height: 60vh; border:1px solid #1f2937; border-radius:24px; background:rgba(15,23,42,0.5); display:flex; align-items:center; justify-content:center; color:#6b7280; flex-direction:column;">
+      <div style="font-size:40px; margin-bottom:16px;">🗺️</div>
+      <div>Carte Interactive</div>
     </div>
   </div>
 
 </div>
 
 <script>
-  // --- ELEMENTS ---
   const els = {
     splash: document.getElementById('splash-screen'),
     auth: document.getElementById('auth-screen'),
+    profile: document.getElementById('profile-screen'),
     main: document.getElementById('main-screen'),
-    profile: document.getElementById('profile-modal'),
-    
     tabLogin: document.getElementById('tab-login'),
     tabRegister: document.getElementById('tab-register'),
     authBtn: document.getElementById('btn-auth-action'),
-    authSub: document.getElementById('auth-subtitle'),
-    
     socialBtns: document.querySelectorAll('.social-btn')
   };
 
-  // Переменная состояния: true = Регистрация, false = Вход
   let isRegisterMode = false;
 
-  // --- INIT ---
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       els.splash.style.display = 'none';
-      // Всегда показываем Auth для теста, даже если обновляем страницу
-      // В реальном приложении тут проверка localStorage
-      els.auth.style.display = 'flex'; 
-    }, 6000); // 6 секунд
+      showScreen('auth');
+    }, 6000);
   });
 
-  // --- TABS LOGIC ---
-  els.tabLogin.addEventListener('click', () => {
-    setAuthMode(false);
-  });
+  function showScreen(name) {
+    els.auth.style.display = 'none';
+    els.profile.style.display = 'none';
+    els.main.style.display = 'none';
 
-  els.tabRegister.addEventListener('click', () => {
-    setAuthMode(true);
-  });
+    if(name === 'auth') els.auth.style.display = 'flex';
+    if(name === 'profile') els.profile.style.display = 'flex';
+    if(name === 'main') els.main.style.display = 'block';
+  }
+
+  els.tabLogin.addEventListener('click', () => setAuthMode(false));
+  els.tabRegister.addEventListener('click', () => setAuthMode(true));
 
   function setAuthMode(isRegister) {
     isRegisterMode = isRegister;
-    
     if (isRegister) {
       els.tabRegister.classList.add('active');
       els.tabLogin.classList.remove('active');
       els.authBtn.textContent = "Créer un compte";
-      els.authSub.textContent = "Créez un compte pour commencer.";
     } else {
       els.tabLogin.classList.add('active');
       els.tabRegister.classList.remove('active');
       els.authBtn.textContent = "Se connecter";
-      els.authSub.textContent = "Connectez-vous pour continuer.";
     }
   }
 
-  // --- AUTH ACTION (Кнопка Email) ---
-  els.authBtn.addEventListener('click', () => {
-    handleAuthFlow();
-  });
-
-  // --- SOCIAL ACTION (Кнопки соцсетей) ---
-  els.socialBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // Соцсети ведут себя так же: если вкладка Регистрация -> Профиль, иначе -> Главная
-      handleAuthFlow();
-    });
-  });
-
-  // --- MAIN FLOW LOGIC ---
-  function handleAuthFlow() {
-    // 1. Скрываем экран авторизации
-    els.auth.style.display = 'none';
-    
-    // 2. Показываем главный экран (он всегда внизу)
-    els.main.style.display = 'block';
-    
-    // 3. ЛОГИКА ВЕТВЛЕНИЯ
-    if (isRegisterMode) {
-      // Если это была РЕГИСТРАЦИЯ (новый юзер) -> Открываем профиль
-      els.profile.classList.add('visible');
-    } else {
-      // Если это был ВХОД (старый юзер) -> Профиль НЕ открываем, остаемся на главном
-      // (Ничего не делаем, main уже показан)
-    }
-    
-    // Сохраняем флаг "залогинен"
+  function handleAuth() {
     localStorage.setItem('gddLoggedIn', '1');
-    updateAvatar();
-  }
-
-  // --- PROFILE SAVE ---
-  document.getElementById('btn-save-profile').addEventListener('click', () => {
-    const name = document.getElementById('profile-name').value;
-    if(name) {
-      localStorage.setItem('gddName', name);
+    if (isRegisterMode) {
+      showScreen('profile');
+    } else {
+      showScreen('main');
       updateAvatar();
     }
-    els.profile.classList.remove('visible');
+  }
+
+  els.authBtn.addEventListener('click', handleAuth);
+  els.socialBtns.forEach(btn => btn.addEventListener('click', handleAuth));
+
+  document.getElementById('btn-save-profile').addEventListener('click', () => {
+    const name = document.getElementById('profile-name').value;
+    if(name) localStorage.setItem('gddName', name);
+    updateAvatar();
+    showScreen('main');
   });
 
-  // --- UTILS ---
   document.getElementById('main-avatar').addEventListener('click', () => {
-    // По клику на аватар всегда можно открыть настройки профиля
-    els.profile.classList.add('visible');
+    const name = localStorage.getItem('gddName');
+    if(name) document.getElementById('profile-name').value = name;
+    showScreen('profile');
   });
 
   function updateAvatar() {
@@ -312,7 +326,6 @@
   document.querySelectorAll('.pill').forEach(p => 
     p.addEventListener('click', () => p.classList.toggle('selected'))
   );
-
 </script>
 </body>
 </html>
