@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · v0.7.4 Radius Fix</title>
+  <title>Guide du Détour · v0.7.5 Smooth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -54,7 +54,7 @@
     .icon-lg { width: 32px; height: 32px; stroke-width: 1.5; }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-    /* --- SCREENS --- */
+    /* SCREENS CSS */
     #splash-screen, #auth-screen, #profile-screen, #main-screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
     
     /* SPLASH */
@@ -64,12 +64,8 @@
     .splash-progress { width: 280px; height: 2px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; margin-top: 40px;}
     .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
     .loading-text { font-size: 10px; color: #94a3b8; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; animation: fadeUp 1s forwards 0.2s;}
-    
-    .app-version { 
-        position: absolute; bottom: 30px; left: 0; right: 0;
-        text-align: center; font-size: 10px; color: var(--text-sub); opacity: 0.5; font-family: monospace; 
-    }
-    #profile-screen .app-version { position: relative; bottom: auto; margin-top: 20px; margin-bottom: 20px; }
+    .app-version { position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 10px; color: #475569; font-family: monospace; opacity: 0; animation: fadeUp 1s forwards 1s; }
+    #profile-screen .app-version { position: relative; bottom: auto; margin-top: 20px; margin-bottom: 20px; opacity: 0.5; animation: none; }
 
     /* AUTH */
     #auth-screen { z-index: 90; background: var(--bg-color); justify-content: center; padding: 32px; display: none; }
@@ -143,7 +139,7 @@
       position: relative;
     }
     
-    .route-row { display: flex; align-items: center; gap: 12px; }
+    .route-row { display: flex; align-items: center; gap: 12px; position: relative; }
     .route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .dot-start { background: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
     .dot-end { background: var(--primary); box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
@@ -215,9 +211,9 @@
     .go-btn-row { display: flex; width: 100%; }
     .go-btn { flex: 1; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); backdrop-filter: none; }
 
-    .user-marker-brand { position: relative; width: 20px; height: 20px; background: #3b82f6; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #3b82f6; }
-    .user-marker-brand::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 2px solid #3b82f6; opacity: 0; animation: pulse-blue 2s infinite; }
-    @keyframes pulse-blue { 0% { transform: scale(0.5); opacity: 1; border-width: 4px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
+    .user-marker-brand { position: relative; width: 20px; height: 20px; background: #22c55e; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #22c55e; }
+    .user-marker-brand::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 2px solid #22c55e; opacity: 0; animation: pulse-green 2s infinite; }
+    @keyframes pulse-green { 0% { transform: scale(0.5); opacity: 1; border-width: 4px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
     
     .marker-end { width: 20px; height: 20px; background: #22c55e; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #22c55e; }
     
@@ -310,7 +306,7 @@
           <span style="color:var(--text-muted)">Intensité</span>
           <span class="slider-val" id="slider-val-label">10 km • Curieux</span>
         </div>
-        <input type="range" min="1" max="3" value="2" class="range-input" id="adventure-slider">
+        <input type="range" min="2" max="50" value="10" step="1" class="range-input" id="adventure-slider">
       </div>
 
       <div class="section-header">Préférences</div>
@@ -373,7 +369,7 @@
 </div>
 
 <script>
-  const APP_VERSION = 'v0.7.4 Radius Fix';
+  const APP_VERSION = 'v0.7.5 Smooth Radius';
   
   const els = {
     splash: document.getElementById('splash-screen'),
@@ -403,14 +399,6 @@
   let activeCategories = new Set(['nature', 'history']);
   let selectedTags = new Set();
 
-  // --- SLIDER DATA ---
-  const SLIDER_MAPPING = {
-      1: { label: 'Touriste', km: '2 km' },
-      2: { label: 'Curieux', km: '10 km' },
-      3: { label: 'Explorateur', km: '50 km' }
-  };
-  const CORRIDOR_WIDTH = { 1: 20, 2: 50, 3: 100 }; // Visual buffer size
-
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.app-version').forEach(el => el.textContent = APP_VERSION);
 
@@ -436,10 +424,15 @@
     renderTags();
   });
 
-  // --- SLIDER LOGIC ---
+  // --- SMOOTH SLIDER LOGIC ---
   els.slider.addEventListener('input', (e) => {
       const val = parseInt(e.target.value);
-      els.sliderLabel.textContent = `${SLIDER_MAPPING[val].km} • ${SLIDER_MAPPING[val].label}`;
+      let label = '';
+      if(val < 10) label = 'Touriste';
+      else if(val < 30) label = 'Curieux';
+      else label = 'Explorateur';
+      
+      els.sliderLabel.textContent = `${val} km • ${label}`;
   });
 
   // --- DETOUR LOGIC ---
@@ -451,13 +444,13 @@
           activeCategories.add('nature'); activeCategories.add('history');
       }
 
-      const sliderVal = parseInt(els.slider.value) || 2;
-      const spreadFactor = 0.03 * sliderVal; 
+      const sliderVal = parseInt(els.slider.value) || 10;
+      // Scale spread based on KM (approx 0.002 deg per km)
+      const spreadFactor = sliderVal * 0.004; 
 
       for(let i=0; i<5; i++) {
           const randIdx = Math.floor(Math.random() * routeCoords.length);
           const [lat, lng] = routeCoords[randIdx];
-          // Swap logic depends on GeoJSON source, usually [lon, lat] in geom
           const mLat = lng; const mLng = lat;
           
           const latOffset = (Math.random() - 0.5) * spreadFactor;
@@ -698,7 +691,8 @@
               
               // DRAW CORRIDOR BASED ON SLIDER
               const sliderVal = parseInt(els.slider.value) || 2;
-              const width = CORRIDOR_WIDTH[sliderVal];
+              // Use weight multiplier relative to km
+              const width = sliderVal * 2; 
               L.geoJSON(route.geometry, { 
                   style: { color: '#22c55e', weight: width, opacity: 0.15, lineCap: 'round' } 
               }).addTo(corridorLayer);
