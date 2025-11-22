@@ -2,72 +2,61 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Final Polished</title>
+  <title>Guide du Détour · Cinematic Profile</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* --- VARIABLES & THEME ENGINE --- */
+    /* --- 1. GLOBAL VARIABLES --- */
     :root {
-      /* DARK THEME (Default) */
+      /* DARK (Default) */
       --bg-color: #020617;
       --bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
+      
       --text-main: #ffffff;
       --text-sub: #94a3b8;
-      
-      --card-bg: rgba(30, 41, 59, 0.4);
-      --glass-border: rgba(255,255,255,0.15);
-      --glass-bg: rgba(255,255,255,0.05);
+      --text-muted: #64748b;
       
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
       
-      --nav-bg: rgba(2, 6, 23, 0.9);
-      --input-bg: rgba(255,255,255,0.05);
-      --input-focus-bg: rgba(255,255,255,0.15);
+      --glass-border: rgba(255,255,255,0.08);
+      --glass-bg: rgba(255,255,255,0.03);
+      
+      /* Карточки теперь без явных границ, работают на фоне */
+      --card-bg: rgba(255, 255, 255, 0.03);
       
       /* Active states */
       --active-card-bg: rgba(34, 197, 94, 0.15);
-      --active-card-border: #22c55e;
       --active-text: #4ade80;
       
-      --tag-bg: rgba(255,255,255,0.05);
-      --tag-border: rgba(255,255,255,0.15);
-      --tag-selected-bg: #22c55e;
-      --tag-selected-text: #020617;
+      --nav-bg: rgba(2, 6, 23, 0.85);
     }
 
-    /* LIGHT THEME OVERRIDES (High Contrast) */
+    /* LIGHT THEME (High Contrast, No Borders) */
     [data-theme="light"] {
-      --bg-color: #f1f5f9;
-      --bg-gradient: linear-gradient(to bottom, #f8fafc 0%, #e2e8f0 100%);
+      --bg-color: #ffffff;
+      --bg-gradient: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
       
       --text-main: #0f172a;
-      --text-sub: #64748b;
+      --text-sub: #475569;
+      --text-muted: #94a3b8;
       
-      --card-bg: #ffffff;
-      --glass-border: #cbd5e1; /* Solid grey border */
-      --glass-bg: #ffffff;
+      --glass-border: rgba(0,0,0,0.06);
+      --glass-bg: #f1f5f9;
       
-      --nav-bg: rgba(255, 255, 255, 0.95);
-      
-      --input-bg: #ffffff;
-      --input-focus-bg: #ffffff;
+      --card-bg: #f8fafc;
       
       /* Active states Light */
-      --active-card-bg: #dcfce7; /* Light green */
-      --active-card-border: #16a34a; /* Dark green border */
-      --active-text: #15803d; /* Dark green text */
+      --active-card-bg: #dcfce7; 
+      --active-text: #166534;
       
-      --tag-bg: #ffffff;
-      --tag-border: #cbd5e1;
-      --tag-selected-bg: #22c55e;
-      --tag-selected-text: #ffffff;
+      --nav-bg: rgba(255, 255, 255, 0.95);
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     html, body {
       margin: 0; padding: 0; height: 100%;
@@ -89,20 +78,20 @@
 
     /* --- UI KIT --- */
     .btn-primary {
-      width: 100%; padding: 16px; border-radius: 20px; border: none;
+      width: 100%; padding: 16px; border-radius: 24px; border: none;
       background: var(--primary-grad);
       color: #020617; font-weight: 700; font-size: 16px; cursor: pointer;
-      box-shadow: 0 10px 20px -10px rgba(34, 197, 94, 0.5);
+      box-shadow: 0 8px 20px -6px rgba(34, 197, 94, 0.6);
       transform: scale(1); transition: 0.2s;
     }
     .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
 
     ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-    /* --- 1. SPLASH --- */
+    /* --- 2. SPLASH --- */
     #splash-screen {
       position: absolute; inset: 0; z-index: 100;
-      background: #020617; /* Always dark for style */
+      background: #020617; 
       display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;
     }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
@@ -112,7 +101,7 @@
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* --- 2. AUTH (PREMIUM DARK) --- */
+    /* --- 3. AUTH --- */
     #auth-screen {
       position: absolute; inset: 0; z-index: 90; display: none;
       flex-direction: column; justify-content: center; padding: 32px;
@@ -125,13 +114,11 @@
     .tab.active { color: #fff; }
     .tab-indicator { position: absolute; bottom: 0; left: 0; height: 3px; width: 20px; background: #4ade80; border-radius: 10px; box-shadow: 0 0 10px rgba(74, 222, 128, 0.6); transition: left 0.3s, width 0.3s; }
 
-    /* AUTH INPUTS (Always Dark Style) */
     .input-wrapper { position: relative; margin-bottom: 20px; }
     #auth-screen .input-field {
       width: 100%; padding: 18px 16px 14px; border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      color: #fff; font-size: 16px; transition: 0.3s;
+      backdrop-filter: blur(10px); color: #fff; font-size: 16px; transition: 0.3s;
     }
     #auth-screen .input-field:focus { outline: none; border-color: #4ade80; background: rgba(255,255,255,0.15); }
     #auth-screen .input-label { position: absolute; left: 18px; top: 18px; font-size: 15px; color: rgba(255,255,255,0.6); pointer-events: none; transition: 0.2s; }
@@ -144,7 +131,7 @@
     .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; }
 
 
-    /* --- 3. PROFILE (ADAPTIVE THEME) --- */
+    /* --- 4. CINEMATIC PROFILE --- */
     #profile-screen {
       position: absolute; inset: 0; z-index: 95; display: none;
       flex-direction: column; background: var(--bg-color); overflow-y: auto;
@@ -152,108 +139,145 @@
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+    /* Nav - Transparent & Clean */
     .profile-nav {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 20px 24px; position: sticky; top: 0; z-index: 10;
-      background: var(--nav-bg); backdrop-filter: blur(10px);
+      padding: 16px 20px; position: sticky; top: 0; z-index: 10;
+      background: var(--nav-bg); backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--glass-border);
     }
-    .nav-title { font-weight: 700; font-size: 18px; color: var(--text-main); }
-    .nav-btn { background: none; border: none; color: var(--text-sub); font-size: 14px; cursor: pointer; }
+    .nav-title { font-weight: 600; font-size: 17px; color: var(--text-main); opacity: 0.9; }
+    .nav-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; opacity: 0.7; padding: 4px; }
 
-    .profile-content { padding: 24px; padding-bottom: 100px; }
+    .profile-content { padding: 0 24px 120px 24px; }
 
-    .user-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
-    .avatar-big {
-      width: 90px; height: 90px; border-radius: 50%; background: var(--card-bg);
+    /* Hero Section - No Boxes, Just Content */
+    .hero-section {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 40px 0 30px; text-align: center;
+    }
+    
+    /* Glowing Avatar */
+    .hero-avatar {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: linear-gradient(135deg, #334155, #1e293b);
       display: flex; align-items: center; justify-content: center;
-      font-size: 32px; color: var(--text-main); font-weight: bold;
-      border: 2px solid var(--glass-border); position: relative; margin-bottom: 20px;
+      font-size: 36px; color: #fff; font-weight: 700;
+      border: 2px solid var(--glass-border);
+      box-shadow: 0 0 30px rgba(34, 197, 94, 0.15); /* GLOW EFFECT */
+      margin-bottom: 20px; position: relative;
     }
-    .avatar-edit {
-      position: absolute; bottom: 0; right: 0; width: 28px; height: 28px;
-      background: var(--primary); border-radius: 50%; border: 2px solid var(--bg-color);
-      display: flex; align-items: center; justify-content: center; font-size: 12px; color: #000;
+    .edit-badge {
+      position: absolute; bottom: 0; right: 0; 
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--primary); border: 3px solid var(--bg-color);
+      color: #000; font-size: 14px; display: flex; align-items: center; justify-content: center;
     }
 
-    /* ADAPTIVE INPUTS FOR PROFILE */
-    #profile-screen .input-field {
-        width: 100%; padding: 18px 16px 14px; border-radius: 20px;
-        border: 1px solid var(--glass-border); background: var(--input-bg);
-        color: var(--text-main); font-size: 16px; transition: 0.3s;
-        /* Remove blur in light mode to keep it clean */
-    }
-    #profile-screen .input-field:focus { outline: none; border-color: #22c55e; background: var(--input-focus-bg); }
-    #profile-screen .input-label { position: absolute; left: 18px; top: 18px; font-size: 15px; color: var(--text-sub); pointer-events: none; transition: 0.2s; }
-    #profile-screen .input-field:focus + .input-label, #profile-screen .input-field:not(:placeholder-shown) + .input-label { top: 7px; font-size: 11px; color: #22c55e; font-weight: 600; }
-
-
-    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-sub); margin-bottom: 16px; margin-top: 10px; }
+    /* Ghost Inputs (Look like text until clicked) */
+    .ghost-input-group { display: flex; flex-direction: column; gap: 4px; width: 100%; align-items: center; }
     
-    /* --- INTERESTS --- */
-    .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .ghost-input {
+      background: transparent; border: none; text-align: center;
+      color: var(--text-main); font-family: inherit; width: 100%;
+      transition: 0.2s; padding: 4px;
+    }
+    .ghost-input:focus {
+      background: var(--glass-bg); border-radius: 8px; outline: none;
+    }
+    
+    .input-name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .input-sub { font-size: 15px; color: var(--text-sub); font-weight: 500; }
+
+    /* Section Headers - Clean Typography */
+    .section-header {
+      font-size: 18px; font-weight: 700; color: var(--text-main);
+      margin: 40px 0 16px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .section-hint { font-size: 13px; color: var(--text-muted); font-weight: 400; }
+
+    /* Interest Grid - Cleaner, larger touch targets */
+    .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .interest-card {
-      background: var(--card-bg); border: 1px solid var(--glass-border);
-      border-radius: 16px; padding: 16px; cursor: pointer; transition: 0.2s;
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-      color: var(--text-main);
+      background: var(--card-bg); 
+      border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      /* No Border by default in dark mode for cleaner look */
     }
-    /* Light theme specific shadow */
-    [data-theme="light"] .interest-card { box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+    .interest-card:active { transform: scale(0.98); }
     
-    .interest-card.active { 
-        background: var(--active-card-bg); 
-        border-color: var(--active-card-border); 
-    }
-    .interest-icon { font-size: 24px; }
-    .interest-name { font-size: 13px; font-weight: 600; }
+    .interest-icon { font-size: 28px; margin-bottom: 4px; filter: grayscale(100%) opacity(0.7); transition: 0.3s; }
+    .interest-name { font-size: 14px; font-weight: 600; color: var(--text-sub); transition: 0.3s; }
+    
+    /* Active State */
+    .interest-card.active { background: var(--active-card-bg); }
+    .interest-card.active .interest-icon { filter: grayscale(0%) opacity(1); transform: scale(1.1); }
     .interest-card.active .interest-name { color: var(--active-text); }
 
-    /* --- TAGS --- */
-    .tag-cloud-wrapper { min-height: 0; transition: all 0.3s ease; overflow: hidden; margin-bottom: 24px; }
-    .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
+    /* Tag Cloud - Floating Pills */
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 40px; }
     .tag-pill {
-        font-size: 12px; padding: 6px 14px; border-radius: 20px;
-        background: var(--tag-bg); border: 1px solid var(--tag-border);
-        color: var(--text-sub); cursor: pointer; transition: 0.2s; user-select: none;
+      padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500;
+      background: var(--glass-bg); color: var(--text-sub);
+      border: 1px solid transparent; transition: 0.2s; cursor: pointer;
     }
-    /* Light theme tag specific */
-    [data-theme="light"] .tag-pill { box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #475569; }
-
-    .tag-pill:hover { border-color: #22c55e; }
+    [data-theme="light"] .tag-pill { background: #f1f5f9; }
+    
     .tag-pill.selected {
-        background: var(--tag-selected-bg); 
-        color: var(--tag-selected-text); 
-        border-color: var(--tag-selected-bg); 
-        font-weight: 600;
-        box-shadow: 0 2px 5px rgba(34, 197, 94, 0.3);
+      background: var(--primary); color: #020617; font-weight: 600;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
     }
-    .empty-tags-hint { font-size: 12px; color: var(--text-sub); font-style: italic; opacity: 0.6; }
 
-    /* --- SETTINGS --- */
-    .settings-container { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; margin-bottom: 24px; }
-    .settings-row { margin-bottom: 20px; }
-    .settings-row:last-child { margin-bottom: 0; }
-    .settings-label { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main); }
+    /* Slider - Minimal */
+    .slider-wrapper {
+      margin-top: 10px; padding: 10px 0;
+    }
+    .slider-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 14px; font-weight: 600; }
+    .slider-val { color: var(--primary); }
     
-    .segment-control { display: flex; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 12px; border: 1px solid var(--glass-border); }
-    [data-theme="light"] .segment-control { background: #e2e8f0; }
+    .range-input {
+      width: 100%; -webkit-appearance: none; height: 4px; border-radius: 99px;
+      background: var(--glass-border); outline: none;
+    }
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+      background: var(--primary); cursor: pointer; border: 4px solid var(--bg-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Settings List - Clean Rows */
+    .settings-list { display: flex; flex-direction: column; gap: 24px; }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; }
+    .settings-info { display: flex; flex-direction: column; }
+    .settings-label { font-size: 15px; font-weight: 500; color: var(--text-main); }
+    .settings-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     
-    .segment-btn { flex: 1; padding: 8px; border: none; background: transparent; color: var(--text-sub); font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: 0.2s; }
-    .segment-btn.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 600; }
+    /* Segmented Control (Pills) */
+    .segment-pill-wrap {
+      background: var(--glass-bg); padding: 3px; border-radius: 99px;
+      display: flex; gap: 2px;
+    }
+    .segment-pill {
+      padding: 6px 12px; border-radius: 99px; border: none; background: transparent;
+      font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer;
+    }
+    .segment-pill.active {
+      background: var(--bg-color); color: var(--text-main);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    
+    /* Footer */
+    .profile-footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 20px 24px 30px;
+      background: linear-gradient(to top, var(--bg-color) 60%, transparent);
+      z-index: 20; display: flex; justify-content: center;
+    }
+    .save-btn {
+      width: 100%; max-width: 430px;
+    }
 
-    .slider-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-main); margin-bottom: 12px; font-weight: 600; }
-    .slider-value { color: #22c55e; }
-    .range-input { width: 100%; -webkit-appearance: none; height: 6px; border-radius: 99px; background: var(--glass-border); outline: none; }
-    .range-input::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #22c55e; cursor: pointer; border: 2px solid var(--bg-color); box-shadow: 0 0 10px rgba(34,197,94,0.5); }
-
-    .history-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .history-btn { background: var(--card-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; }
-    .history-icon { font-size: 24px; margin-bottom: 8px; display: block; }
-    .history-label { font-size: 14px; font-weight: 600; }
-    .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); z-index: 20; }
-
-    /* --- 4. MAIN --- */
+    /* --- 5. MAIN SCREEN --- */
     #main-screen { position: absolute; inset: 0; padding: 20px; display: none; }
     .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .avatar-circle { width: 42px; height: 42px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; cursor: pointer; border: 2px solid var(--bg-color); box-shadow: 0 0 0 1px #334155; }
@@ -288,75 +312,116 @@
 
   <div id="profile-screen">
     <div class="profile-nav">
-      <button class="nav-btn" id="btn-profile-back">← Retour</button>
-      <span class="nav-title">Mon Profil</span>
-      <button class="nav-btn" style="color:#ef4444;" id="btn-logout">Sortir</button>
+      <button class="nav-btn" id="btn-profile-back">✕</button> <span class="nav-title">Profil</span>
+      <button class="nav-btn" style="font-size:16px; color:#ef4444;" id="btn-logout">↗</button>
     </div>
 
     <div class="profile-content">
-      <div class="user-header">
-        <div class="avatar-big"><span id="profile-avatar-char">U</span><div class="avatar-edit">✎</div></div>
-        <div style="width:100%">
-          <div class="input-wrapper" style="margin-bottom:12px"><input id="p-name" class="input-field" placeholder=" " /><label class="input-label">Prénom</label></div>
-          <div class="input-wrapper" style="margin-bottom:12px"><input id="p-lastname" class="input-field" placeholder=" " /><label class="input-label">Nom</label></div>
-          <div class="input-wrapper" style="margin-bottom:0"><input id="p-country" class="input-field" placeholder=" " value="France" /><label class="input-label">Pays</label></div>
+      
+      <div class="hero-section">
+        <div class="hero-avatar">
+          <span id="profile-avatar-char">A</span>
+          <div class="edit-badge">✎</div>
+        </div>
+        
+        <div class="ghost-input-group">
+          <input id="p-firstname" class="ghost-input input-name" value="Andrey" placeholder="Prénom" />
+          <input id="p-lastname" class="ghost-input input-sub" value="Smiras" placeholder="Nom" />
+          <input id="p-country" class="ghost-input input-sub" style="font-weight:400; opacity:0.8;" value="France" />
         </div>
       </div>
 
-      <div class="section-title">Mes Intérêts</div>
-      <div class="interest-grid">
-        <div class="interest-card" data-cat="nature"><div class="interest-icon">🌿</div><div class="interest-name">Nature</div></div>
-        <div class="interest-card" data-cat="history"><div class="interest-icon">🏰</div><div class="interest-name">Histoire</div></div>
-        <div class="interest-card" data-cat="hedonism"><div class="interest-icon">🍷</div><div class="interest-name">Hédonisme</div></div>
-        <div class="interest-card" data-cat="curiosity"><div class="interest-icon">👽</div><div class="interest-name">Curiosités</div></div>
+      <div class="section-header">
+        Ce que j'aime
+        <span class="section-hint">Sélectionnez pour préciser</span>
       </div>
       
-      <div class="tag-cloud-wrapper">
-        <div class="section-title" style="font-size:11px; margin-top:0;">Précisez vos envies</div>
-        <div class="tag-cloud" id="tag-cloud">
-           <div class="empty-tags-hint">Sélectionnez une catégorie ci-dessus pour voir les tags...</div>
+      <div class="interest-grid">
+        <div class="interest-card" data-cat="nature">
+          <div class="interest-icon">🌿</div>
+          <div class="interest-name">Nature</div>
+        </div>
+        <div class="interest-card" data-cat="history">
+          <div class="interest-icon">🏰</div>
+          <div class="interest-name">Histoire</div>
+        </div>
+        <div class="interest-card" data-cat="hedonism">
+          <div class="interest-icon">🍷</div>
+          <div class="interest-name">Hédonisme</div>
+        </div>
+        <div class="interest-card" data-cat="curiosity">
+          <div class="interest-icon">👽</div>
+          <div class="interest-name">Curiosités</div>
         </div>
       </div>
+      
+      <div class="tag-cloud" id="tag-cloud">
+        <div class="empty-tags-hint" style="font-size:13px; color:var(--text-muted); padding:10px;">Appuyez sur une catégorie ci-dessus...</div>
+      </div>
 
-      <div class="settings-container">
-        <div class="slider-label"><span>Niveau d'aventure</span><span class="slider-value" id="slider-val-label">Explorateur</span></div>
+      <div class="section-header">Mon Rythme</div>
+      <div class="slider-wrapper">
+        <div class="slider-header">
+          <span style="color:var(--text-muted)">Intensité du détour</span>
+          <span class="slider-val" id="slider-val-label">Explorateur</span>
+        </div>
         <input type="range" min="1" max="3" value="2" class="range-input" id="adventure-slider">
       </div>
 
-      <div class="section-title">Préférences</div>
-      <div class="settings-container">
+      <div class="section-header">Préférences</div>
+      <div class="settings-list">
+        
         <div class="settings-row">
-            <label class="settings-label">Thème</label>
-            <div class="segment-control" id="theme-selector">
-                <button class="segment-btn" data-val="auto">Auto</button>
-                <button class="segment-btn" data-val="light">☀️ Clair</button>
-                <button class="segment-btn active" data-val="dark">🌑 Sombre</button>
-            </div>
+          <div class="settings-info">
+            <span class="settings-label">Thème</span>
+          </div>
+          <div class="segment-pill-wrap" id="theme-selector">
+             <button class="segment-pill" data-val="auto">Auto</button>
+             <button class="segment-pill" data-val="light">☀️</button>
+             <button class="segment-pill active" data-val="dark">🌑</button>
+          </div>
         </div>
+
         <div class="settings-row">
-            <label class="settings-label">Guidage Vocal</label>
-            <div class="segment-control" id="voice-selector">
-                <button class="segment-btn" data-val="mute">🔇 Off</button>
-                <button class="segment-btn active" data-val="poi">🔔 POI</button>
-                <button class="segment-btn" data-val="all">🗣 Tout</button>
-            </div>
+          <div class="settings-info">
+            <span class="settings-label">Guidage Vocal</span>
+          </div>
+          <div class="segment-pill-wrap" id="voice-selector">
+             <button class="segment-pill" data-val="mute">Off</button>
+             <button class="segment-pill active" data-val="poi">POI</button>
+             <button class="segment-pill" data-val="all">Tout</button>
+          </div>
         </div>
-         <div class="settings-row" style="display:flex; justify-content:space-between; align-items:center;">
-            <label class="settings-label" style="margin:0">Anti-Routine</label>
-            <div style="font-size:12px; color:var(--text-sub); margin-right:auto; margin-left:8px;">(Trajets habituels)</div>
-            <div style="width:40px; height:22px; background:#22c55e; border-radius:20px; position:relative;">
-                <div style="width:18px; height:18px; background:#fff; border-radius:50%; position:absolute; right:2px; top:2px;"></div>
-            </div>
+
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-label">Anti-Routine</span>
+            <span class="settings-desc">Éviter les chemins connus</span>
+          </div>
+          <div style="width:44px; height:24px; background:var(--primary); border-radius:20px; position:relative; cursor:pointer;">
+             <div style="width:20px; height:20px; background:#fff; border-radius:50%; position:absolute; right:2px; top:2px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></div>
+          </div>
         </div>
+
+      </div>
+      
+      <div class="section-header" style="margin-top:40px;">Mon Carnet</div>
+      <div class="interest-grid" style="margin-bottom:20px;">
+         <div class="interest-card" style="flex-direction:row; justify-content:center;">
+            <span style="font-size:20px; margin-right:8px;">🗺️</span>
+            <span style="font-weight:600; font-size:14px;">Mes Trajets</span>
+         </div>
+         <div class="interest-card" style="flex-direction:row; justify-content:center;">
+            <span style="font-size:20px; margin-right:8px;">📍</span>
+            <span style="font-weight:600; font-size:14px;">Mes Lieux</span>
+         </div>
       </div>
 
-      <div class="section-title">Mon Carnet</div>
-      <div class="history-grid">
-        <div class="history-btn"><span class="history-icon">🗺️</span><span class="history-label">Mes Trajets</span></div>
-        <div class="history-btn"><span class="history-icon">📍</span><span class="history-label">Mes Lieux</span></div>
-      </div>
     </div>
-    <div class="profile-footer"><button id="btn-save-profile" class="btn-primary">Enregistrer</button></div>
+
+    <div class="profile-footer">
+      <button id="btn-save-profile" class="btn-primary save-btn">Enregistrer</button>
+    </div>
   </div>
 
   <div id="main-screen">
@@ -364,7 +429,7 @@
       <div><h2 style="margin:0; font-size: 22px;">Bonjour !</h2><p style="margin:4px 0 0; color:var(--text-sub); font-size:14px;">Prêt à partir ?</p></div>
       <div class="avatar-circle" id="main-avatar">U</div>
     </header>
-    <div style="flex:1; height: 60vh; border:1px solid var(--glass-border); border-radius:24px; background:var(--card-bg); display:flex; align-items:center; justify-content:center; color:var(--text-sub); flex-direction:column;">
+    <div style="flex:1; height: 60vh; border:1px solid var(--glass-border); border-radius:24px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; color:var(--text-sub); flex-direction:column;">
       <div style="font-size:40px; margin-bottom:16px;">🗺️</div>
       <div>Carte Interactive</div>
     </div>
@@ -383,7 +448,10 @@
     tabRegister: document.getElementById('tab-register'),
     authBtn: document.getElementById('btn-auth-action'),
     tabLine: document.getElementById('tab-line'),
-    pName: document.getElementById('p-name'),
+    
+    pFirstname: document.getElementById('p-firstname'), // Updated ID
+    pLastname: document.getElementById('p-lastname'),   // Updated ID
+    
     slider: document.getElementById('adventure-slider'),
     sliderLabel: document.getElementById('slider-val-label'),
     tagCloud: document.getElementById('tag-cloud')
@@ -394,9 +462,9 @@
   // --- TAGS DATABASE ---
   const TAGS_DB = {
     nature: ['Forêts', 'Lacs & Rivières', 'Montagnes', 'Grottes', 'Cascades', 'Panoramas', 'Plages sauvages'],
-    history: ['Châteaux', 'Ruines', 'Églises & Chapelles', 'Monuments', 'Champs de bataille', 'Musées', 'Architecture'],
-    hedonism: ['Vignobles', 'Brasseries', 'Marchés locaux', 'Fermes', 'Fromageries', 'Restaurants typiques'],
-    curiosity: ['Lieux abandonnés', 'Légendes', 'Art de rue', 'Villages fantômes', 'Insolite', 'Mystique']
+    history: ['Châteaux', 'Ruines', 'Églises', 'Monuments', 'Champs de bataille', 'Musées', 'Architecture'],
+    hedonism: ['Vignobles', 'Brasseries', 'Marchés', 'Fermes', 'Fromageries', 'Gastronomie'],
+    curiosity: ['Lieux abandonnés', 'Légendes', 'Street Art', 'Villages fantômes', 'Insolite', 'Mystique']
   };
   let activeCategories = new Set(); 
 
@@ -413,8 +481,11 @@
     // Init Interest Cards Logic
     document.querySelectorAll('.interest-card').forEach(card => {
         card.addEventListener('click', () => {
-            card.classList.toggle('active');
+            // Check if it's a category card (has data-cat)
             const cat = card.getAttribute('data-cat');
+            if (!cat) return; // Skip history buttons
+
+            card.classList.toggle('active');
             if (card.classList.contains('active')) {
                 activeCategories.add(cat);
             } else {
@@ -428,7 +499,7 @@
   function renderTags() {
       els.tagCloud.innerHTML = '';
       if (activeCategories.size === 0) {
-          els.tagCloud.innerHTML = '<div class="empty-tags-hint">Sélectionnez une catégorie ci-dessus...</div>';
+          els.tagCloud.innerHTML = '<div class="empty-tags-hint" style="font-size:13px; color:var(--text-muted);">Appuyez sur une catégorie ci-dessus...</div>';
           return;
       }
 
@@ -480,7 +551,7 @@
   });
 
   // Theme Selector Logic
-  const themeBtns = document.querySelectorAll('#theme-selector .segment-btn');
+  const themeBtns = document.querySelectorAll('#theme-selector .segment-pill');
   themeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
           themeBtns.forEach(b => b.classList.remove('active'));
@@ -495,7 +566,7 @@
       });
   });
 
-  const voiceBtns = document.querySelectorAll('#voice-selector .segment-btn');
+  const voiceBtns = document.querySelectorAll('#voice-selector .segment-pill');
   voiceBtns.forEach(btn => {
       btn.addEventListener('click', () => {
           voiceBtns.forEach(b => b.classList.remove('active'));
@@ -504,7 +575,7 @@
   });
 
   document.getElementById('btn-save-profile').addEventListener('click', () => {
-    localStorage.setItem('gddName', els.pName.value);
+    localStorage.setItem('gddName', els.pFirstname.value);
     showScreen('main');
     loadProfileData();
   });
@@ -521,7 +592,7 @@
 
   function loadProfileData() {
     const name = localStorage.getItem('gddName') || '';
-    if(name) els.pName.value = name;
+    if(name) els.pFirstname.value = name;
     const initial = (name || 'U').charAt(0).toUpperCase();
     document.getElementById('profile-avatar-char').textContent = initial;
     document.getElementById('main-avatar').textContent = initial;
