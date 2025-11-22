@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Premium Auth</title>
+  <title>Guide du Détour · High Contrast</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -30,46 +30,54 @@
 
     .app-shell {
       width: 100%; max-width: 430px; height: 100vh;
-      background: radial-gradient(circle at top, #1e293b 0%, #020617 80%);
+      /* Усилили синий прожектор сверху, чтобы стекло играло */
+      background: radial-gradient(circle at 50% -20%, #334155 0%, #0f172a 40%, #020617 80%);
       overflow: hidden; position: relative;
     }
 
-    /* --- UI COMPONENTS REFINED --- */
+    /* --- UI COMPONENTS (HIGH CONTRAST) --- */
     
-    /* Кнопка: убрали "грязную" тень, добавили чистоты */
+    /* Кнопка: Сочный градиент вместо плоского цвета */
     .btn-primary {
       width: 100%; padding: 16px; border-radius: 20px; border: none;
-      background: #22c55e; /* Чистый цвет */
-      color: #020617; font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
+      background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%); /* Gradient! */
+      color: #020617; font-weight: 700; font-size: 16px; letter-spacing: -0.01em;
       cursor: pointer;
-      transform: scale(1); transition: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 10px 20px -10px rgba(34, 197, 94, 0.5); /* Цветная мягкая тень */
+      transform: scale(1); transition: 0.2s;
     }
-    .btn-primary:active { transform: scale(0.96); opacity: 0.9; }
+    .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
 
     .input-wrapper { position: relative; margin-bottom: 20px; }
     
-    /* Поля ввода: СВЕТЛЕЕ границы, эффект стекла */
+    /* Поля ввода: ЯВНОЕ СТЕКЛО */
     .input-field {
       width: 100%; padding: 18px 16px 14px; border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.15); /* Светлая тонкая рамка */
-      background: rgba(255,255,255,0.03); /* Едва заметный фон */
+      /* Более светлая рамка */
+      border: 1px solid rgba(255,255,255,0.25); 
+      /* Более светлый фон (10% белого) */
+      background: rgba(255,255,255,0.1); 
+      /* Размытие фона под полем (работает в Safari/iOS) */
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      
       color: #fff; font-size: 16px;
       transition: all 0.3s ease;
     }
     
     .input-field:focus { 
       outline: none; 
-      border-color: #22c55e; 
-      background: rgba(255,255,255,0.08);
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1); /* Легкое свечение */
+      border-color: #4ade80; /* Ярко-зеленая рамка при фокусе */
+      background: rgba(255,255,255,0.15);
     }
     
     .input-label { 
-      position: absolute; left: 18px; top: 18px; font-size: 15px; color: #64748b; 
+      position: absolute; left: 18px; top: 18px; font-size: 15px; 
+      color: rgba(255,255,255,0.6); /* Светлее текст плейсхолдера */
       pointer-events: none; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); 
     }
     .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label {
-      top: 7px; font-size: 11px; color: #22c55e; font-weight: 600; letter-spacing: 0.02em;
+      top: 7px; font-size: 11px; color: #4ade80; font-weight: 600; letter-spacing: 0.02em;
     }
     .input-field { padding-top: 24px; padding-bottom: 10px; }
 
@@ -109,47 +117,46 @@
     }
 
 
-    /* --- 2. AUTH SCREEN (PREMIUM) --- */
+    /* --- 2. AUTH SCREEN --- */
     #auth-screen {
       position: absolute; inset: 0; z-index: 90; display: none;
       flex-direction: column; justify-content: center; padding: 32px;
-      /* Фон чуть сложнее */
-      background: radial-gradient(120% 50% at 50% 0%, #1e293b 0%, #020617 100%);
+      /* Фон остается темным, но компоненты будут "гореть" */
+      background: transparent; 
     }
     
-    h1.auth-title { font-size: 34px; font-weight: 700; margin: 0 0 10px; color: #fff; letter-spacing: -0.02em; }
-    p.auth-subtitle { font-size: 15px; color: #94a3b8; margin: 0 0 48px; line-height: 1.5; font-weight: 400; }
+    h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: #fff; letter-spacing: -0.02em; }
+    /* Подзаголовок светлее, чтобы читался */
+    p.auth-subtitle { font-size: 15px; color: #cbd5e1; margin: 0 0 48px; line-height: 1.5; font-weight: 400; }
 
     /* Табы */
     .auth-tabs { 
-      display: flex; gap: 32px; margin-bottom: 32px; 
-      /* Убрали линию на всю ширину, оставили только под активным */
-      position: relative;
+      display: flex; gap: 32px; margin-bottom: 32px; position: relative;
     }
     .tab { 
       background: none; border: none; padding: 0 0 8px 0; 
-      font-size: 16px; color: #64748b; font-weight: 600; cursor: pointer; 
+      font-size: 16px; color: rgba(255,255,255,0.5); font-weight: 600; cursor: pointer; 
       transition: color 0.3s;
     }
     .tab.active { color: #fff; }
-    /* Анимированная точка вместо линии */
     .tab-indicator {
-      position: absolute; bottom: 0; left: 0; height: 2px; width: 20px;
-      background: #22c55e; border-radius: 2px; transition: left 0.3s ease, width 0.3s ease;
+      position: absolute; bottom: 0; left: 0; height: 3px; width: 20px;
+      background: #4ade80; border-radius: 10px; box-shadow: 0 0 10px rgba(74, 222, 128, 0.6); /* Свечение точки */
+      transition: left 0.3s ease, width 0.3s ease;
     }
     
-    .divider { display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: #475569; font-weight: 500; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .divider { display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: #64748b; font-weight: 500; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .divider span { padding: 0 16px; }
 
     .social-login { display: flex; justify-content: center; gap: 24px; }
     .social-btn { 
       width: 56px; height: 56px; border-radius: 50%; 
-      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.02); 
+      border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); 
       color: #fff; display: flex; align-items: center; justify-content: center; 
       font-size: 22px; cursor: pointer; transition: 0.2s;
     }
-    .social-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.05); }
+    .social-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
 
 
     /* --- 3. PROFILE SCREEN --- */
@@ -279,7 +286,7 @@
     setTimeout(() => {
       els.splash.style.display = 'none';
       showScreen('auth');
-      updateTabLine(els.tabLogin); // Init line position
+      updateTabLine(els.tabLogin);
     }, 6000);
   });
 
