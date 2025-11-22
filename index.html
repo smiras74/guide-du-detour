@@ -60,7 +60,7 @@
       color: var(--primary); background: var(--bg); border-radius: 99px;
     }
 
-    /* --- 1. SPLASH SCREEN --- */
+    /* --- 1. SPLASH SCREEN (ИСПРАВЛЕНО) --- */
     #splash-screen {
       position: absolute; inset: 0; z-index: 100;
       background: #020617;
@@ -74,9 +74,9 @@
 
     /* Логотип */
     .splash-logo { 
-      width: 260px; /* <-- Увеличили размер */
+      width: 280px; /* Увеличили ширину для лучшей пропорции */
       height: auto; 
-      margin-bottom: 12px; /* Отступ до слогана */
+      margin-bottom: 8px; /* Минимальный отступ до слогана */
       object-fit: contain; 
       opacity: 0; 
       animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
@@ -85,12 +85,12 @@
     
     /* Слоган */
     .splash-slogan {
-      width: 260px; /* <-- Точно такая же ширина, как у логотипа */
-      font-size: 11px; /* <-- Мелкий шрифт */
-      letter-spacing: 0.04em; 
+      width: 280px; /* Точно такая же ширина, как у логотипа */
+      font-size: 12px;
+      letter-spacing: 0.03em; 
       color: #9ca3af; 
       text-align: center; 
-      margin-bottom: 60px; 
+      margin-bottom: 40px; /* Уменьшили отступ до прогресс-бара */
       line-height: 1.4;
       opacity: 0; 
       animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
@@ -99,7 +99,7 @@
     
     /* Прогресс бар (тонкая линия) */
     .splash-progress { 
-      width: 260px; /* Тоже по ширине логотипа */
+      width: 280px; /* Тоже по ширине логотипа */
       height: 1px; 
       border-radius: 999px; 
       background: rgba(30,41,59, 0.5); 
