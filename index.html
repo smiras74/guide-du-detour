@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Premium Glass & Glare</title>
+  <title>Guide du Détour · v0.6.0 (Routing)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -19,16 +19,13 @@
       --primary: #22c55e;
       --primary-grad: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
       
-      /* PREMIUM GLASS SETTINGS (DARK) */
-      --glass-blur: blur(24px);
-      /* Градиент: Светлый верх-лево -> Темный низ-право */
+      /* GLASS SETTINGS */
+      --glass-border: rgba(255,255,255,0.15);
+      --glass-bg: rgba(2, 6, 23, 0.45);
+      --glass-blur: blur(20px);
       --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%);
-      /* Более яркая граница */
-      --glass-border: 1px solid rgba(255,255,255,0.2);
-      /* Блик сверху (inset shadow) + Тень снизу */
       --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 8px 20px rgba(0,0,0,0.2);
       
-      /* Subtler glass for cards/pills */
       --card-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 100%);
       --card-border: 1px solid rgba(255,255,255,0.1);
       --card-shadow: inset 0 1px 0.5px rgba(255,255,255,0.2);
@@ -36,7 +33,6 @@
       --active-card-bg: rgba(34, 197, 94, 0.15);
       --active-text: #4ade80;
       
-      /* Profile nav gradient */
       --nav-bg-grad: linear-gradient(to bottom, rgba(2,6,23,0.9) 0%, rgba(2,6,23,0.7) 100%);
     }
 
@@ -46,10 +42,9 @@
       --text-main: #0f172a;
       --text-sub: #475569;
       
-      /* PREMIUM GLASS SETTINGS (LIGHT) */
-      --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+      --glass-bg: rgba(255,255,255,0.65);
       --glass-border: 1px solid rgba(255,255,255,0.6);
-      /* Белый блик + Мягкая темная тень */
+      --glass-bg-grad: linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
       --glass-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 15px rgba(0,0,0,0.05);
       
       --card-bg-grad: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
@@ -77,8 +72,6 @@
     #splash-screen, #auth-screen { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; background: #020617; }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
     .splash-slogan { width: 280px; font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 40px; opacity: 0; animation: fadeUp 1s forwards 0.8s; }
-    
-    /* FIXED: Loading Bar Styles Restored */
     .splash-progress { width: 280px; height: 2px; border-radius: 99px; background: rgba(255,255,255,0.1); position: relative; opacity: 0; animation: fadeUp 1s forwards 0.1s; overflow: hidden; margin-top: 40px;}
     .splash-progress-bar { position: absolute; inset: 0; background: var(--primary); transform: translateX(-100%); animation: splashBar 6s ease-in-out forwards; }
     .loading-text { font-size: 10px; color: #94a3b8; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; animation: fadeUp 1s forwards 0.2s;}
@@ -99,15 +92,12 @@
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* --- PROFILE (GLASS ENHANCED) --- */
+    /* --- PROFILE --- */
     #profile-screen { position: absolute; inset: 0; z-index: 95; display: none; flex-direction: column; background: var(--bg-color); overflow-y: auto; transition: background 0.3s ease; animation: fadeIn 0.4s ease-out; }
-    /* Glass Nav with Glare */
     .profile-nav { 
         display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; position: sticky; top: 0; z-index: 10; 
-        background: var(--nav-bg-grad);
-        backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-        border-bottom: var(--glass-border);
-        box-shadow: var(--glass-shadow);
+        background: var(--nav-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+        border-bottom: var(--glass-border); box-shadow: var(--glass-shadow);
     }
     .nav-title { font-weight: 600; font-size: 17px; color: var(--text-main); opacity: 0.9; }
     .nav-btn { background: none; border: none; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-main); }
@@ -123,11 +113,7 @@
     .section-header { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 40px 0 16px; display: flex; align-items: center; justify-content: space-between; }
     
     .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    /* Glass Cards */
-    .interest-card { 
-        background: var(--card-bg-grad); border: var(--card-border); box-shadow: var(--card-shadow);
-        border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 12px; 
-    }
+    .interest-card { background: var(--card-bg-grad); border: var(--card-border); box-shadow: var(--card-shadow); border-radius: 20px; padding: 20px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 12px; }
     .interest-card.active { background: var(--active-card-bg); border-color: var(--active-text); }
     .interest-name { font-size: 14px; font-weight: 600; color: var(--text-sub); transition: 0.3s; }
     .interest-card.active .interest-name { color: var(--active-text); }
@@ -135,21 +121,13 @@
     .interest-card.active .icon { stroke: var(--active-text); }
     
     .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 40px; }
-    /* Glass Pills */
-    .tag-pill { 
-        padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; cursor: pointer;
-        background: var(--card-bg-grad); border: var(--card-border); color: var(--text-sub); box-shadow: var(--card-shadow);
-    }
+    .tag-pill { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; cursor: pointer; background: var(--card-bg-grad); border: var(--card-border); color: var(--text-sub); box-shadow: var(--card-shadow); }
     .tag-pill.selected { background: var(--primary); color: #020617; font-weight: 600; border-color: var(--primary); }
     
     .settings-list { display: flex; flex-direction: column; gap: 24px; }
     .settings-row { display: flex; align-items: center; justify-content: space-between; }
     .settings-label { font-size: 15px; font-weight: 500; color: var(--text-main); }
-    /* Glass Segment */
-    .segment-pill-wrap { 
-        background: var(--card-bg-grad); border: var(--card-border); box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        padding: 3px; border-radius: 99px; display: flex; gap: 2px; 
-    }
+    .segment-pill-wrap { background: var(--card-bg-grad); border: var(--card-border); box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); padding: 3px; border-radius: 99px; display: flex; gap: 2px; }
     .segment-pill { padding: 6px 12px; border-radius: 99px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition:0.2s;}
     .segment-pill.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
     .profile-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 24px 30px; background: linear-gradient(to top, var(--bg-color) 60%, transparent); z-index: 20; display: flex; justify-content: center; }
@@ -157,18 +135,15 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 
-    /* --- 5. MAP SCREEN (PREMIUM GLASS & GLARE) --- */
+    /* --- 5. MAP SCREEN --- */
     #main-screen { position: absolute; inset: 0; z-index: 10; display: none; }
     #map-container { position: absolute; inset: 0; z-index: 0; background: #0b1120; }
     .leaflet-control-attribution { display: none; }
 
-    /* Top Bar with Glare */
     .map-top-bar { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 20; display: flex; flex-direction: column; gap: 8px; }
     .route-box {
-      background: var(--glass-bg-grad); /* Gradient background */
-      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      box-shadow: var(--glass-shadow); /* Glare + Shadow */
+      background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border); box-shadow: var(--glass-shadow);
       border-radius: 24px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
     }
     .route-row { display: flex; align-items: center; gap: 12px; }
@@ -180,19 +155,16 @@
     .route-input:focus { outline: none; }
     .divider-h { height: 1px; background: rgba(255,255,255,0.1); margin-left: 20px; }
 
-    /* Side Buttons with Glare */
     .map-side-btns { position: absolute; right: 16px; top: 150px; z-index: 20; display: flex; flex-direction: column; gap: 12px; }
     .side-btn {
       width: 44px; height: 44px; border-radius: 50%;
-      background: var(--glass-bg-grad);
-      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border); box-shadow: var(--glass-shadow);
       color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
     }
     .side-btn:active { transform: scale(0.92); }
     .side-btn.avatar-btn { font-weight: 700; font-size: 16px; }
 
-    /* Bottom Panel */
     .map-bottom-panel {
       position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; padding: 20px 16px 34px;
       background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
@@ -200,11 +172,9 @@
     }
     .avoid-row, .go-btn-row { pointer-events: auto; }
     .avoid-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; justify-content: center; }
-    /* Avoid Buttons with Glare */
     .avoid-btn {
       display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 14px;
-      background: var(--glass-bg-grad);
-      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      background: var(--glass-bg-grad); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border); box-shadow: var(--glass-shadow);
       color: var(--text-sub); font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap;
     }
@@ -213,7 +183,6 @@
     .go-btn-row { display: flex; width: 100%; }
     .go-btn { flex: 1; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); backdrop-filter: none; }
 
-    /* BRAND MARKER */
     .user-marker-brand { position: relative; width: 20px; height: 20px; background: #22c55e; border: 3px solid #020617; border-radius: 50%; box-shadow: 0 0 10px #22c55e; }
     .user-marker-brand::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 2px solid #22c55e; opacity: 0; animation: pulse-green 2s infinite; }
     @keyframes pulse-green { 0% { transform: scale(0.5); opacity: 1; border-width: 4px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
@@ -238,7 +207,6 @@
 </svg>
 
 <div class="app-shell">
-
   <div id="splash-screen">
     <img src="logo_2.png" alt="Guide du Détour" class="splash-logo" onerror="this.style.display='none';" />
     <div class="splash-slogan">Ça vaut le détour — à chaque trajet.</div>
@@ -305,26 +273,17 @@
 
   <div id="main-screen">
     <div id="map-container"></div>
-
     <div class="map-top-bar">
       <div class="route-box">
-        <div class="route-row">
-          <div class="route-dot dot-start"></div>
-          <input class="route-input" value="Ma position actuelle" placeholder="Départ" />
-        </div>
+        <div class="route-row"><div class="route-dot dot-start"></div><input class="route-input" id="start-input" value="Ma position actuelle" placeholder="Départ" /></div>
         <div class="divider-h"></div>
-        <div class="route-row">
-          <div class="route-dot dot-end"></div>
-          <input class="route-input" id="destination-input" placeholder="Où on va ?" />
-        </div>
+        <div class="route-row"><div class="route-dot dot-end"></div><input class="route-input" id="destination-input" placeholder="Où on va ?" /></div>
       </div>
     </div>
-
     <div class="map-side-btns">
       <button class="side-btn avatar-btn" id="btn-profile-open">A</button>
       <button class="side-btn" id="btn-locate"><svg class="icon"><use href="#icon-loc"></use></svg></button>
     </div>
-
     <div class="map-bottom-panel">
       <div class="avoid-row">
         <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-toll"></use></svg>Péages</button>
@@ -332,7 +291,7 @@
         <button class="avoid-btn" onclick="this.classList.toggle('active')"><svg class="icon"><use href="#icon-offroad"></use></svg>Chemins</button>
       </div>
       <div class="go-btn-row">
-        <button class="btn-primary go-btn">Tracer l'itinéraire</button>
+        <button class="btn-primary go-btn" id="btn-trace-route">Tracer l'itinéraire</button>
       </div>
     </div>
   </div>
@@ -350,10 +309,13 @@
     authBtn: document.getElementById('btn-auth-action'),
     tabLine: document.getElementById('tab-line'),
     pFirstname: document.getElementById('p-firstname'),
-    tagCloud: document.getElementById('tag-cloud')
+    tagCloud: document.getElementById('tag-cloud'),
+    startInput: document.getElementById('start-input'),
+    destInput: document.getElementById('destination-input'),
+    traceBtn: document.getElementById('btn-trace-route')
   };
 
-  let map, userMarker, tileLayer;
+  let map, userMarker, tileLayer, routeLayer;
   let isRegisterMode = false;
 
   const TAGS_DB = {
@@ -413,7 +375,6 @@
   els.authBtn.addEventListener('click', () => { localStorage.setItem('gddLoggedIn', '1'); if(isRegisterMode) showScreen('profile'); else { loadProfileData(); showScreen('main'); } });
   document.querySelectorAll('.social-btn').forEach(b => b.addEventListener('click', () => { localStorage.setItem('gddLoggedIn', '1'); showScreen('profile'); }));
 
-  // THEME
   const themeBtns = document.querySelectorAll('#theme-selector .segment-pill');
   themeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -426,7 +387,6 @@
       });
   });
 
-  // PROFILE NAV
   document.getElementById('btn-save-profile').addEventListener('click', () => { localStorage.setItem('gddName', els.pFirstname.value); loadProfileData(); showScreen('main'); });
   document.getElementById('btn-profile-open').addEventListener('click', () => { loadProfileData(); showScreen('profile'); });
   document.getElementById('btn-profile-back').addEventListener('click', () => showScreen('main'));
@@ -440,19 +400,15 @@
     document.getElementById('btn-profile-open').textContent = initial;
   }
 
-  // MAP
+  // --- MAP & ROUTING ---
   function initMap() {
     if(map) { map.invalidateSize(); updateMapTheme(); return; }
     map = L.map('map-container', { zoomControl: false }).setView([48.8566, 2.3522], 13);
     updateMapTheme();
     
-    const icon = L.divIcon({ 
-        className: 'custom-div-icon',
-        html: "<div class='user-marker-brand'></div>",
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
-    });
+    const icon = L.divIcon({ className: 'custom-div-icon', html: "<div class='user-marker-brand'></div>", iconSize: [20, 20], iconAnchor: [10, 10] });
     userMarker = L.marker([48.8566, 2.3522], {icon: icon}).addTo(map);
+    routeLayer = L.layerGroup().addTo(map);
   }
 
   function updateMapTheme() {
@@ -466,7 +422,62 @@
   }
 
   document.getElementById('btn-locate').addEventListener('click', () => {
-    if(map) map.setView([48.8566, 2.3522], 15); 
+    if(navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const {latitude, longitude} = pos.coords;
+            map.setView([latitude, longitude], 15);
+            userMarker.setLatLng([latitude, longitude]);
+            els.startInput.value = "Ma position actuelle";
+        });
+    } else {
+        alert("Géolocalisation non supportée");
+    }
+  });
+
+  // REAL ROUTING
+  els.traceBtn.addEventListener('click', async () => {
+    const dest = els.destInput.value;
+    if(!dest) { alert("Veuillez entrer une destination"); return; }
+    
+    els.traceBtn.textContent = "Calcul...";
+    
+    try {
+        // 1. Get Dest Coords (Nominatim)
+        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${dest}`);
+        const data = await resp.json();
+        if(!data || data.length === 0) throw new Error("Adresse introuvable");
+        
+        const endLat = data[0].lat;
+        const endLon = data[0].lon;
+        
+        // 2. Get Start Coords (Fixed for demo or Geolocation)
+        let startLat = 48.8566, startLon = 2.3522; // Default Paris
+        // In real app, use navigator.geolocation logic here
+        
+        // 3. OSRM Routing
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
+        const routeResp = await fetch(osrmUrl);
+        const routeData = await routeResp.json();
+        
+        if(routeData.routes && routeData.routes.length > 0) {
+            const geometry = routeData.routes[0].geometry;
+            
+            routeLayer.clearLayers();
+            // Draw Route Line
+            const routeLine = L.geoJSON(geometry, {
+                style: { color: '#22c55e', weight: 5, opacity: 0.8 }
+            }).addTo(routeLayer);
+            
+            map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
+            
+            // Add Markers
+            L.circleMarker([endLat, endLon], {radius: 6, color: '#22c55e', fillColor: '#fff', fillOpacity: 1}).addTo(routeLayer);
+        }
+    } catch(e) {
+        alert("Erreur: " + e.message);
+    } finally {
+        els.traceBtn.textContent = "Tracer l'itinéraire";
+    }
   });
 
 </script>
