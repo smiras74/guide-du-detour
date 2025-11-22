@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Animations</title>
+  <title>Guide du Détour · Balanced Splash</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -60,42 +60,50 @@
       color: var(--primary); background: var(--bg); border-radius: 99px;
     }
 
-    /* --- 1. SPLASH SCREEN (ANIMATED) --- */
+    /* --- 1. SPLASH SCREEN --- */
     #splash-screen {
       position: absolute; inset: 0; z-index: 100;
       background: #020617;
       display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;
     }
     
-    /* Анимация появления (снизу вверх + прозрачность) */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(15px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* Логотип */
     .splash-logo { 
-      width: 180px; height: auto; margin-bottom: 16px; object-fit: contain; 
-      opacity: 0; /* Скрыт изначально */
-      animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; /* Плавное появление */
-      animation-delay: 0.3s; /* Небольшая задержка */
+      width: 260px; /* <-- Увеличили размер */
+      height: auto; 
+      margin-bottom: 12px; /* Отступ до слогана */
+      object-fit: contain; 
+      opacity: 0; 
+      animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+      animation-delay: 0.3s;
     }
     
+    /* Слоган */
     .splash-slogan {
-      font-size: 13px; letter-spacing: 0.05em; color: #9ca3af; 
-      text-align: center; margin-bottom: 60px; max-width: 220px; line-height: 1.5;
-      opacity: 0; /* Скрыт изначально */
+      width: 260px; /* <-- Точно такая же ширина, как у логотипа */
+      font-size: 11px; /* <-- Мелкий шрифт */
+      letter-spacing: 0.04em; 
+      color: #9ca3af; 
+      text-align: center; 
+      margin-bottom: 60px; 
+      line-height: 1.4;
+      opacity: 0; 
       animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-      animation-delay: 0.8s; /* Появляется после логотипа */
+      animation-delay: 0.8s;
     }
     
-    /* Прогресс бар */
+    /* Прогресс бар (тонкая линия) */
     .splash-progress { 
-      width: 60%; max-width: 240px; 
-      height: 1px; /* <-- Сделали совсем тонким (было 3px) */
+      width: 260px; /* Тоже по ширине логотипа */
+      height: 1px; 
       border-radius: 999px; 
       background: rgba(30,41,59, 0.5); 
       overflow: hidden; position: relative; 
-      /* Тоже анимируем появление, чтобы не висело в пустоте */
       opacity: 0;
       animation: fadeUp 1s ease-out forwards;
       animation-delay: 0.1s;
@@ -134,12 +142,12 @@
     .divider span { padding: 0 10px; }
 
 
-    /* --- 3. PROFILE SCREEN (FULL PAGE) --- */
+    /* --- 3. PROFILE SCREEN --- */
     #profile-screen {
       position: absolute; inset: 0; z-index: 95; display: none;
       flex-direction: column; padding: 24px 24px 40px;
       background: #020617; overflow-y: auto;
-      animation: fadeInScreen 0.4s ease-out; /* Плавное появление экрана */
+      animation: fadeInScreen 0.4s ease-out;
     }
     @keyframes fadeInScreen { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
