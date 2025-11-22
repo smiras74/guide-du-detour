@@ -2,15 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Guide du Détour · Dynamic Tags</title>
+  <title>Guide du Détour · Final Polished</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* --- VARIABLES & THEME --- */
+    /* --- VARIABLES & THEME ENGINE --- */
     :root {
+      /* DARK THEME (Default) */
       --bg-color: #020617;
       --bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
       --text-main: #ffffff;
@@ -26,19 +27,44 @@
       --nav-bg: rgba(2, 6, 23, 0.9);
       --input-bg: rgba(255,255,255,0.05);
       --input-focus-bg: rgba(255,255,255,0.15);
+      
+      /* Active states */
+      --active-card-bg: rgba(34, 197, 94, 0.15);
+      --active-card-border: #22c55e;
+      --active-text: #4ade80;
+      
+      --tag-bg: rgba(255,255,255,0.05);
+      --tag-border: rgba(255,255,255,0.15);
+      --tag-selected-bg: #22c55e;
+      --tag-selected-text: #020617;
     }
 
+    /* LIGHT THEME OVERRIDES (High Contrast) */
     [data-theme="light"] {
-      --bg-color: #f8fafc;
-      --bg-gradient: radial-gradient(circle at 50% -20%, #e2e8f0 0%, #f8fafc 80%);
+      --bg-color: #f1f5f9;
+      --bg-gradient: linear-gradient(to bottom, #f8fafc 0%, #e2e8f0 100%);
+      
       --text-main: #0f172a;
       --text-sub: #64748b;
+      
       --card-bg: #ffffff;
-      --glass-border: rgba(0,0,0,0.1);
-      --glass-bg: rgba(255,255,255,0.8);
-      --nav-bg: rgba(255, 255, 255, 0.9);
+      --glass-border: #cbd5e1; /* Solid grey border */
+      --glass-bg: #ffffff;
+      
+      --nav-bg: rgba(255, 255, 255, 0.95);
+      
       --input-bg: #ffffff;
-      --input-focus-bg: #f1f5f9;
+      --input-focus-bg: #ffffff;
+      
+      /* Active states Light */
+      --active-card-bg: #dcfce7; /* Light green */
+      --active-card-border: #16a34a; /* Dark green border */
+      --active-text: #15803d; /* Dark green text */
+      
+      --tag-bg: #ffffff;
+      --tag-border: #cbd5e1;
+      --tag-selected-bg: #22c55e;
+      --tag-selected-text: #ffffff;
     }
 
     * { box-sizing: border-box; }
@@ -76,7 +102,7 @@
     /* --- 1. SPLASH --- */
     #splash-screen {
       position: absolute; inset: 0; z-index: 100;
-      background: #020617;
+      background: #020617; /* Always dark for style */
       display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px;
     }
     .splash-logo { width: 280px; height: auto; margin-bottom: 8px; opacity: 0; animation: fadeUp 1s forwards 0.3s; }
@@ -86,37 +112,39 @@
     @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* --- 2. AUTH --- */
+    /* --- 2. AUTH (PREMIUM DARK) --- */
     #auth-screen {
       position: absolute; inset: 0; z-index: 90; display: none;
       flex-direction: column; justify-content: center; padding: 32px;
     }
-    h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: var(--text-main); }
-    p.auth-subtitle { font-size: 15px; color: var(--text-sub); margin: 0 0 48px; }
+    h1.auth-title { font-size: 34px; font-weight: 800; margin: 0 0 10px; color: #fff; }
+    p.auth-subtitle { font-size: 15px; color: #94a3b8; margin: 0 0 48px; }
     
     .auth-tabs { display: flex; gap: 32px; margin-bottom: 32px; position: relative; }
-    .tab { background: none; border: none; padding: 0 0 8px 0; font-size: 16px; color: var(--text-sub); font-weight: 600; cursor: pointer; transition: 0.3s; }
-    .tab.active { color: var(--text-main); }
+    .tab { background: none; border: none; padding: 0 0 8px 0; font-size: 16px; color: rgba(255,255,255,0.5); font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .tab.active { color: #fff; }
     .tab-indicator { position: absolute; bottom: 0; left: 0; height: 3px; width: 20px; background: #4ade80; border-radius: 10px; box-shadow: 0 0 10px rgba(74, 222, 128, 0.6); transition: left 0.3s, width 0.3s; }
 
+    /* AUTH INPUTS (Always Dark Style) */
     .input-wrapper { position: relative; margin-bottom: 20px; }
-    .input-field {
+    #auth-screen .input-field {
       width: 100%; padding: 18px 16px 14px; border-radius: 20px;
-      border: 1px solid var(--glass-border); background: var(--input-bg);
+      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      color: var(--text-main); font-size: 16px; transition: 0.3s;
+      color: #fff; font-size: 16px; transition: 0.3s;
     }
-    .input-field:focus { outline: none; border-color: #4ade80; background: var(--input-focus-bg); }
-    .input-label { position: absolute; left: 18px; top: 18px; font-size: 15px; color: var(--text-sub); pointer-events: none; transition: 0.2s; }
-    .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label { top: 7px; font-size: 11px; color: #4ade80; font-weight: 600; }
+    #auth-screen .input-field:focus { outline: none; border-color: #4ade80; background: rgba(255,255,255,0.15); }
+    #auth-screen .input-label { position: absolute; left: 18px; top: 18px; font-size: 15px; color: rgba(255,255,255,0.6); pointer-events: none; transition: 0.2s; }
+    #auth-screen .input-field:focus + .input-label, #auth-screen .input-field:not(:placeholder-shown) + .input-label { top: 7px; font-size: 11px; color: #4ade80; font-weight: 600; }
     .input-field { padding-top: 24px; padding-bottom: 10px; }
 
-    .divider { display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: var(--text-sub); }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--glass-border); }
+    .divider { display: flex; align-items: center; margin: 40px 0 24px; font-size: 13px; color: #64748b; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .social-login { display: flex; justify-content: center; gap: 24px; }
-    .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--glass-border); background: var(--input-bg); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; }
+    .social-btn { width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; }
 
-    /* --- 3. PROFILE --- */
+
+    /* --- 3. PROFILE (ADAPTIVE THEME) --- */
     #profile-screen {
       position: absolute; inset: 0; z-index: 95; display: none;
       flex-direction: column; background: var(--bg-color); overflow-y: auto;
@@ -130,7 +158,7 @@
       background: var(--nav-bg); backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--glass-border);
     }
-    .nav-title { font-weight: 700; font-size: 18px; }
+    .nav-title { font-weight: 700; font-size: 18px; color: var(--text-main); }
     .nav-btn { background: none; border: none; color: var(--text-sub); font-size: 14px; cursor: pointer; }
 
     .profile-content { padding: 24px; padding-bottom: 100px; }
@@ -148,9 +176,21 @@
       display: flex; align-items: center; justify-content: center; font-size: 12px; color: #000;
     }
 
+    /* ADAPTIVE INPUTS FOR PROFILE */
+    #profile-screen .input-field {
+        width: 100%; padding: 18px 16px 14px; border-radius: 20px;
+        border: 1px solid var(--glass-border); background: var(--input-bg);
+        color: var(--text-main); font-size: 16px; transition: 0.3s;
+        /* Remove blur in light mode to keep it clean */
+    }
+    #profile-screen .input-field:focus { outline: none; border-color: #22c55e; background: var(--input-focus-bg); }
+    #profile-screen .input-label { position: absolute; left: 18px; top: 18px; font-size: 15px; color: var(--text-sub); pointer-events: none; transition: 0.2s; }
+    #profile-screen .input-field:focus + .input-label, #profile-screen .input-field:not(:placeholder-shown) + .input-label { top: 7px; font-size: 11px; color: #22c55e; font-weight: 600; }
+
+
     .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-sub); margin-bottom: 16px; margin-top: 10px; }
     
-    /* --- INTERESTS & TAGS --- */
+    /* --- INTERESTS --- */
     .interest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .interest-card {
       background: var(--card-bg); border: 1px solid var(--glass-border);
@@ -158,40 +198,52 @@
       display: flex; flex-direction: column; align-items: center; gap: 8px;
       color: var(--text-main);
     }
-    .interest-card.active { background: rgba(34, 197, 94, 0.15); border-color: #22c55e; }
+    /* Light theme specific shadow */
+    [data-theme="light"] .interest-card { box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+    
+    .interest-card.active { 
+        background: var(--active-card-bg); 
+        border-color: var(--active-card-border); 
+    }
     .interest-icon { font-size: 24px; }
     .interest-name { font-size: 13px; font-weight: 600; }
-    .interest-card.active .interest-name { color: #4ade80; }
+    .interest-card.active .interest-name { color: var(--active-text); }
 
-    /* Tag Cloud Container */
-    .tag-cloud-wrapper {
-        min-height: 0; transition: all 0.3s ease; overflow: hidden; margin-bottom: 24px;
-    }
+    /* --- TAGS --- */
+    .tag-cloud-wrapper { min-height: 0; transition: all 0.3s ease; overflow: hidden; margin-bottom: 24px; }
     .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
     .tag-pill {
         font-size: 12px; padding: 6px 14px; border-radius: 20px;
-        background: var(--glass-bg); border: 1px solid var(--glass-border);
+        background: var(--tag-bg); border: 1px solid var(--tag-border);
         color: var(--text-sub); cursor: pointer; transition: 0.2s; user-select: none;
     }
-    .tag-pill:hover { border-color: #4ade80; }
+    /* Light theme tag specific */
+    [data-theme="light"] .tag-pill { box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #475569; }
+
+    .tag-pill:hover { border-color: #22c55e; }
     .tag-pill.selected {
-        background: var(--primary); color: #020617; border-color: var(--primary); font-weight: 600;
+        background: var(--tag-selected-bg); 
+        color: var(--tag-selected-text); 
+        border-color: var(--tag-selected-bg); 
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(34, 197, 94, 0.3);
     }
     .empty-tags-hint { font-size: 12px; color: var(--text-sub); font-style: italic; opacity: 0.6; }
 
-    /* Settings & Slider */
+    /* --- SETTINGS --- */
     .settings-container { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; margin-bottom: 24px; }
     .settings-row { margin-bottom: 20px; }
     .settings-row:last-child { margin-bottom: 0; }
-    .settings-label { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; }
+    .settings-label { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main); }
     
     .segment-control { display: flex; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 12px; border: 1px solid var(--glass-border); }
-    [data-theme="light"] .segment-control { background: rgba(0,0,0,0.05); }
+    [data-theme="light"] .segment-control { background: #e2e8f0; }
+    
     .segment-btn { flex: 1; padding: 8px; border: none; background: transparent; color: var(--text-sub); font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: 0.2s; }
     .segment-btn.active { background: var(--bg-color); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 600; }
 
     .slider-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-main); margin-bottom: 12px; font-weight: 600; }
-    .slider-value { color: #4ade80; }
+    .slider-value { color: #22c55e; }
     .range-input { width: 100%; -webkit-appearance: none; height: 6px; border-radius: 99px; background: var(--glass-border); outline: none; }
     .range-input::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #22c55e; cursor: pointer; border: 2px solid var(--bg-color); box-shadow: 0 0 10px rgba(34,197,94,0.5); }
 
@@ -346,7 +398,7 @@
     hedonism: ['Vignobles', 'Brasseries', 'Marchés locaux', 'Fermes', 'Fromageries', 'Restaurants typiques'],
     curiosity: ['Lieux abandonnés', 'Légendes', 'Art de rue', 'Villages fantômes', 'Insolite', 'Mystique']
   };
-  let activeCategories = new Set(); // Store active categories
+  let activeCategories = new Set(); 
 
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
